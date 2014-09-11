@@ -1,6 +1,8 @@
 AR2DTool (beta)
 ===============
 
+![Logo](https://dl.dropboxusercontent.com/u/4192819/logoard2tool.png)
+
 This tool receives as an input an RDF file and produces as an output a file with a graphical representation of the source RDF file
 
 Command line syntax:
