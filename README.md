@@ -13,7 +13,7 @@ java -jar ar2dtool.jar -i PathToInputRdfFile -o FileToOutputFile -t OutputFileTy
 
 - FileToOutputFile: output picture file. If the "generateGvFile" flag is activated it also generates a GraphViz file in the same locations (adding ".gv" to the file (e.g. "result.png.gv")
 
-- OutputFileType: output file type: png, pdf, etc. (check supported file types at [ http://www.graphviz.org/doc/info/output.html ])
+- OutputFileType: output file type: png, pdf, etc. (check supported file types at http://www.graphviz.org/doc/info/output.html)
 
 - PathToConfFile: config file location. 
 
@@ -22,4 +22,4 @@ java -jar ar2dtool.jar -i PathToInputRdfFile -o FileToOutputFile -t OutputFileTy
 Acknowledgements
 ===============
 
-- In this work we use the GraphViz Java API developed by Laszlo Szathmary (https://github.com/jabbalaci) for generating the diagramas from DOT files [ https://github.com/jabbalaci/graphviz-java-api ]
+- In this work we use the GraphViz Java API developed by Laszlo Szathmary (https://github.com/jabbalaci) for generating the diagramas from DOT files https://github.com/jabbalaci/graphviz-java-api
