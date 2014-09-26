@@ -18,3 +18,8 @@ java -jar ar2dtool.jar -i PathToInputRdfFile -o FileToOutputFile -t OutputFileTy
 - PathToConfFile: config file location. 
 
 - [-d] optional flag for debugging. 
+
+Acknowledgements
+===============
+
+- In this work we use the GraphViz Java API developed by Laszlo Szathmary (https://github.com/jabbalaci) for generating the diagramas from DOT files [ https://github.com/jabbalaci/graphviz-java-api ]
