@@ -1,175 +1,122 @@
 package es.upm.oeg.ar2dtool;
 
-/*
- * Copyright 2012-2013 Ontology Engineering Group, Universidad Politécnica de Madrid, Spain
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance 
-with the License. You may obtain a copy of the License at
-
-   http://www.apache.org/licenses/LICENSE-2.0
-Unless required by applicable law or agreed to in writing, software distributed under 
-the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
- either express or implied. See the License for the specific language governing permissions and limitations under the License.
- */
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-
-import es.upm.oeg.ar2dtool.utils.graphml.GraphMLGenerator;
-import es.upm.oeg.ar2dtool.utils.gv.GraphViz;
-import es.upm.oeg.ar2dtool.utils.gv.Rdf2Gv;
+import es.upm.oeg.ar2dtool.exceptions.ConfigFileNotFoundException;
+import es.upm.oeg.ar2dtool.exceptions.RDFInputNotValid;
+import es.upm.oeg.ar2dtool.exceptions.RDFNotFound;
+import es.upm.oeg.ar2dtool.utils.dot.DOTGenerator;
 
 public class Main {
 
+	private static final int ARG_LENGTH = 8;
 	public static String syntaxErrorMsg = "Syntax error. Please use the following syntax \"java -jar ar2dtool.jar -i PathToInputRdfFile -o FileToOutputFile -t OutputFileType -c PathToConfFile [-d]\"";
-	private static String pathToInputFile="";
-	private static String pathToOuputFile="";
-	private static String outputFileType="";
-	private static String pathToConfFile="";
-	
-	private static boolean DEBUG=false;
-	
+	private static String pathToInputFile = "";
+	private static String pathToOuputFile = "";
+	private static String outputFileType = "";
+	private static String pathToConfFile = "";
+
+	private static boolean DEBUG = false;
+
+	// LOGGING
+	private static Level logLevel = Level.ALL;;
+	private static final Logger log = Logger.getLogger(RDF2Diagram.class.getName());
+
 	public static void main(String[] args) {
 
-		//parsing args
-		//syntax: 
-		
 		parseArgs(args);
-		
-		if((pathToInputFile.equals(""))||(outputFileType.equals(""))||(pathToOuputFile.equals(""))||(pathToConfFile.equals("")))
-		{
+
+		if ((pathToInputFile.equals("")) || (outputFileType.equals(""))
+				|| (pathToOuputFile.equals("")) || (pathToConfFile.equals(""))) {
 			System.err.println(syntaxErrorMsg);
 			return;
 		}
-		
-		dbg("pathToInputFile:" + pathToInputFile);
-		dbg("pathToOuputFile:" + pathToOuputFile);
-		dbg("outputFileType:" + outputFileType);
-		dbg("pathToConfFile:" + pathToConfFile);
-		
-		
-		//read the config file
-		ConfigValues cv = new ConfigValues(pathToConfFile);
-		cv.readConfigValues();
-		
-		dbg("\n"+cv.toString());
-		
-		Rdf2Gv rgv = new Rdf2Gv(pathToInputFile,cv);
-		
-		rgv.parseRdf();
 
-		dbg("Found classes" + rgv.getClasses());
-		dbg("Found individuals" + rgv.getIndividuals());
-		dbg("Found literals" + rgv.getLiterals());
 		
-		dbg("GraphViz	:\n" + rgv.getGvContent());
-		
-		String dotPath = cv.keys.get("pathToDot");
-		GraphViz gv = new GraphViz(dotPath);
-		gv.add(rgv.getGvContent());
+		log("pathToInputFile:" + pathToInputFile);
+		log("pathToOuputFile:" + pathToOuputFile);
+		log("outputFileType:" + outputFileType);
+		log("pathToConfFile:" + pathToConfFile);
 		
 		
+		RDF2Diagram r2d = new RDF2Diagram();
+		
+		try {
 
-		//write the GV file
-		if(cv.keys.get("generateGvFile").equals("true"))
-		{
-			try {
-				PrintWriter gvOut = new PrintWriter(pathToOuputFile+".gv");
-				gvOut.println(rgv.getGvContent());
-				gvOut.close();
-			} catch (FileNotFoundException e) {
-				System.err.println("Error while trying to generate the gv file at "+ pathToOuputFile+".gv");
-				e.printStackTrace();
-			}
-		}
-	
-		
-		
-		//write the image file
-		File out = new File(pathToOuputFile); 
-		byte[] img = gv.getGraph(gv.getDotSource(), outputFileType);
-		dbg("img byte[].length="+img.length);
-		
-		int code = gv.writeGraphToFile(img , out);
+			//load config info
+			r2d.loadConfigValues(pathToConfFile);
 
-		dbg("writeGraphToFile returns="+code);
-		if(code==-1)
-		{
-			System.err.println("An error ocurred when saving the file " + pathToOuputFile);
-		}
-		
-
-		dbg("outputFile length="+out.length());
-		if(out.length()==0)
-		{
-			System.err.println("File " + pathToOuputFile + " seems to be empty :(");
-		}
-		else
-		{
-			System.out.println("Done! File " + pathToOuputFile +" generated");
+			//print config values 
+			log(r2d.getConf().toString());
+			
+			//load model
+			r2d.loadRdf(pathToInputFile);
+			
+			//apply the filters specified in config file
+			r2d.applyFilters();
+			log("model:\n" + r2d.printModel());
+			
+			//get the DOTGenerator with the resultant info
+			DOTGenerator dg = r2d.getDOTGenerator();
+			
+			//apply transformations
+			dg.applyTransformations();
+			
+			//get source DOT code
+			String src = dg.generateDOTSource();
+			
+			//compile src code into a graph 
+			dg.generateDOTDiagram(src,pathToOuputFile,outputFileType);
+			
+			
+			
+			
+			
+		} catch (ConfigFileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (RDFNotFound e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (RDFInputNotValid e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		
 		
-//		//generate the GraphML file (reading the triples information from the Rdf2Gv object)
-//		if(cv.keys.get("generateGraphMLFile").equals("true"))
-//		{
-//			GraphMLGenerator gml = new GraphMLGenerator(rgv.getDtLines());
-//			dbg(gml.generateXML());
-//		}
-		
-		
-		
+
 	}
 
-
-	private static void parseArgs(String[] args) 
-	{
-		if(args.length<8)
-		{
+	private static void parseArgs(String[] args) {
+		if (args.length < ARG_LENGTH) {
 			System.err.println(syntaxErrorMsg);
 			return;
 		}
-		
-		for(int i=0; i<args.length; i++)
-		{
-			if(args[i].equals("-i"))
-			{
+
+		for (int i = 0; i < args.length; i++) {
+			if (args[i].equals("-i")) {
 				i++;
 				pathToInputFile = args[i];
-			}
-			else
-			{
+			} else {
 
-				if(args[i].equals("-o"))
-				{
+				if (args[i].equals("-o")) {
 					i++;
 					pathToOuputFile = args[i];
-				}
-				else
-				{
+				} else {
 
-					if(args[i].equals("-t"))
-					{
+					if (args[i].equals("-t")) {
 						i++;
 						outputFileType = args[i];
-					}
-					else
-					{
+					} else {
 
-						if(args[i].equals("-c"))
-						{
+						if (args[i].equals("-c")) {
 							i++;
 							pathToConfFile = args[i];
-						}
-						else
-						{
-							if(args[i].equals("-d"))
-							{
-								DEBUG=true;
-							}
-							else
-							{
+						} else {
+							if (args[i].equals("-d")) {
+								DEBUG = true;
+							} else {
 								System.err.println(syntaxErrorMsg);
 								return;
 							}
@@ -178,13 +125,11 @@ public class Main {
 				}
 			}
 		}
-		
 	}
 
-
-	public static void dbg(String msg)
-	{
-		if(DEBUG)			
-			System.out.println(msg);
+	private static void log(String msg) {
+		//log.log(logLevel, msg);
+		//TODO use log instead of sys.out
+		System.out.println(msg);
 	}
 }

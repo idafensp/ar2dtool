@@ -3,7 +3,7 @@ package es.upm.oeg.ar2dtool.utils.graphml;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-import es.upm.oeg.ar2dtool.utils.gv.DOTTriple;
+import es.upm.oeg.ar2dtool.utils.dot.DOTTriple;
 
 public class GraphMLGenerator {
 
