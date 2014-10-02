@@ -8,7 +8,7 @@ This tool receives as an input an RDF file and produces as an output a file with
 
 Command line syntax:
 
-java -jar ar2dtool.jar -i PathToInputRdfFile -o FileToOutputFile -t OutputFileType -c PathToConfFile [-d]
+java -jar ar2dtool.jar -i PathToInputRdfFile -o FileToOutputFile -t OutputFileType -c PathToConfFile -GENERATE_FLAGS [-d]
 
 - PathToInputRdfFile: input file. Any RDF file, including local files and URIs.
 
@@ -16,7 +16,13 @@ java -jar ar2dtool.jar -i PathToInputRdfFile -o FileToOutputFile -t OutputFileTy
 
 - OutputFileType: output file type: png, pdf, etc. (check supported file types at http://www.graphviz.org/doc/info/output.html)
 
-- PathToConfFile: config file location. 
+- PathToConfFile: config file location.
+
+- GENERATE_FLAGS: you can specify one or more of the flags below to define which files you want to generate:
+
+* -gv/GV: using -gv a DOT source file will be generated as FileToOutputFile.gv. Using -GV will also compile the DOT source code into an image with the format specified in OutputFileType.
+
+* gml (NOT SUPPORTED YET): using -gml a GraphML source file will be generated as FileToOutputFile.graphml.
 
 - [-d] optional flag for debugging. 
 
