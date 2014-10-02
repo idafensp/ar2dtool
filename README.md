@@ -23,7 +23,7 @@ java -jar ar2dtool.jar -i PathToInputRdfFile -o FileToOutputFile -t OutputFileTy
 AR2DTool Java API
 ===============
 
-You can download the AR2DTool Java API from the lib/ folder on this repository. If you want to use it you have to add the ar2dtool-0.1.jar file to your CLASSPATH/BUILDATH. 
+You can download the AR2DTool Java API from the lib/ folder on this repository. If you want to use it you have to add the ar2dtool-0.1.jar file to your CLASSPATH/BUILPATH. 
 
 As AR2DTool relies on the Jena API you also need to include it as part of your project (http://jena.apache.org/download/)
 
