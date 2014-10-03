@@ -7,6 +7,7 @@ import es.upm.oeg.ar2dtool.exceptions.ConfigFileNotFoundException;
 import es.upm.oeg.ar2dtool.exceptions.RDFInputNotValid;
 import es.upm.oeg.ar2dtool.exceptions.RDFNotFound;
 import es.upm.oeg.ar2dtool.utils.dot.DOTGenerator;
+import es.upm.oeg.ar2dtool.utils.graphml.GraphMLGenerator;
 
 public class Main {
 
@@ -20,8 +21,13 @@ public class Main {
 	private static boolean DEBUG = false;
 
 	// LOGGING
-	private static Level logLevel = Level.ALL;;
-	private static final Logger log = Logger.getLogger(RDF2Diagram.class.getName());
+	private static Level logLevel = Level.INFO;
+	private static final Logger log = Logger.getLogger("AR2DTOOL");
+	
+	//GENERATION FLAGS
+	private static boolean GENERATE_GV = false;
+	private static boolean GENERATE_GML = false;
+	private static boolean COMPILE_GV = false;
 
 	public static void main(String[] args) {
 
@@ -32,12 +38,24 @@ public class Main {
 			System.err.println(syntaxErrorMsg);
 			return;
 		}
-
+		
+		if(DEBUG)
+		{
+			logLevel =Level.INFO;
+		}
+		else
+		{
+			logLevel =Level.OFF;
+		}
+		
+		log.setLevel(logLevel);
 		
 		log("pathToInputFile:" + pathToInputFile);
 		log("pathToOuputFile:" + pathToOuputFile);
 		log("outputFileType:" + outputFileType);
 		log("pathToConfFile:" + pathToConfFile);
+		
+		
 		
 		
 		RDF2Diagram r2d = new RDF2Diagram();
@@ -57,17 +75,41 @@ public class Main {
 			r2d.applyFilters();
 			log("model:\n" + r2d.printModel());
 			
-			//get the DOTGenerator with the resultant info
-			DOTGenerator dg = r2d.getDOTGenerator();
+			if(GENERATE_GV)
+			{
+				//get the DOTGenerator with the resultant info
+				DOTGenerator dg = r2d.getDOTGenerator();
+				
+				//apply transformations
+				dg.applyTransformations();
+				
+				//save the DOT source to file
+				dg.saveSourceToFile(pathToOuputFile+".dot");
+				
+				
+				if(COMPILE_GV)
+				{
+					//get source DOT code
+					String src = dg.generateDOTSource();
+					
+					//compile src code into a graph 
+					dg.generateDOTDiagram(src,pathToOuputFile,outputFileType);	
+				}	
+			}
 			
-			//apply transformations
-			dg.applyTransformations();
-			
-			//get source DOT code
-			String src = dg.generateDOTSource();
-			
-			//compile src code into a graph 
-			dg.generateDOTDiagram(src,pathToOuputFile,outputFileType);
+			if(GENERATE_GML)
+			{
+				//get the GraphMLGenerator with the resultant info
+				GraphMLGenerator gg = r2d.getGraphMLGenerator();
+				
+				//apply transformations
+				gg.applyTransformations();
+				
+				log("GraphML source " + gg.generateGraphMLSource());
+				
+				//save the GraphML source to file
+				gg.saveSourceToFile(pathToOuputFile+".graphml");
+			}
 			
 			
 			
@@ -117,8 +159,31 @@ public class Main {
 							if (args[i].equals("-d")) {
 								DEBUG = true;
 							} else {
-								System.err.println(syntaxErrorMsg);
-								return;
+								if(args[i].equals("-gv"))
+								{
+									GENERATE_GV=true;
+								}
+								else
+								{
+									if(args[i].equals("-gml"))
+									{
+										GENERATE_GML=true;
+									}
+									else
+									{
+										if(args[i].equals("-GV"))
+										{
+											GENERATE_GV=true;
+											COMPILE_GV=true;
+										}
+										else
+										{
+
+											System.err.println(syntaxErrorMsg);
+											return;	
+										}
+									}
+								}
 							}
 						}
 					}
@@ -128,8 +193,6 @@ public class Main {
 	}
 
 	private static void log(String msg) {
-		//log.log(logLevel, msg);
-		//TODO use log instead of sys.out
-		System.out.println(msg);
+		log.log(logLevel, msg);
 	}
 }

@@ -17,9 +17,6 @@ import es.upm.oeg.ar2dtool.exceptions.ConfigKeyNotFound;
 
 public class ConfigValues {
 	
-
-	private static final Logger log = Logger.getLogger(ConfigValues.class.getName());
-	
 	private static final String fileErrorMsg = "CONFIG FILE ERROR:  couldn't open the config file at ";
 
 	private static Level logLevel;
@@ -46,24 +43,20 @@ public class ConfigValues {
 		keys.put("pathToDot","noPathToDot");
 		keys.put("pathToTempDir","noPathToTemp");
 		keys.put("rankdir","LB");
-		keys.put("classShape","box");
-		keys.put("individualShape","box");
-		keys.put("literalShape","box");
+		keys.put("classShape","rectangle");
+		keys.put("individualShape","rectangle");
+		keys.put("literalShape","rectangle");
 		keys.put("arrowhead","normal");
 		keys.put("arrowtail","normal");
 		keys.put("arrowdir","forward");
-		keys.put("classColor","black");
-		keys.put("individualColor","black");
-		keys.put("literalColor","black");
-		keys.put("arrowColor","black");
+		keys.put("classColor","#000000");
+		keys.put("individualColor","#000000");
+		keys.put("literalColor","#000000");
+		keys.put("arrowColor","#000000");
 		keys.put("ignoreLiterals","false");
 		keys.put("nodeNameMode","fulluri");
 		keys.put("synthesizeObjectProperties","false");
 		keys.put("ignoreRdfType","false");
-//		keys.put("generateGvFile","false");
-//		keys.put("generateGvGraph","false");
-//		keys.put("generateGraphMLFile","false");
-//		keys.put("generateGraphMLGraph","false");
 		keys.put("imageSize","500");
 	}	
 	
@@ -359,20 +352,20 @@ public class ConfigValues {
 	
 	
 	
-	public NodeNames getNodeNameMode()
+	public NodeNameMode getNodeNameMode()
 	{
 		if(keys.get("nodeNameMode").equals("fulluri"))
-			return NodeNames.FULLURI;
+			return NodeNameMode.FULLURI;
 
 		if(keys.get("nodeNameMode").equals("localname"))
-			return NodeNames.LOCALNAME;
+			return NodeNameMode.LOCALNAME;
 
 		if(keys.get("nodeNameMode").equals("prefix"))
-			return NodeNames.PREFIX;
+			return NodeNameMode.PREFIX;
 		
 		
 		//by default we assume fulluri
-		return NodeNames.FULLURI;
+		return NodeNameMode.FULLURI;
 	}
 
 	

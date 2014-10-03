@@ -1,140 +1,511 @@
 package es.upm.oeg.ar2dtool.utils.graphml;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.logging.Logger;
 
-import es.upm.oeg.ar2dtool.utils.dot.DOTTriple;
+import com.hp.hpl.jena.ontology.DatatypeProperty;
+import com.hp.hpl.jena.ontology.Individual;
+import com.hp.hpl.jena.ontology.OntClass;
+import com.hp.hpl.jena.ontology.OntModel;
+import com.hp.hpl.jena.ontology.OntProperty;
+import com.hp.hpl.jena.rdf.model.Property;
+import com.hp.hpl.jena.rdf.model.RDFNode;
+import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.Statement;
+import com.hp.hpl.jena.rdf.model.StmtIterator;
+import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 
-public class GraphMLGenerator {
+import es.upm.oeg.ar2dtool.utils.AR2DTriple;
+import es.upm.oeg.ar2dtool.utils.ConfigValues;
+import es.upm.oeg.ar2dtool.utils.dot.ObjPropPair;
 
-	private HashSet<String> nodeList;
-	private HashSet<String> edgeList;
-	private ArrayList<DOTTriple> dtLines;
-	
-	private String nodeHead1 ="      <node id=\"";
-	
-	private String nodeHead2 = "\">\n" +
-			"         <data key=\"d0\">\n" +
-			"            <y:ShapeNode>\n" +
-			"               <y:Geometry height=\"30.0\" width=\"30.0\" x=\"0.0\" y=\"0.0\" />\n" +
-			"               <y:Fill color=\"#FFFFFF\" transparent=\"false\" />\n" +
-			"               <y:BorderStyle color=\"#000000\" type=\"line\" width=\"1.0\" />\n" +
-			"               <y:NodeLabel alignment=\"center\" autoSizePolicy=\"content\" fontFamily=\"Dialog\" fontSize=\"12\" fontStyle=\"plain\" hasBackgroundColor=\"false\" hasLineColor=\"false\" modelName=\"internal\" modelPosition=\"c\" textColor=\"#000000\" visible=\"true\">";
-	
-	private String nodeTail = "</y:NodeLabel>\n" +
-			"               <y:Shape type=\"rectangle\" />\n" +
-			"            </y:ShapeNode>\n" +
-			"         </data>\n" +
-			"         <data key=\"d1\" />\n" +
-			"      </node>\n";
-	
-	private String edgeHead = ">\n" +
-			"         <data key=\"d2\">\n" +
-			"            <y:PolyLineEdge>\n" +
-			"               <y:LineStyle color=\"#000000\" type=\"line\" width=\"1.0\" />\n" +
-			"               <y:Arrows source=\"normal\" target=\"normal\" />\n" +
-			"               <y:EdgeLabel alignment=\"center\" distance=\"2.0\" fontFamily=\"Dialog\" fontSize=\"12\" fontStyle=\"plain\" hasBackgroundColor=\"false\" hasLineColor=\"false\" modelName=\"six_pos\" modelPosition=\"tail\" preferredPlacement=\"anywhere\" ratio=\"0.5\" textColor=\"#000000\" visible=\"true\">";
-	
-	private String edgeTail = "</y:EdgeLabel>\n" +
-			"               <y:BendStyle smoothed=\"false\" />\n" +
-			"            </y:PolyLineEdge>\n" +
-			"         </data>\n" +
-			"         <data key=\"d3\" />\n" +
-			"      </edge>\n";
-	
-	
-	
-	public GraphMLGenerator(ArrayList<DOTTriple> dtl)
-	{
 
-		nodeList = new HashSet<String>();
-		edgeList = new HashSet<String>();
-		dtLines = dtl;
+public class GraphMLGenerator 
+{
+	
+	//POPULAR URIS
+	private static final String RDFS_RANGE = "http://www.w3.org/2000/01/rdf-schema#range";
+	private static final String RDFS_DOMAIN = "http://www.w3.org/2000/01/rdf-schema#domain";
+	
+	//OBJ PROP LIST
+	private Map<String,ObjPropPair<String,String>> objPropsMap;
+	
+
+	// LOGGING
+	private static final Logger log = Logger.getLogger("AR2DTOOL");
+	
+	//DEFAULT SHAPES AND COLORS
+	private static final String DEFAULT_NODE_COLOR = "#CCCCFF";
+	private static final String DEFAULT_NODE_SHAPE = "rectangle";
+	private static final String DEFAULT_EDGE_COLOR = "#CCCCFF";
+	
+	//ID PREFIXES
+	private static final String NODE_ID_PREFIX = "nid_";
+	private static final String EDGE_ID_PREFIX = "eid_";
+
+
+	//CONF VALUES
+	private ConfigValues conf;
 		
-//		//we add every source and target node to de node list (HashSet avoids duplicate entries)
-//		//we also load every edge
-//		for(DOTTriple dt : dtl)
-//		{
-//			nodeList.add(dt.source);
-//			nodeList.add(dt.target);
-//			
-//			edgeList.add(dt.edge);
-//		}
+	//ONTOLOGY MODEL
+	private OntModel model;
+	
+	//DOT Triples
+	private ArrayList<AR2DTriple> gmltriples;
+	
+	//SHAPES&COLORS LISTS
+	private ArrayList<String> classesSC, individualsSC, literalsSC, ontPropertiesSC, dtPropertiesSC;
+
+	private Map<String, String> prefixMap;
+
+	
+	public GraphMLGenerator(OntModel m, ConfigValues c)
+	{
+		model = m;
+		conf = c;
+		gmltriples = new ArrayList<AR2DTriple>();
+		classesSC = new ArrayList<String>();
+		individualsSC = new ArrayList<String>();
+		literalsSC = new ArrayList<String>();
+		ontPropertiesSC = new ArrayList<String>();
+		dtPropertiesSC = new ArrayList<String>();
+		objPropsMap = new HashMap<String,ObjPropPair<String,String>>();
 	}
-
-	public String generateXML()
+	
+	/*
+	 * This method traverses all the DOT triples on the 'model' field
+	 * applying the transformations specified on:
+	 * 
+	 * 
+	 * - shapes and colors
+	 * - special elements list
+	 * - sintetyze obj props
+	 * - node names mode
+	 * 
+	 */
+	public void applyTransformations()
 	{
-		String nodeXML ="";
-		String edgeXML ="";
-		String res = "";
+		//detecting classes
+		detectClasses();
 		
-	    int edgeCount = 0;	
-	    
-	    //Rdf2Gv class generates the list including quotes for DOT formatting reasons
-	    //we need to remove them here as they are not longer necessary
-	    dtLines = clearQuotes(dtLines);
-		 
-		for(DOTTriple dt : dtLines)
+		//detecting individuals
+		detectIndividuals();
+		
+		//detecting ont properties
+		detectOntProperties();
+		
+		//detecting dt properties
+		detectDtProperties();
+		
+		
+		//load the prefixmap just in case
+		prefixMap = model.getNsPrefixMap();
+		
+		StmtIterator it = model.listStatements();
+		while(it.hasNext())
 		{
-			//generate the source node info if necessary
-			if(!nodeList.contains(dt.source))
+			Statement st = it.next();
+			
+			Resource s = st.getSubject();
+			Property p = st.getPredicate();
+			RDFNode o = st.getObject();
+			
+			//detecting literals
+			if(o.isLiteral())
 			{
-				nodeList.add(dt.source);
-				nodeXML += generateNodeXML(dt.source);
+				literalsSC.add(st.getObject().toString());
 			}
+
 			
-			//generate the target node info if necessary
-			if(!nodeList.contains(dt.target))
-			{
-				nodeList.add(dt.target);
-				nodeXML += generateNodeXML(dt.target);
-			}
-			
-			edgeXML += generateEdgeXML(dt,edgeCount);
+			//check syntetize ob props
+			//if it is an obj prop and the user wants to sysntetize we will add it later
+			if(conf.synthesizeObjectProperties() && checkObjPropoerties(s,p,o))
+				continue;
 			
 			
 			
-			edgeCount++;
+			String sName = getNodeName(s);
+			String pName = getNodeName(p);
+			String oName = getNodeName(o);
+			
+			gmltriples.add(new AR2DTriple(sName,oName,pName));
 			
 		}
 		
-		res = nodeXML + "\n\n\n" + edgeXML;
+		generateSyntObjPropertiesTriples();
 		
-		return res;
+		log(printGmlDriples());
+		
+	
 	}
-
-	private ArrayList<DOTTriple> clearQuotes(ArrayList<DOTTriple> dtQuotes) {
-		
-		ArrayList<DOTTriple> dtClear = new ArrayList<DOTTriple>();
-		
-		for(DOTTriple dt : dtQuotes)
+	
+	private String printGmlDriples() 
+	{
+		String res = "----- GML Triples -----\n";
+		for(AR2DTriple dt : gmltriples)
 		{
-			String s = dt.source.replaceAll("\"", "");
-			String t = dt.target.replaceAll("\"", "");
-			String e = dt.edge.replaceAll("\"", "");
-			
-			DOTTriple dtTemp = new DOTTriple(s,t,e);
-			
-			dtClear.add(dtTemp);
+			res +=dt.toString();
 		}
 		
-		return dtClear;
+		
+		return res + "----- End GML Triples -----\n";
 	}
 
-	private String generateEdgeXML(DOTTriple dt, int edgeCount) {
-		String edgePreHead = "<edge id=\""+dt.edge+edgeCount+"\" source=\""+dt.source+"\" target=\""+dt.target+"\"";
-		String res = edgePreHead+edgeHead+dt.edge+edgeTail;
-		return res;
-	}
+	public String generateGraphMLSource()
+	{
+		String res ="";
+		
+		//a list to avoid duplicated generation of nodes
+		LinkedHashSet<String> generatedNodes = new LinkedHashSet<String>();
+		
+		
+		int edgeCounter = 0;
+		for(AR2DTriple gt : gmltriples)
+		{
+			String source = gt.getSource();
+			String target = gt.getTarget();
+			String edge = gt.getEdge();
+			
+			
+			//generate source node if necessary
+			if(!generatedNodes.contains(source))
+			{
+				log("Generating node for " + source);
+				res += getNode(source,getNodeColor(source), getNodeShape(source));
+				generatedNodes.add(source);
+			}
 
-	private String generateNodeXML(String n) {
-		String res = nodeHead1+n+nodeHead2+n+nodeTail;
+
+			//generate source target if necessary
+			if(!generatedNodes.contains(target))
+			{
+				log("Generating node for " + target);
+				res += getNode(target,getNodeColor(source), getNodeShape(source));
+				generatedNodes.add(target);
+			}
+			
+
+			log("Generating edge " + edge + " from " + source + " to "  + target);
+			res+=getEdge(edge, edgeCounter, source, target, getEdgeColor(source));
+			edgeCounter++;
+			
+		}
+		
+		res=getGraphMLHeader(edgeCounter,generatedNodes.size()) + res;
+		
+		res+=getGraphMLTail();
 		
 		return res;
 	}
 	
 	
+	/*
+	 * 
+	 * 
+		keys.put("classColor","#000000");
+		keys.put("individualColor","#000000");
+		keys.put("literalColor","#000000");
+		keys.put("arrowColor","#000000");
+		 classesSC, individualsSC, literalsSC, ontPropertiesSC, dtPropertiesSC;
+		
+		keys.put("classShape","rectangle");
+		keys.put("individualShape","rectangle");
+		keys.put("literalShape","rectangle");
+	 */
+	private String getNodeColor(String source) 
+	{
+		if(classesSC.contains(source))
+		{
+			return conf.getKeys().get("classColor");
+		}
+		if(individualsSC.contains(source))
+		{
+			return conf.getKeys().get("individualColor");
+		}
+		if(literalsSC.contains(source))
+		{
+			return conf.getKeys().get("literalColor");
+		}
+		
+		
+		return DEFAULT_NODE_COLOR;
+	}
+
+	
+	private String getNodeShape(String source) 
+	{
+		if(classesSC.contains(source))
+		{
+			return conf.getKeys().get("classShape");
+		}
+		if(individualsSC.contains(source))
+		{
+			return conf.getKeys().get("individualShape");
+		}
+		if(literalsSC.contains(source))
+		{
+			return conf.getKeys().get("literalShape");
+		}
+		
+		return DEFAULT_NODE_SHAPE;
+	}
+	
+	private String getEdgeColor(String source)
+	{
+		if(ontPropertiesSC.contains(source))
+		{
+			return conf.getKeys().get("arrowColor");
+		}
+		if(dtPropertiesSC.contains(source))
+		{
+			return conf.getKeys().get("arrowColor");
+		}
+		//TODO ontPropertiesSC, dtPropertiesSC
+		return DEFAULT_EDGE_COLOR;
+	}
+
+	public void saveSourceToFile(String path) 
+	{
+		try {
+			PrintWriter out = new PrintWriter(path);
+			String src = this.generateGraphMLSource();
+			out.println(src);
+			out.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	
+	}
 	
 	
+	private void generateSyntObjPropertiesTriples() 
+	{
+		if(!conf.synthesizeObjectProperties())
+			return;
+		
+		Iterator it = objPropsMap.entrySet().iterator();
+	    while (it.hasNext()) {
+	        Map.Entry kv = (Map.Entry)it.next();
+	        String propUri = (String) kv.getKey();
+	        
+	        ObjPropPair<String,String> mp = (ObjPropPair<String, String>) kv.getValue();
+	        String rangeUri = mp.getRight();
+	        String domainUri = mp.getLeft();
+
+			String domainName = getNodeName(domainUri);
+			String rangeName = getNodeName(rangeUri);
+			String propName = getNodeName(propUri);
+			
+			gmltriples.add(new AR2DTriple(domainName,rangeName,propName));
+			
+	    }
+	}
+
+	private boolean checkObjPropoerties(Resource s,Property p,RDFNode o) 
+	{
+		if(p.getURI().equals(RDFS_DOMAIN))
+		{
+			ObjPropPair<String, String> dr = new ObjPropPair<String,String>();
+			dr.setLeft(o.asResource().getURI());
+			objPropsMap.put(s.getURI(), dr);
+			return true;
+		}
+		
+
+		if(p.getURI().equals(RDFS_RANGE))
+		{
+			ObjPropPair<String, String> dr = new ObjPropPair<String,String>();
+			dr.setRight(o.asResource().getURI());
+			objPropsMap.put(s.getURI(), dr);
+			return true;
+		}
+		
+		
+			
+		return false;
+	}
+
+	
+	private String getNodeName(String n) 
+	{
+		return getNodeName(model.getResource(n));
+	}
+	
+	
+	private String getNodeName(RDFNode n) 
+	{
+		if(n.isLiteral())
+			return n.toString();
+
+		//at this point we know that we are dealing with a resource
+		Resource res = n.asResource();
+		switch (conf.getNodeNameMode()) 
+		{
+			case LOCALNAME:
+			{
+				return res.getLocalName();
+			}
+			case PREFIX:
+			{
+				String ns = res.getNameSpace();
+				String prefix = prefixMap.get(ns);
+				if(prefix==null)
+				{
+					//if the prefix does not exit we use the full URI
+					return res.getURI();
+				}
+				else
+				{
+					//replace the ns with the prefix
+					return res.getURI().replace(ns, prefix);
+				}
+			}
+		}
+
+		//at this point we know the user wants to use URIs
+		return res.getURI();
+	}
+
+
+	private void detectDtProperties() 
+	{
+		ExtendedIterator<OntProperty> it = model.listOntProperties();
+		while(it.hasNext())
+		{
+			ontPropertiesSC.add(getNodeName(it.next()));
+		}
+	}
+
+
+	private void detectOntProperties() 
+	{
+		ExtendedIterator<DatatypeProperty> it = model.listDatatypeProperties();
+		while(it.hasNext())
+		{
+			dtPropertiesSC.add(getNodeName(it.next()));
+		}	
+	}
+
+
+	private void detectIndividuals() 
+	{
+		ExtendedIterator<Individual> it = model.listIndividuals();
+		while(it.hasNext())
+		{
+			individualsSC.add(getNodeName(it.next()));
+		}
+	}
+
+
+	private void detectClasses() 
+	{
+		ExtendedIterator<OntClass> it = model.listClasses();
+		boolean empty = true;
+		while(it.hasNext())
+		{
+			empty = false;
+			classesSC.add(getNodeName(it.next()));
+		}
+		
+		if(empty)
+		{
+			log("No classes detected");
+		}
+	}
+
+
+	public ConfigValues getConf() {
+		return conf;
+	}
+
+
+	public void setConf(ConfigValues conf) {
+		this.conf = conf;
+	}
+
+
+	public OntModel getModel() {
+		return model;
+	}
+
+
+	public void setModel(OntModel model) {
+		this.model = model;
+	}	
+	
+	private void log(String msg)
+	{
+		log.log(log.getLevel(), msg);
+	}
+	
+	private String getGraphMLHeader(int edges, int nodes)
+	{
+		String head = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+				"<graphml xmlns=\"http://graphml.graphdrawing.org/xmlns/graphml\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:y=\"http://www.yworks.com/xml/graphml\" xsi:schemaLocation=\"http://graphml.graphdrawing.org/xmlns/graphml http://www.yworks.com/xml/schema/graphml/1.0/ygraphml.xsd\">\n" +
+				"   <key for=\"node\" id=\"d0\" yfiles.type=\"nodegraphics\" />\n" +
+				"   <key attr.name=\"description\" attr.type=\"string\" for=\"node\" id=\"d1\" />\n" +
+				"   <key for=\"edge\" id=\"d2\" yfiles.type=\"edgegraphics\" />\n" +
+				"   <key attr.name=\"description\" attr.type=\"string\" for=\"edge\" id=\"d3\" />\n" +
+				"   <key for=\"graphml\" id=\"d4\" yfiles.type=\"resources\" />\n" +
+				"   <graph edgedefault=\"directed\" id=\"G\" parse.edges=\""+edges+"\" parse.nodes=\""+nodes+"\" parse.order=\"free\">\n";
+		return head;
+	}
+	
+	private String getGraphMLTail()
+	{
+		String tail = "   </graph>\n" +
+					"</graphml>";
+		return tail;
+	}
+	
+	private String getNode(String nodeLabel, String nodeColor, String nodeShape)
+	{
+		double widthScaleFactor = 10;
+		double width = nodeLabel.length() * widthScaleFactor;
+		
+		String node = "      <node id=\""+NODE_ID_PREFIX+nodeLabel+"\">\n" +
+				"         <data key=\"d0\">\n" +
+				"            <y:ShapeNode>\n" +
+				"               <y:Geometry height=\"30.0\" width=\"" + width + "\" x=\"0.0\" y=\"0.0\" />\n" +
+				"               <y:Fill color=\"" + nodeColor + "\" transparent=\"false\" />\n" +
+				"               <y:BorderStyle color=\"#000000\" type=\"line\" width=\"1.0\" />\n" +
+				"               <y:NodeLabel alignment=\"center\" autoSizePolicy=\"content\" fontFamily=\"Dialog\" " +
+				"fontSize=\"12\" fontStyle=\"plain\" hasBackgroundColor=\"false\" hasLineColor=\"false\" modelName=\"internal\" modelPosition=\"c\" " +
+				"textColor=\"#000000\" visible=\"true\">" + nodeLabel + "</y:NodeLabel>\n" +
+				"               <y:Shape type=\""+nodeShape+"\" />\n" +
+				"            </y:ShapeNode>\n" +
+				"         </data>\n" +
+				"         <data key=\"d1\" />\n" +
+				"      </node>\n";
+		
+		return node;
+	}
+
+	private String getEdge(String edgeLabel, int edgeCounter, String source, String target, String edgeColor)
+	{
+		String edge = "    <edge id=\""+EDGE_ID_PREFIX+edgeLabel+edgeCounter+"\" source=\""+NODE_ID_PREFIX+source+"\" target=\""+NODE_ID_PREFIX+target+"\">\n" +
+				"         <data key=\"d2\">\n" +
+				"            <y:PolyLineEdge>\n" +
+				"               <y:LineStyle color=\""+edgeColor+"\" type=\"line\" width=\"1.0\" />\n" +
+				"               <y:Arrows source=\"none\" target=\"normal\" />\n" +
+				"               <y:EdgeLabel alignment=\"center\" distance=\"2.0\" fontFamily=\"Dialog\" fontSize=\"12\" fontStyle=\"plain\" " +
+				"hasBackgroundColor=\"false\" hasLineColor=\"false\" modelName=\"six_pos\" modelPosition=\"tail\" preferredPlacement=\"anywhere\" " +
+				"ratio=\"0.5\" textColor=\"#000000\" visible=\"true\">" + edgeLabel + "</y:EdgeLabel>\n" +
+				"               <y:BendStyle smoothed=\"false\" />\n" +
+				"            </y:PolyLineEdge>\n" +
+				"         </data>\n" +
+				"         <data key=\"d3\" />\n" +
+				"      </edge>\n";
+		
+		return edge;
+	}
 	
 }

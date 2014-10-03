@@ -22,6 +22,7 @@ import es.upm.oeg.ar2dtool.exceptions.RDFInputNotValid;
 import es.upm.oeg.ar2dtool.exceptions.RDFNotFound;
 import es.upm.oeg.ar2dtool.utils.ConfigValues;
 import es.upm.oeg.ar2dtool.utils.dot.DOTGenerator;
+import es.upm.oeg.ar2dtool.utils.graphml.GraphMLGenerator;
 
 public class RDF2Diagram {
 	
@@ -38,8 +39,7 @@ public class RDF2Diagram {
 	
 	
 	//LOGGING
-	private static Level logLevel = Level.ALL;
-	private static final Logger log = Logger.getLogger(RDF2Diagram.class.getName());
+	private static final Logger log = Logger.getLogger("AR2DTOOL");
 	
 
 
@@ -313,23 +313,26 @@ public class RDF2Diagram {
 	}
 
 	public static Level getLogLevel() {
-		return logLevel;
+		return log.getLevel();
 	}
 
 	public static void setLogLevel(Level ll) {
-		logLevel = ll;
+		log.setLevel(ll); 
 	}	
 	
 	private void log(String msg)
 	{
-		//log.log(logLevel, msg);
-		//TODO use log instead of sys.out
-		System.out.println(msg);
+		log.log(log.getLevel(), msg);
 	}
 	
 	public DOTGenerator getDOTGenerator()
 	{
 		return new DOTGenerator(model,conf);
+	}
+	
+	public GraphMLGenerator getGraphMLGenerator()
+	{
+		return new GraphMLGenerator(model,conf);
 	}
 
 	public String printModel() {

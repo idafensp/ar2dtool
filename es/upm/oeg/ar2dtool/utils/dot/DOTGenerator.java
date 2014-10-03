@@ -1,12 +1,14 @@
 package es.upm.oeg.ar2dtool.utils.dot;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
-import org.apache.commons.lang3.tuple.MutablePair;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.hp.hpl.jena.ontology.DatatypeProperty;
 import com.hp.hpl.jena.ontology.Individual;
@@ -20,19 +22,24 @@ import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 
+import es.upm.oeg.ar2dtool.RDF2Diagram;
+import es.upm.oeg.ar2dtool.utils.AR2DTriple;
 import es.upm.oeg.ar2dtool.utils.ConfigValues;
-import es.upm.oeg.ar2dtool.utils.NodeNames;
+import es.upm.oeg.ar2dtool.utils.NodeNameMode;
 
 public class DOTGenerator 
 {
 
 	//POPULAR URIS
-	private static final String RDF_TYPE_URI = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 	private static final String RDFS_RANGE = "http://www.w3.org/2000/01/rdf-schema#range";
 	private static final String RDFS_DOMAIN = "http://www.w3.org/2000/01/rdf-schema#domain";
 	
 	//OBJ PROP LIST
-	private Map<String,MutablePair<String,String>> objPropsMap;
+	private Map<String,ObjPropPair<String,String>> objPropsMap;
+	
+
+	// LOGGING
+	private static final Logger log = Logger.getLogger("AR2DTOOL");
 
 
 	//CONF VALUES
@@ -42,7 +49,7 @@ public class DOTGenerator
 	private OntModel model;
 	
 	//DOT Triples
-	private ArrayList<DOTTriple> dottriples;
+	private ArrayList<AR2DTriple> dottriples;
 	
 	//SHAPES&COLORS LISTS
 	private ArrayList<String> classesSC, individualsSC, literalsSC, ontPropertiesSC, dtPropertiesSC;
@@ -54,13 +61,13 @@ public class DOTGenerator
 	{
 		model = m;
 		conf = c;
-		dottriples = new ArrayList<DOTTriple>();
+		dottriples = new ArrayList<AR2DTriple>();
 		classesSC = new ArrayList<String>();
 		individualsSC = new ArrayList<String>();
 		literalsSC = new ArrayList<String>();
 		ontPropertiesSC = new ArrayList<String>();
 		dtPropertiesSC = new ArrayList<String>();
-		objPropsMap = new HashMap<String,MutablePair<String,String>>();
+		objPropsMap = new HashMap<String,ObjPropPair<String,String>>();
 	}
 	
 	/*
@@ -119,7 +126,7 @@ public class DOTGenerator
 			String pName = getNodeName(p);
 			String oName = getNodeName(o);
 			
-			dottriples.add(new DOTTriple(sName,oName,pName));
+			dottriples.add(new AR2DTriple(sName,oName,pName));
 			
 		}
 		
@@ -133,7 +140,7 @@ public class DOTGenerator
 	private String printDotDriples() 
 	{
 		String res = "----- DOT Triples -----\n";
-		for(DOTTriple dt : dottriples)
+		for(AR2DTriple dt : dottriples)
 		{
 			res +=dt.toString();
 		}
@@ -153,7 +160,7 @@ public class DOTGenerator
 		
 		
 		String dotsource = "";
-		for(DOTTriple dt : dottriples)
+		for(AR2DTriple dt : dottriples)
 		{
 			String spoviz = "\t"+dt.getSource()+" -> " + dt.getTarget() + " [ label = "+ dt.getEdge() + " ];\n";
 			dotsource += spoviz;
@@ -228,6 +235,19 @@ public class DOTGenerator
 		return res;
 	}
 	
+	public void saveSourceToFile(String path) 
+	{
+		try {
+			PrintWriter out = new PrintWriter(path);
+			out.println(this.generateDOTSource());
+			out.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	
+	}
+	
 	public void generateDOTDiagram(String dotSource, String outPath, String type)
 	{
 		GraphViz gv = new GraphViz(conf.getKeys().get("pathToDot"),conf.getKeys().get("pathToTempDir"));
@@ -265,7 +285,7 @@ public class DOTGenerator
 	        Map.Entry kv = (Map.Entry)it.next();
 	        String propUri = (String) kv.getKey();
 	        
-	        MutablePair<String,String> mp = (MutablePair<String, String>) kv.getValue();
+	        ObjPropPair<String,String> mp = (ObjPropPair<String, String>) kv.getValue();
 	        String rangeUri = mp.getRight();
 	        String domainUri = mp.getLeft();
 
@@ -273,7 +293,7 @@ public class DOTGenerator
 			String rangeName = getNodeName(rangeUri);
 			String propName = getNodeName(propUri);
 			
-			dottriples.add(new DOTTriple(domainName,rangeName,propName));
+			dottriples.add(new AR2DTriple(domainName,rangeName,propName));
 			
 	    }
 	}
@@ -282,7 +302,7 @@ public class DOTGenerator
 	{
 		if(p.getURI().equals(RDFS_DOMAIN))
 		{
-			MutablePair<String, String> dr = new MutablePair<String,String>();
+			ObjPropPair<String, String> dr = new ObjPropPair<String,String>();
 			dr.setLeft(o.asResource().getURI());
 			objPropsMap.put(s.getURI(), dr);
 			return true;
@@ -291,7 +311,7 @@ public class DOTGenerator
 
 		if(p.getURI().equals(RDFS_RANGE))
 		{
-			MutablePair<String, String> dr = new MutablePair<String,String>();
+			ObjPropPair<String, String> dr = new ObjPropPair<String,String>();
 			dr.setRight(o.asResource().getURI());
 			objPropsMap.put(s.getURI(), dr);
 			return true;
@@ -412,10 +432,10 @@ public class DOTGenerator
 	
 	private void log(String msg)
 	{
-		//log.log(logLevel, msg);
-		//TODO use log instead of sys.out
-		System.out.println(msg);
+		log.log(log.getLevel(), msg);
 	}
+
+
 	
 	
 
