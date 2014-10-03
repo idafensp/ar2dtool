@@ -3,6 +3,7 @@ import es.upm.oeg.ar2dtool.exceptions.ConfigFileNotFoundException;
 import es.upm.oeg.ar2dtool.exceptions.RDFInputNotValid;
 import es.upm.oeg.ar2dtool.exceptions.RDFNotFound;
 import es.upm.oeg.ar2dtool.utils.dot.DOTGenerator;
+import es.upm.oeg.ar2dtool.utils.graphml.GraphMLGenerator;
 
 
 public class Main {
@@ -14,10 +15,10 @@ public class Main {
 	 * the output type (png, pdf, etc.) and your config file.
 	 * 
 	 */
-	private static String pathToInputFile = "";
-	private static String pathToOuputFile = "";
-	private static String outputFileType = "";
-	private static String pathToConfFile = "";
+	private static String pathToInputFile = "/Users/isantana/Dropbox/DOCTORADO/ar2dtool/samples/pizza/individuals/pizzainds.owl";
+	private static String pathToOuputFile = "/Users/isantana/Desktop/pizzares.png";
+	private static String outputFileType = "png";
+	private static String pathToConfFile = "/Users/isantana/Dropbox/DOCTORADO/ar2dtool/samples/pizza/individuals/conf.txt";
 	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
@@ -49,6 +50,15 @@ public class Main {
 			
 			//compile src code into a graph 
 			dg.generateDOTDiagram(src,pathToOuputFile,outputFileType);
+			
+			//get the GraphMLGenerator with the resultant info
+			GraphMLGenerator gg = r2d.getGraphMLGenerator();
+			
+			//apply transformations
+			gg.applyTransformations();
+			
+			//save the GraphML source to file
+			gg.saveSourceToFile(pathToOuputFile+".graphml");
 			
 			
 			
