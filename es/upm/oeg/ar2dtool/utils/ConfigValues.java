@@ -49,10 +49,10 @@ public class ConfigValues {
 		keys.put("arrowhead","normal");
 		keys.put("arrowtail","normal");
 		keys.put("arrowdir","forward");
-		keys.put("classColor","#000000");
-		keys.put("individualColor","#000000");
-		keys.put("literalColor","#000000");
-		keys.put("arrowColor","#000000");
+		keys.put("classColor","black");
+		keys.put("individualColor","black");
+		keys.put("literalColor","black");
+		keys.put("arrowColor","black");
 		keys.put("ignoreLiterals","false");
 		keys.put("nodeNameMode","fulluri");
 		keys.put("synthesizeObjectProperties","false");

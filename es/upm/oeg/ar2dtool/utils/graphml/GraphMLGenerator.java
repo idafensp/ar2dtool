@@ -1,6 +1,5 @@
 package es.upm.oeg.ar2dtool.utils.graphml;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -15,6 +14,7 @@ import com.hp.hpl.jena.ontology.Individual;
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntProperty;
+import com.hp.hpl.jena.rdf.model.NsIterator;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -22,6 +22,7 @@ import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 
+import es.upm.oeg.ar2dtool.exceptions.NullTripleMember;
 import es.upm.oeg.ar2dtool.utils.AR2DTriple;
 import es.upm.oeg.ar2dtool.utils.ConfigValues;
 import es.upm.oeg.ar2dtool.utils.dot.ObjPropPair;
@@ -42,9 +43,9 @@ public class GraphMLGenerator
 	private static final Logger log = Logger.getLogger("AR2DTOOL");
 	
 	//DEFAULT SHAPES AND COLORS
-	private static final String DEFAULT_NODE_COLOR = "#CCCCFF";
+	private static final String DEFAULT_NODE_COLOR = "black";
 	private static final String DEFAULT_NODE_SHAPE = "rectangle";
-	private static final String DEFAULT_EDGE_COLOR = "#CCCCFF";
+	private static final String DEFAULT_EDGE_COLOR = "black";
 	
 	//ID PREFIXES
 	private static final String NODE_ID_PREFIX = "nid_";
@@ -90,8 +91,13 @@ public class GraphMLGenerator
 	 * - node names mode
 	 * 
 	 */
-	public void applyTransformations()
+	public void applyTransformations() throws NullTripleMember
 	{
+
+		//load the prefixmap just in case
+		prefixMap = loadPrefixMap();
+		
+		
 		//detecting classes
 		detectClasses();
 		
@@ -105,8 +111,6 @@ public class GraphMLGenerator
 		detectDtProperties();
 		
 		
-		//load the prefixmap just in case
-		prefixMap = model.getNsPrefixMap();
 		
 		StmtIterator it = model.listStatements();
 		while(it.hasNext())
@@ -146,6 +150,38 @@ public class GraphMLGenerator
 	
 	}
 	
+	
+	//load the nsmap and swap keys and values
+	//for easier access later
+	private Map<String, String> loadPrefixMap() {
+		
+		Map<String, String> pm = model.getNsPrefixMap();
+		Map<String, String> res = new HashMap<String,String>();
+		
+		
+		Iterator<Map.Entry<String,String>> it = pm.entrySet().iterator();
+	    while (it.hasNext()) {
+	        Map.Entry<String,String> pairs = it.next();
+	        String key = pairs.getKey();
+	        String value = pairs.getValue();
+	        res.put(value, key);
+	        
+	    }
+	    
+	    NsIterator itns = model.listNameSpaces();
+	    while(itns.hasNext())
+	    {
+	    	String ns = itns.next();
+	    	if(!res.containsKey(ns))
+	    	{
+	    		res.put(ns, "");
+	    	}
+	    	
+	    }
+		
+		return res;
+	}
+
 	private String printGmlDriples() 
 	{
 		String res = "----- GML Triples -----\n";
@@ -286,7 +322,7 @@ public class GraphMLGenerator
 	}
 	
 	
-	private void generateSyntObjPropertiesTriples() 
+	private void generateSyntObjPropertiesTriples() throws NullTripleMember 
 	{
 		if(!conf.synthesizeObjectProperties())
 			return;
@@ -356,7 +392,10 @@ public class GraphMLGenerator
 			case PREFIX:
 			{
 				String ns = res.getNameSpace();
+				
 				String prefix = prefixMap.get(ns);
+				log(n + " looking for namespace " + ns + " found " + prefix);
+				log("pfxmap" + prefixMap.keySet());
 				if(prefix==null)
 				{
 					//if the prefix does not exit we use the full URI
@@ -364,8 +403,9 @@ public class GraphMLGenerator
 				}
 				else
 				{
-					//replace the ns with the prefix
-					return res.getURI().replace(ns, prefix);
+					//replace the ns with the prefix		
+					log("ReturnPrefix" + res.getURI().replace(ns, prefix+":"));
+					return res.getURI().replace(ns, prefix+":");
 				}
 			}
 		}
@@ -468,8 +508,20 @@ public class GraphMLGenerator
 	
 	private String getNode(String nodeLabel, String nodeColor, String nodeShape)
 	{
+		getHexColorCode(nodeColor);
+		
+		if(nodeLabel==null)
+			nodeLabel="null";
+		
 		double widthScaleFactor = 10;
-		double width = nodeLabel.length() * widthScaleFactor;
+		
+		int l = nodeLabel.length();
+		
+		if(l==0)
+		{
+			l=1;
+		}
+		double width = l * widthScaleFactor;
 		
 		String node = "      <node id=\""+NODE_ID_PREFIX+nodeLabel+"\">\n" +
 				"         <data key=\"d0\">\n" +
@@ -487,6 +539,37 @@ public class GraphMLGenerator
 				"      </node>\n";
 		
 		return node;
+	}
+
+	//black (default), red, blue, green, orange, yellow
+	private String getHexColorCode(String nodeColor) 
+	{
+		if(nodeColor.equals("black"))
+		{
+			return "#00000000";
+		}
+		if(nodeColor.equals("red"))
+		{
+			return "#00FF0000";
+		}
+		if(nodeColor.equals("blue"))
+		{
+			return "#000000FF";
+		}
+		if(nodeColor.equals("green"))
+		{
+			return "#0000FF00";
+		}
+		if(nodeColor.equals("orange"))
+		{
+			return "#00FFA500";
+		}
+		if(nodeColor.equals("yellow"))
+		{
+			return "#00FFFF00";
+		}
+		
+		return "#00000000";
 	}
 
 	private String getEdge(String edgeLabel, int edgeCounter, String source, String target, String edgeColor)

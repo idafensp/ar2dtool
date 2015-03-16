@@ -4,6 +4,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import es.upm.oeg.ar2dtool.exceptions.ConfigFileNotFoundException;
+import es.upm.oeg.ar2dtool.exceptions.NullTripleMember;
 import es.upm.oeg.ar2dtool.exceptions.RDFInputNotValid;
 import es.upm.oeg.ar2dtool.exceptions.RDFNotFound;
 import es.upm.oeg.ar2dtool.utils.dot.DOTGenerator;
@@ -15,7 +16,7 @@ public class Main {
 	public static String syntaxErrorMsg = "Syntax error. Please use the following syntax \"java -jar ar2dtool.jar -i PathToInputRdfFile -o FileToOutputFile -t OutputFileType -c PathToConfFile [-d]\"";
 	private static String pathToInputFile = "";
 	private static String pathToOuputFile = "";
-	private static String outputFileType = "";
+	private static String outputFileType = ""; 
 	private static String pathToConfFile = "";
 
 	private static boolean DEBUG = false;
@@ -122,6 +123,9 @@ public class Main {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (RDFInputNotValid e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NullTripleMember e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

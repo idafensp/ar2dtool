@@ -82,17 +82,17 @@ public class RDF2Diagram {
 			throw new RDFInputNotValid("RDF content not valid at "+pathToRdfFile);
 		}
 		log("RDF model loaded from " + pathToRdfFile);
+		INFO("I>RDF model loaded from " + pathToRdfFile);
+		SEVERE("R>RDF model loaded from " + pathToRdfFile);
 	}
 	
-	
 	/*
-	 * 
-	 * TODO
-	 * 
+	 * This method load RDF info into the model
+	 * it does not overwrite the info already stored 
 	 */
-	public void generateDOTGraph(boolean generateDriagram)
+	public void loadRdf(OntModel m)
 	{
-		
+		model = m;
 	}
 	
 	
@@ -324,6 +324,17 @@ public class RDF2Diagram {
 	{
 		log.log(log.getLevel(), msg);
 	}
+	
+	private void INFO(String msg)
+	{
+		log.info( msg);
+	}
+	
+	private void SEVERE(String msg)
+	{
+		log.severe(msg);
+	}
+
 	
 	public DOTGenerator getDOTGenerator()
 	{

@@ -15,6 +15,7 @@ import com.hp.hpl.jena.ontology.Individual;
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntProperty;
+import com.hp.hpl.jena.rdf.model.NsIterator;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -23,6 +24,8 @@ import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 
 import es.upm.oeg.ar2dtool.RDF2Diagram;
+import es.upm.oeg.ar2dtool.exceptions.ConfigFileNotFoundException;
+import es.upm.oeg.ar2dtool.exceptions.NullTripleMember;
 import es.upm.oeg.ar2dtool.utils.AR2DTriple;
 import es.upm.oeg.ar2dtool.utils.ConfigValues;
 import es.upm.oeg.ar2dtool.utils.NodeNameMode;
@@ -40,6 +43,7 @@ public class DOTGenerator
 
 	// LOGGING
 	private static final Logger log = Logger.getLogger("AR2DTOOL");
+	private static final String DEFAULT_OBJ_PROP_VALUE = "http://www.w3.org/2002/07/owl#Thing";
 
 
 	//CONF VALUES
@@ -81,8 +85,11 @@ public class DOTGenerator
 	 * - node names mode
 	 * 
 	 */
-	public void applyTransformations()
+	public void applyTransformations() throws NullTripleMember
 	{
+		//load the prefixmap just in case
+		prefixMap = loadPrefixMap();
+				
 		//detecting classes
 		detectClasses();
 		
@@ -96,8 +103,6 @@ public class DOTGenerator
 		detectDtProperties();
 		
 		
-		//load the prefixmap just in case
-		prefixMap = model.getNsPrefixMap();
 		
 		StmtIterator it = model.listStatements();
 		while(it.hasNext())
@@ -126,6 +131,7 @@ public class DOTGenerator
 			String pName = getNodeName(p);
 			String oName = getNodeName(o);
 			
+				
 			dottriples.add(new AR2DTriple(sName,oName,pName));
 			
 		}
@@ -135,6 +141,37 @@ public class DOTGenerator
 		log(printDotDriples());
 		
 	
+	}
+	
+	//load the nsmap and swap keys and values
+	//for easier access later
+	private Map<String, String> loadPrefixMap() {
+		
+		Map<String, String> pm = model.getNsPrefixMap();
+		Map<String, String> res = new HashMap<String,String>();
+		
+		
+		Iterator<Map.Entry<String,String>> it = pm.entrySet().iterator();
+	    while (it.hasNext()) {
+	        Map.Entry<String,String> pairs = it.next();
+	        String key = pairs.getKey();
+	        String value = pairs.getValue();
+	        res.put(value, key);
+	        
+	    }
+	    
+	    NsIterator itns = model.listNameSpaces();
+	    while(itns.hasNext())
+	    {
+	    	String ns = itns.next();
+	    	if(!res.containsKey(ns))
+	    	{
+	    		res.put(ns, "");
+	    	}
+	    	
+	    }
+		
+		return res;
 	}
 	
 	private String printDotDriples() 
@@ -149,7 +186,7 @@ public class DOTGenerator
 		return res + "----- End DOT Triples -----\n";
 	}
 
-	public String generateDOTSource()
+	public String generateDOTSource() throws NullTripleMember
 	{
 		
 		String dotHead = "digraph ar2dtool_diagram { \n" +
@@ -162,17 +199,21 @@ public class DOTGenerator
 		String dotsource = "";
 		for(AR2DTriple dt : dottriples)
 		{
-			String spoviz = "\t"+dt.getSource()+" -> " + dt.getTarget() + " [ label = "+ dt.getEdge() + " ];\n";
+			if((dt.getSource()==null)||(dt.getEdge()==null)||(dt.getTarget()==null)||(dt.getSource().equals("null"))||(dt.getEdge().equals("null"))||(dt.getTarget().equals("null")))
+			{
+				throw new NullTripleMember("Triple with null member: <s="+dt.getSource()+",e="+dt.getEdge()+",t="+dt.getTarget()+">");
+			}
+			
+			String spoviz = "\t\""+dt.getSource()+"\" -> \"" + dt.getTarget() + "\" [ label = \""+ dt.getEdge() + "\" ];\n";
 			dotsource += spoviz;
 		}
 		
-		String classStyle = "node [shape = "+ conf.getKeys().get("classShape") +", color="+ conf.getKeys().get("classColor") +"]; ";
-		String individualStyle = "node [shape = "+ conf.getKeys().get("individualShape") +", color="+ conf.getKeys().get("individualColor") +"]; ";
-		String literalStyle = "node [shape = "+ conf.getKeys().get("literalShape") +", color="+ conf.getKeys().get("literalColor") +"]; ";
-		String objPropStyle = "node [shape = "+ conf.getKeys().get("objPropShape") +", color="+ conf.getKeys().get("objPropColor") +"]; ";
-		String dtPropStyle = "node [shape = "+ conf.getKeys().get("dtPropShape") +", color="+ conf.getKeys().get("dtPropColor") +"]; ";
+		String classStyle = "node [shape = "+ conf.getKeys().get("classShape") +", color=\""+ conf.getKeys().get("classColor") +"\"]; ";
+		String individualStyle = "node [shape = "+ conf.getKeys().get("individualShape") +", color=\""+ conf.getKeys().get("individualColor") +"\"]; ";
+		String literalStyle = "node [shape = "+ conf.getKeys().get("literalShape") +", color=\""+ conf.getKeys().get("literalColor") +"\"]; ";
+		String objPropStyle = "node [shape = "+ conf.getKeys().get("objPropShape") +", color=\""+ conf.getKeys().get("objPropColor") +"\"]; ";
+		String dtPropStyle = "node [shape = "+ conf.getKeys().get("dtPropShape") +", color=\""+ conf.getKeys().get("dtPropColor") +"\"]; ";
 		
-		//TODO classes s&c
 		String classesStyle = "";
 		for (String c : classesSC)
 		{
@@ -183,7 +224,6 @@ public class DOTGenerator
 			classesStyle = classStyle + classesStyle + "; /*classes style*/\n";
 		}
 		
-		//TODO individuals s&c
 		String individualsStyle = "";
 		for (String i : individualsSC)
 		{
@@ -195,7 +235,6 @@ public class DOTGenerator
 		}
 		
 		
-		//TODO literals s&c
 		String literalsStyle = "";
 		for (String l : literalsSC)
 		{
@@ -206,7 +245,6 @@ public class DOTGenerator
 			literalsStyle = literalStyle + literalsStyle +  "; /*literals style*/\n";
 		}
 		
-		//TODO obj prop s&c
 		String objPropsStyle = "";
 		for (String op : ontPropertiesSC)
 		{
@@ -217,7 +255,6 @@ public class DOTGenerator
 			objPropsStyle = objPropStyle + objPropsStyle +  "; /*object properties style*/\n";
 		}
 		
-		//TODO dt prop s&c
 		String dtPropsStyle = "";
 		for (String dt : dtPropertiesSC)
 		{
@@ -235,14 +272,13 @@ public class DOTGenerator
 		return res;
 	}
 	
-	public void saveSourceToFile(String path) 
+	public void saveSourceToFile(String path) throws NullTripleMember 
 	{
 		try {
 			PrintWriter out = new PrintWriter(path);
 			out.println(this.generateDOTSource());
 			out.close();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	
@@ -275,7 +311,7 @@ public class DOTGenerator
 		gv.writeGraphToFile( gv.getGraph(gv.getDotSource(), type, repesentationType), out );
 	}
 	
-	private void generateSyntObjPropertiesTriples() 
+	private void generateSyntObjPropertiesTriples() throws NullTripleMember 
 	{
 		if(!conf.synthesizeObjectProperties())
 			return;
@@ -289,21 +325,43 @@ public class DOTGenerator
 	        String rangeUri = mp.getRight();
 	        String domainUri = mp.getLeft();
 
+			if((rangeUri==null)||(rangeUri.equals("null")))
+			{
+				throw new NullTripleMember("null rangeUri for propUri:" + propUri + " [pair:" + mp.toString() + "]");
+			}
+			if((domainUri==null)||(domainUri.equals("null")))
+			{
+				throw new NullTripleMember("null domainUri propUri:" + propUri + " [pair:" + mp.toString() + "]");
+			}
+
 			String domainName = getNodeName(domainUri);
 			String rangeName = getNodeName(rangeUri);
 			String propName = getNodeName(propUri);
 			
+			
 			dottriples.add(new AR2DTriple(domainName,rangeName,propName));
 			
 	    }
+	    
 	}
 
-	private boolean checkObjPropoerties(Resource s,Property p,RDFNode o) 
+	private boolean checkObjPropoerties(Resource s,Property p,RDFNode o) throws NullTripleMember 
 	{
+		
 		if(p.getURI().equals(RDFS_DOMAIN))
 		{
 			ObjPropPair<String, String> dr = new ObjPropPair<String,String>();
-			dr.setLeft(o.asResource().getURI());
+			if(objPropsMap.containsKey(s.getURI()))
+			{
+				dr = objPropsMap.get(s.getURI());
+			}
+			else
+			{
+				dr.setRight(DEFAULT_OBJ_PROP_VALUE);
+			}
+			
+			String oString = o.asResource().getURI();
+			dr.setLeft(oString);
 			objPropsMap.put(s.getURI(), dr);
 			return true;
 		}
@@ -312,7 +370,18 @@ public class DOTGenerator
 		if(p.getURI().equals(RDFS_RANGE))
 		{
 			ObjPropPair<String, String> dr = new ObjPropPair<String,String>();
-			dr.setRight(o.asResource().getURI());
+			if(objPropsMap.containsKey(s.getURI()))
+			{
+				dr = objPropsMap.get(s.getURI());
+			}
+			else
+			{
+				dr.setLeft(DEFAULT_OBJ_PROP_VALUE);	
+			}
+			
+
+			String oString = o.asResource().getURI();
+			dr.setRight(oString);
 			objPropsMap.put(s.getURI(), dr);
 			return true;
 		}
@@ -323,9 +392,15 @@ public class DOTGenerator
 	}
 
 	
-	private String getNodeName(String n) 
+	private String getNodeName(String n) throws NullTripleMember 
 	{
-		return getNodeName(model.getResource(n));
+		String nn = getNodeName(model.getResource(n));
+		if((nn==null)||(nn.equals("null")))
+		{
+			throw new NullTripleMember("null nn for n:" + n);
+		}
+		
+		return nn;
 	}
 	
 	
@@ -354,7 +429,7 @@ public class DOTGenerator
 				else
 				{
 					//replace the ns with the prefix
-					return res.getURI().replace(ns, prefix);
+					return res.getURI().replace(ns, prefix+":");
 				}
 			}
 		}
@@ -435,7 +510,7 @@ public class DOTGenerator
 		log.log(log.getLevel(), msg);
 	}
 
-
+	
 	
 	
 

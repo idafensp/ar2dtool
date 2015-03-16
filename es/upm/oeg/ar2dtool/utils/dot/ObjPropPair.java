@@ -5,7 +5,6 @@ public class ObjPropPair<T1, T2> {
 	private T1 left;
 	private T2 right;
 	
-	
 	public T1 getLeft() {
 		return left;
 	}
@@ -18,5 +17,9 @@ public class ObjPropPair<T1, T2> {
 	public void setRight(T2 right) {
 		this.right = right;
 	}
-
+	
+	public String toString()
+	{
+		return "<"+left+","+right+">";
+	}
 }
