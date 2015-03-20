@@ -77,7 +77,6 @@ public class RDF2Diagram {
 		try {
 			model.read(in, null);
 		} catch (org.apache.jena.riot.RiotException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			throw new RDFInputNotValid("RDF content not valid at "+pathToRdfFile);
 		}
@@ -156,6 +155,10 @@ public class RDF2Diagram {
 				}
 			}
 		}
+		else
+		{
+			ignoreFilteredModel=includeFilteredModel;
+		}
 		
 		
 		//apply equivalency filters over the previous model
@@ -208,6 +211,8 @@ public class RDF2Diagram {
 
 	private String checkEquivalentElementList(String e)
 	{
+		//TODO: should we throw an exception here?
+		//TODO: at least we should show some log output
 		if(e==null)
 			return "NULL";
 		

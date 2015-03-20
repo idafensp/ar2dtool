@@ -296,6 +296,12 @@ public class ConfigValues {
 		return !includeOnlyElementList.isEmpty();
 	}
 
+	
+
+	public boolean equivalentElements() {
+		return !equivalentElementList.isEmpty();
+	}
+
 
 
 	public void setIgnoreElementList(ArrayList<String> ignoreElementList) {

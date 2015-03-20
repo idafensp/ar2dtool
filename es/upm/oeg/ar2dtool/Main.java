@@ -78,6 +78,8 @@ public class Main {
 			
 			if(GENERATE_GV)
 			{
+				log("Generating GV file...");
+				
 				//get the DOTGenerator with the resultant info
 				DOTGenerator dg = r2d.getDOTGenerator();
 				
@@ -87,14 +89,21 @@ public class Main {
 				//save the DOT source to file
 				dg.saveSourceToFile(pathToOuputFile+".dot");
 				
+
+				log("Generated! Path="+pathToOuputFile+".dot");
+				
 				
 				if(COMPILE_GV)
 				{
 					//get source DOT code
 					String src = dg.generateDOTSource();
 					
+
+					log("Compiling GV, this may take a little while...");
 					//compile src code into a graph 
 					dg.generateDOTDiagram(src,pathToOuputFile,outputFileType);	
+					
+					log("Compiled! Path="+pathToOuputFile);
 				}	
 			}
 			
