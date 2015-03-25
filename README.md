@@ -22,7 +22,7 @@ java -jar ar2dtool.jar -i PathToInputRdfFile -o FileToOutputFile -t OutputFileTy
 
 ⋅⋅* -gv/GV: using -gv a DOT source file will be generated as FileToOutputFile.gv. Using -GV will also compile the DOT source code into an image with the format specified in OutputFileType.
 
-⋅⋅* -gml (NOT SUPPORTED YET): using -gml a GraphML source file will be generated as FileToOutputFile.graphml.
+⋅⋅* -gml: using -gml a GraphML source file will be generated as FileToOutputFile.graphml.
 
 - [-d] optional flag for debugging. 
 
