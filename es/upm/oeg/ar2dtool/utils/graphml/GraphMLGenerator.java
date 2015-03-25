@@ -35,6 +35,10 @@ public class GraphMLGenerator
 	private static final String RDFS_RANGE = "http://www.w3.org/2000/01/rdf-schema#range";
 	private static final String RDFS_DOMAIN = "http://www.w3.org/2000/01/rdf-schema#domain";
 	
+	//WHEN RANGE OR DOMAINS ARE EMPTY
+	private static final String DEFAULT_OBJ_PROP_VALUE = "http://www.w3.org/2002/07/owl#Thing";
+
+	
 	//OBJ PROP LIST
 	private Map<String,ObjPropPair<String,String>> objPropsMap;
 	
@@ -350,7 +354,17 @@ public class GraphMLGenerator
 		if(p.getURI().equals(RDFS_DOMAIN))
 		{
 			ObjPropPair<String, String> dr = new ObjPropPair<String,String>();
-			dr.setLeft(o.asResource().getURI());
+			if(objPropsMap.containsKey(s.getURI()))
+			{
+				dr = objPropsMap.get(s.getURI());
+			}
+			else
+			{
+				dr.setRight(DEFAULT_OBJ_PROP_VALUE);
+			}
+			
+			String oString = o.asResource().getURI();
+			dr.setLeft(oString);
 			objPropsMap.put(s.getURI(), dr);
 			return true;
 		}
@@ -359,7 +373,18 @@ public class GraphMLGenerator
 		if(p.getURI().equals(RDFS_RANGE))
 		{
 			ObjPropPair<String, String> dr = new ObjPropPair<String,String>();
-			dr.setRight(o.asResource().getURI());
+			if(objPropsMap.containsKey(s.getURI()))
+			{
+				dr = objPropsMap.get(s.getURI());
+			}
+			else
+			{
+				dr.setLeft(DEFAULT_OBJ_PROP_VALUE);	
+			}
+			
+
+			String oString = o.asResource().getURI();
+			dr.setRight(oString);
 			objPropsMap.put(s.getURI(), dr);
 			return true;
 		}

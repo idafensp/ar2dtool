@@ -43,6 +43,8 @@ public class DOTGenerator
 
 	// LOGGING
 	private static final Logger log = Logger.getLogger("AR2DTOOL");
+	
+	//WHEN RANGE OR DOMAINS ARE EMPTY
 	private static final String DEFAULT_OBJ_PROP_VALUE = "http://www.w3.org/2002/07/owl#Thing";
 
 
