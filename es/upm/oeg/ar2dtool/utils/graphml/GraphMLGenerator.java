@@ -47,7 +47,7 @@ public class GraphMLGenerator
 	private static final Logger log = Logger.getLogger("AR2DTOOL");
 	
 	//DEFAULT SHAPES AND COLORS
-	private static final String DEFAULT_NODE_COLOR = "black";
+	private static final String DEFAULT_NODE_COLOR = "white";
 	private static final String DEFAULT_NODE_SHAPE = "rectangle";
 	private static final String DEFAULT_EDGE_COLOR = "black";
 	
@@ -533,7 +533,7 @@ public class GraphMLGenerator
 	
 	private String getNode(String nodeLabel, String nodeColor, String nodeShape)
 	{
-		getHexColorCode(nodeColor);
+		String hexNodeColor = getHexColorCode(nodeColor);
 		
 		if(nodeLabel==null)
 			nodeLabel="null";
@@ -552,7 +552,7 @@ public class GraphMLGenerator
 				"         <data key=\"d0\">\n" +
 				"            <y:ShapeNode>\n" +
 				"               <y:Geometry height=\"30.0\" width=\"" + width + "\" x=\"0.0\" y=\"0.0\" />\n" +
-				"               <y:Fill color=\"" + nodeColor + "\" transparent=\"false\" />\n" +
+				"               <y:Fill color=\"" + hexNodeColor + "\" transparent=\"false\" />\n" +
 				"               <y:BorderStyle color=\"#000000\" type=\"line\" width=\"1.0\" />\n" +
 				"               <y:NodeLabel alignment=\"center\" autoSizePolicy=\"content\" fontFamily=\"Dialog\" " +
 				"fontSize=\"12\" fontStyle=\"plain\" hasBackgroundColor=\"false\" hasLineColor=\"false\" modelName=\"internal\" modelPosition=\"c\" " +
@@ -592,6 +592,10 @@ public class GraphMLGenerator
 		if(nodeColor.equals("yellow"))
 		{
 			return "#00FFFF00";
+		}
+		if(nodeColor.equals("white"))
+		{
+			return "#FFFFFFFF";
 		}
 		
 		return "#00000000";

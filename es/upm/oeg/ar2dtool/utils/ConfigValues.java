@@ -3,6 +3,7 @@ package es.upm.oeg.ar2dtool.utils;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -17,7 +18,8 @@ import es.upm.oeg.ar2dtool.exceptions.ConfigKeyNotFound;
 
 public class ConfigValues {
 	
-	private static final String fileErrorMsg = "CONFIG FILE ERROR:  couldn't open the config file at ";
+	private static final String fileNotFoundErrorMsg = "CONFIG FILE ERROR:  couldn't open config file at ";
+	private static final String fileNotCompliantErrorMsg = "CONFIG FILE ERROR: config file is not compliant with the sintax aroun line ";
 
 	private static Level logLevel;
 
@@ -64,10 +66,13 @@ public class ConfigValues {
 
 	public void readConfigValues(String configPath) throws ConfigFileNotFoundException 
 	{
+		int lineCounter = 1;
+		
 		//open the file and read it line by line
 		try {
-			
-			FileInputStream fstream = new FileInputStream(configPath);
+				
+			FileInputStream fstream;
+				fstream = new FileInputStream(configPath);
 			// Get the object of DataInputStream
 			DataInputStream in = new DataInputStream(fstream);
 			BufferedReader br = new BufferedReader(new InputStreamReader(in));
@@ -80,13 +85,19 @@ public class ConfigValues {
 				strLine=strLine.replaceAll("\\s+","");				
 				//dbg(strLine);
 				processLine(strLine, br);
+				lineCounter++;
 			}
 			
 			
-			// Close the input stream
 			in.close();
+
+		} 
+		catch (FileNotFoundException e) {
+			throw new ConfigFileNotFoundException(fileNotFoundErrorMsg + configPath + "\n" + e.getMessage());
+		} catch (IOException e) {
+			throw new ConfigFileNotFoundException(fileNotFoundErrorMsg + configPath + "\n" + e.getMessage());
 		} catch (Exception e) {// Catch exception if any
-			throw new ConfigFileNotFoundException(fileErrorMsg + configPath + "\n" + e.getMessage());
+			throw new ConfigFileNotFoundException(fileNotCompliantErrorMsg + lineCounter + "\n" + e.getMessage());
 		}
 	}
 	
@@ -115,7 +126,7 @@ public class ConfigValues {
 		}
 		
 
-		if(strLine.startsWith("ignoreElementsList"))
+		if(strLine.startsWith("ignoreElementList"))
 		{
 			ignoreElementList = loadIgnoreElementsList(strLine, br);
 			return;
