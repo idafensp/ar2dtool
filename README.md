@@ -84,7 +84,7 @@ These are the list parameters that can be defined:
 
 - specialElementList: a list composed by tuples of 3 elements (<URI,SHAPE,COLOR>) allowing to differenciate/highlight resources on the final diagram.>
 
-Two sample configuration files are available in the /bin folder. One creates and ER diagram of the ontology. The other one depicts the taxonomy of the classes.
+Two sample configuration files are available in the /samples folder. One creates and ER diagram of the ontology. The other one depicts the taxonomy of the classes.
 
 
 Acknowledgements
