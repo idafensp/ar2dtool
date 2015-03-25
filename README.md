@@ -3,7 +3,6 @@
 
 Standalone tool
 ===============
-
 This tool receives as an input an RDF file and produces as an output a file with a graphical representation of the source RDF file
 
 Command line syntax:
@@ -20,9 +19,9 @@ java -jar ar2dtool.jar -i PathToInputRdfFile -o FileToOutputFile -t OutputFileTy
 
 - GENERATE_FLAGS: you can specify one or more of the flags below to define which files you want to generate:
 
-⋅⋅* -gv/GV: using -gv a DOT source file will be generated as FileToOutputFile.gv. Using -GV will also compile the DOT source code into an image with the format specified in OutputFileType.
+  * -gv/GV: using -gv a DOT source file will be generated as FileToOutputFile.gv. Using -GV will also compile the DOT source code into an image with the format specified in OutputFileType.
 
-⋅⋅* -gml: using -gml a GraphML source file will be generated as FileToOutputFile.graphml.
+  * -gml: using -gml a GraphML source file will be generated as FileToOutputFile.graphml.
 
 - [-d] optional flag for debugging. 
 
@@ -85,6 +84,7 @@ These are the list parameters that can be defined:
 
 - specialElementList: a list composed by tuples of 3 elements (<URI,SHAPE,COLOR>) allowing to differenciate/highlight resources on the final diagram.>
 
+Two sample configuration files are available in the /bin folder. One creates and ER diagram of the ontology. The other one depicts the taxonomy of the classes.
 
 
 Acknowledgements
