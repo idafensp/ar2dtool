@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.NodeFactory;
+import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -16,6 +17,7 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.util.FileManager;
+import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 
 import es.upm.oeg.ar2dtool.exceptions.ConfigFileNotFoundException;
 import es.upm.oeg.ar2dtool.exceptions.RDFInputNotValid;
@@ -36,6 +38,9 @@ public class RDF2Diagram {
 	//ONTOLOGY MODEL & SPEC
 	private OntModel model;
 	private static final OntModelSpec ONT_SPEC = OntModelSpec.OWL_MEM ;
+	
+	//Classes list for later format
+	private ArrayList<String> classesSC;
 	
 	
 	//LOGGING
@@ -81,8 +86,12 @@ public class RDF2Diagram {
 			throw new RDFInputNotValid("RDF content not valid at "+pathToRdfFile);
 		}
 		log("RDF model loaded from " + pathToRdfFile);
-		INFO("I>RDF model loaded from " + pathToRdfFile);
-		SEVERE("R>RDF model loaded from " + pathToRdfFile);
+
+
+		detectClasses();
+		
+		log("Classes loaded:" + classesSC);
+
 	}
 	
 	/*
@@ -348,12 +357,12 @@ public class RDF2Diagram {
 	
 	public DOTGenerator getDOTGenerator()
 	{
-		return new DOTGenerator(model,conf);
+		return new DOTGenerator(model,conf, classesSC);
 	}
 	
 	public GraphMLGenerator getGraphMLGenerator()
 	{
-		return new GraphMLGenerator(model,conf);
+		return new GraphMLGenerator(model,conf, classesSC);
 	}
 
 	public String printModel() {
@@ -369,4 +378,15 @@ public class RDF2Diagram {
 		
 		return res;
 	}
+	
+	private void detectClasses() 
+	{
+		classesSC = new ArrayList<String>();
+		ExtendedIterator<OntClass> it = model.listClasses();
+		while(it.hasNext())
+		{
+			classesSC.add(it.next().toString());
+		}
+	}
+	
 }

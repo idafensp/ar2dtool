@@ -72,12 +72,12 @@ public class GraphMLGenerator
 	private Map<String, String> prefixMap;
 
 	
-	public GraphMLGenerator(OntModel m, ConfigValues c)
+	public GraphMLGenerator(OntModel m, ConfigValues c, ArrayList<String> clsc)
 	{
 		model = m;
 		conf = c;
 		gmltriples = new ArrayList<AR2DTriple>();
-		classesSC = new ArrayList<String>();
+		classesSC = clsc; //new ArrayList<String>();
 		individualsSC = new ArrayList<String>();
 		literalsSC = new ArrayList<String>();
 		ontPropertiesSC = new ArrayList<String>();
@@ -475,22 +475,42 @@ public class GraphMLGenerator
 
 	private void detectClasses() 
 	{
-		ExtendedIterator<OntClass> it = model.listClasses();
-		boolean empty = true;
-		while(it.hasNext())
+		
+		ArrayList<String> res = new ArrayList<String>();
+		for(String c: classesSC)
 		{
-			empty = false;
-			classesSC.add(getNodeName(it.next()));
+			res.add(getNodeName(c));
 		}
 		
-		if(empty)
-		{
+		classesSC = res;
+		
+		if(classesSC.isEmpty())
+			{
 			log("No classes detected");
 		}
 		else
 		{
 			log("Classes detected: " + classesSC);
 		}
+		
+		
+		//TODO remove
+//		ExtendedIterator<OntClass> it = model.listClasses();
+//		boolean empty = true;
+//		while(it.hasNext())
+//		{
+//			empty = false;
+//			classesSC.add(getNodeName(it.next()));
+//		}
+//		
+//		if(empty)
+//		{
+//			log("No classes detected");
+//		}
+//		else
+//		{
+//			log("Classes detected: " + classesSC);
+//		}
 	}
 
 
