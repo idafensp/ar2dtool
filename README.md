@@ -3,7 +3,7 @@
 
 Standalone tool
 ===============
-
+test
 This tool receives as an input an RDF file and produces as an output a file with a graphical representation of the source RDF file
 
 Command line syntax:
