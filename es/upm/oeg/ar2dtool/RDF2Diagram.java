@@ -140,7 +140,7 @@ public class RDF2Diagram {
 		
 		
 		//we only apply if the list is not empty
-		if (conf.ignoreElements()) {
+		if ((conf.ignoreElements())||(conf.ignoreRDFType())||(conf.ignoreRDFType())) {
 			
 			log("Applying ignoreElementList filter");
 			//apply ignore filters over the previous model
@@ -234,7 +234,7 @@ public class RDF2Diagram {
 	/*
 	 * This method returns true if the statement st should be ignored
 	 */
-	private boolean ignoreStatement(Statement st) 
+	private boolean ignoreStatement(Statement st)
 	{
 		Resource sub = st.getSubject();
 		Property pre = st.getPredicate();
@@ -242,18 +242,23 @@ public class RDF2Diagram {
 		
 		//if sub or pre are in the ignoreElememtList the statment 
 		//must be ignored
-		if(conf.getIgnoreElementList().contains(sub.getURI()) ||
-				conf.getIgnoreElementList().contains(pre.getURI()))
+		if(conf.getIgnoreElementList().contains(sub.getURI()))
 		{
-			log("Ignoring statement " + st + " due to ignoreElememtList");
+			log("Ignoring statement " + st + " due to ignoreElememtList (subject)");
 			return true;
 		}
+		if(conf.getIgnoreElementList().contains(pre.getURI()))
+		{
+			log("Ignoring statement " + st + " due to ignoreElememtList (predicate)");
+			return true;
+		}
+		
 		
 		//if obj is a resource and it uri is in the ignoreElementList
 		//the statement must be ignored
 		if(!obj.isLiteral() && conf.getIgnoreElementList().contains(obj.toString()))
 		{
-			log("Ignoring statement " + st + " due to ignoreElememtList");
+			log("Ignoring statement " + st + " due to ignoreElememtList (object)");
 			return true;
 		}
 		
