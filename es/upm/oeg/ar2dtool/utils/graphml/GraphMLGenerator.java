@@ -66,6 +66,7 @@ public class GraphMLGenerator
 	private ArrayList<AR2DTriple> gmltriples;
 	
 	//SHAPES&COLORS LISTS
+	
 	private ArrayList<String> classesSC, individualsSC, literalsSC, ontPropertiesSC, dtPropertiesSC;
 
 	private Map<String, String> prefixMap;
@@ -263,6 +264,8 @@ public class GraphMLGenerator
 	{
 		if(classesSC.contains(source))
 		{
+			//TODO remove
+			log("Class found!" + source + " color " + conf.getKeys().get("classColor"));
 			return conf.getKeys().get("classColor");
 		}
 		if(individualsSC.contains(source))
@@ -484,6 +487,10 @@ public class GraphMLGenerator
 		{
 			log("No classes detected");
 		}
+		else
+		{
+			log("Classes detected: " + classesSC);
+		}
 	}
 
 
@@ -571,31 +578,31 @@ public class GraphMLGenerator
 	{
 		if(nodeColor.equals("black"))
 		{
-			return "#00000000";
+			return "#000000";
 		}
 		if(nodeColor.equals("red"))
 		{
-			return "#00FF0000";
+			return "#FF0000";
 		}
 		if(nodeColor.equals("blue"))
 		{
-			return "#000000FF";
+			return "#0000FF";
 		}
 		if(nodeColor.equals("green"))
 		{
-			return "#0000FF00";
+			return "#00FF00";
 		}
 		if(nodeColor.equals("orange"))
 		{
-			return "#00FFA500";
+			return "#FFA500";
 		}
 		if(nodeColor.equals("yellow"))
 		{
-			return "#00FFFF00";
+			return "#FFFF00";
 		}
 		if(nodeColor.equals("white"))
 		{
-			return "#FFFFFFFF";
+			return "#FFFFFF";
 		}
 		
 		return "#00000000";
