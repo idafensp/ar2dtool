@@ -13,6 +13,12 @@ import com.hp.hpl.jena.graph.NodeFactory;
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntModelSpec;
+import com.hp.hpl.jena.query.Query;
+import com.hp.hpl.jena.query.QueryExecution;
+import com.hp.hpl.jena.query.QueryExecutionFactory;
+import com.hp.hpl.jena.query.QueryFactory;
+import com.hp.hpl.jena.query.QuerySolution;
+import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.NsIterator;
 import com.hp.hpl.jena.rdf.model.Property;
@@ -52,6 +58,9 @@ public class RDF2Diagram {
 	
 	//LOGGING
 	private static final Logger log = Logger.getLogger("AR2DTOOL");
+
+
+	private static final String DEFAULT_BASE_PREFIX_VALUE = "base";
 	
 
 
@@ -407,7 +416,7 @@ public class RDF2Diagram {
 		prefixMap = new HashMap<String,String>();
 
 
-        System.out.println("****aPREFIX MAP****");
+        System.out.println("****PREFIX MAP****");
 		Iterator<Map.Entry<String,String>> it = pm.entrySet().iterator();
 	    while (it.hasNext()) {
 	    	
@@ -415,11 +424,48 @@ public class RDF2Diagram {
 	        String key = pairs.getKey();
 	        String value = pairs.getValue();
 	        
+	        if(key.isEmpty())
+	        {
+	        	key = DEFAULT_BASE_PREFIX_VALUE;
+	        }
+	        
 	        System.out.println(value+":"+key);
 	        
 	        prefixMap.put(value, key);
 	        
 	    }
+	    
+
+		Property preferredNamespaceUriProp = model.getProperty( "http://purl.org/vocab/vann/preferredNamespaceUri" );
+		if(preferredNamespaceUriProp!=null)
+		{
+			String queryBase ="select ?s ?o where\n"+
+					"{\n"+
+					"  ?s <http://purl.org/vocab/vann/preferredNamespacePrefix> ?o \n"+
+					"}";
+			
+			Query query = QueryFactory.create(queryBase); 
+
+			QueryExecution qExe = QueryExecutionFactory.create(query, model);
+			ResultSet resultsRes = qExe.execSelect();
+
+			try {
+			  while (resultsRes.hasNext()) {                
+			    QuerySolution qs = resultsRes.nextSolution();
+		    
+			    String value = qs.get("?s").toString();
+			    String key = qs.get("?o").toString();
+			    
+			    System.out.println(value+":"+key);
+		        
+		        prefixMap.put(value, key);
+			    //never any results
+			  }
+			} catch (Exception ex) {
+			  System.out.println(ex);
+			}
+		}
+		
 	    
 
         System.out.println("****END PREFIX MAP****");
