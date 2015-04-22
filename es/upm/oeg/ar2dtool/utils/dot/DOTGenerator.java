@@ -63,7 +63,7 @@ public class DOTGenerator
 	private Map<String, String> prefixMap;
 
 	
-	public DOTGenerator(OntModel m, ConfigValues c, ArrayList<String> clsc)
+	public DOTGenerator(OntModel m, ConfigValues c, ArrayList<String> clsc, Map<String, String> pm)
 	{
 		model = m;
 		conf = c;
@@ -74,6 +74,7 @@ public class DOTGenerator
 		ontPropertiesSC = new ArrayList<String>();
 		dtPropertiesSC = new ArrayList<String>();
 		objPropsMap = new HashMap<String,ObjPropPair<String,String>>();
+		prefixMap = pm;
 	}
 	
 	/*
@@ -89,8 +90,6 @@ public class DOTGenerator
 	 */
 	public void applyTransformations() throws NullTripleMember
 	{
-		//load the prefixmap just in case
-		prefixMap = loadPrefixMap();
 				
 		//detecting classes
 		detectClasses();
@@ -144,37 +143,7 @@ public class DOTGenerator
 		
 	
 	}
-	
-	//load the nsmap and swap keys and values
-	//for easier access later
-	private Map<String, String> loadPrefixMap() {
-		
-		Map<String, String> pm = model.getNsPrefixMap();
-		Map<String, String> res = new HashMap<String,String>();
-		
-		
-		Iterator<Map.Entry<String,String>> it = pm.entrySet().iterator();
-	    while (it.hasNext()) {
-	        Map.Entry<String,String> pairs = it.next();
-	        String key = pairs.getKey();
-	        String value = pairs.getValue();
-	        res.put(value, key);
-	        
-	    }
-	    
-	    NsIterator itns = model.listNameSpaces();
-	    while(itns.hasNext())
-	    {
-	    	String ns = itns.next();
-	    	if(!res.containsKey(ns))
-	    	{
-	    		res.put(ns, "");
-	    	}
-	    	
-	    }
-		
-		return res;
-	}
+
 	
 	private String printDotDriples() 
 	{

@@ -2,6 +2,9 @@ package es.upm.oeg.ar2dtool;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -11,6 +14,7 @@ import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.NsIterator;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -41,6 +45,9 @@ public class RDF2Diagram {
 	
 	//Classes list for later format
 	private ArrayList<String> classesSC;
+	
+	//Prefix map for later format
+	Map<String, String> prefixMap;
 	
 	
 	//LOGGING
@@ -88,6 +95,9 @@ public class RDF2Diagram {
 		log("RDF model loaded from " + pathToRdfFile);
 
 
+        
+        detectPrefixMap();
+		
 		detectClasses();
 		
 		log("Classes loaded:" + classesSC);
@@ -357,12 +367,12 @@ public class RDF2Diagram {
 	
 	public DOTGenerator getDOTGenerator()
 	{
-		return new DOTGenerator(model,conf, classesSC);
+		return new DOTGenerator(model,conf, classesSC, prefixMap);
 	}
 	
 	public GraphMLGenerator getGraphMLGenerator()
 	{
-		return new GraphMLGenerator(model,conf, classesSC);
+		return new GraphMLGenerator(model,conf, classesSC, prefixMap);
 	}
 
 	public String printModel() {
@@ -387,6 +397,44 @@ public class RDF2Diagram {
 		{
 			classesSC.add(it.next().toString());
 		}
+	}
+	
+	//load the nsmap and swap keys and values
+	//for easier access later
+	private void detectPrefixMap() 
+	{
+		Map<String, String> pm = model.getNsPrefixMap();
+		prefixMap = new HashMap<String,String>();
+
+
+        System.out.println("****aPREFIX MAP****");
+		Iterator<Map.Entry<String,String>> it = pm.entrySet().iterator();
+	    while (it.hasNext()) {
+	    	
+	        Map.Entry<String,String> pairs = it.next();
+	        String key = pairs.getKey();
+	        String value = pairs.getValue();
+	        
+	        System.out.println(value+":"+key);
+	        
+	        prefixMap.put(value, key);
+	        
+	    }
+	    
+
+        System.out.println("****END PREFIX MAP****");
+        
+	    NsIterator itns = model.listNameSpaces();
+	    while(itns.hasNext())
+	    {
+	    	String ns = itns.next();
+	    	if(!prefixMap.containsKey(ns))
+	    	{
+	    		prefixMap.put(ns, "");
+	    	}
+	    	
+	    }
+
 	}
 	
 }
