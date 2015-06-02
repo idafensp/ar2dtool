@@ -60,7 +60,7 @@ These are the values that can be specified.
 
 - classColor, individualColor, and literalColor: color of each type of element of the graph. Allowed values so far are: black (default), red, blue, green, orange, yellow (e.g. literalColor=blue;).
 
-- nodeNameMode: defines the way the resources are named. You can specify 'fulluri' for using the URIs of each resource, 'prefix' for shortened names using the specified prefixes (resources with no mathcing prefix will be displayed with their full URI), or 'localname' for using the localname of the resource. (e.g. nodeNameMode=localname;).
+- nodeNameMode: defines the way the resources are named. You can specify 'fulluri' for using the URIs of each resource, 'prefix' for shortened names using the specified prefixes (resources with no mathcing prefix will be displayed with their full URI. By default the base prefix will be displayed as "base:", unless vann:preferredNamespacePrefix is specified, in which case its value will be used as base prefix), or 'localname' for using the localname of the resource. (e.g. nodeNameMode=localname;).
 
 - ignoreLiterals: if you want to exclude literals from your graph you can set this flag to true (e.g. ignoreLiterals=true;).
 
