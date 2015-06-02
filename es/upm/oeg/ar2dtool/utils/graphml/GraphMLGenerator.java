@@ -65,6 +65,14 @@ public class GraphMLGenerator
 	//DOT Triples
 	private ArrayList<AR2DTriple> gmltriples;
 	
+	//RESTRICTION LIST
+	private ArrayList<String> restrictionList;
+
+	//AVOID RESTRICTIONS
+	private static final boolean AVOID_RESTRICTION_NODES = true;
+
+	
+	
 	//SHAPES&COLORS LISTS
 	
 	private ArrayList<String> classesSC, individualsSC, literalsSC, ontPropertiesSC, dtPropertiesSC;
@@ -72,7 +80,7 @@ public class GraphMLGenerator
 	private Map<String, String> prefixMap;
 
 	
-	public GraphMLGenerator(OntModel m, ConfigValues c, ArrayList<String> clsc, Map<String, String> pm)
+	public GraphMLGenerator(OntModel m, ConfigValues c, ArrayList<String> clsc, Map<String, String> pm,  ArrayList<String> reslist)
 	{
 		model = m;
 		conf = c;
@@ -83,6 +91,7 @@ public class GraphMLGenerator
 		ontPropertiesSC = new ArrayList<String>();
 		dtPropertiesSC = new ArrayList<String>();
 		objPropsMap = new HashMap<String,ObjPropPair<String,String>>();
+		restrictionList = reslist;
 		prefixMap = pm;
 	}
 	
@@ -122,10 +131,18 @@ public class GraphMLGenerator
 			Property p = st.getPredicate();
 			RDFNode o = st.getObject();
 			
+			if((AVOID_RESTRICTION_NODES)&&(restrictionList.contains(s.toString())))
+				continue;
+			
 			//detecting literals
 			if(o.isLiteral())
 			{
 				literalsSC.add(st.getObject().toString());
+			}
+			else
+			{
+				if((AVOID_RESTRICTION_NODES)&&(restrictionList.contains(o.toString())))
+					continue;
 			}
 
 			

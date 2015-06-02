@@ -13,6 +13,7 @@ import com.hp.hpl.jena.graph.NodeFactory;
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntModelSpec;
+import com.hp.hpl.jena.ontology.Restriction;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
@@ -54,6 +55,10 @@ public class RDF2Diagram {
 	
 	//Prefix map for later format
 	Map<String, String> prefixMap;
+	
+
+	//Restriction List
+	private ArrayList<String> restrictionList;
 	
 	
 	//LOGGING
@@ -103,9 +108,10 @@ public class RDF2Diagram {
 		}
 		log("RDF model loaded from " + pathToRdfFile);
 
-
-        
+		
         detectPrefixMap();
+        
+        detectRestrictions();
 		
 		detectClasses();
 		
@@ -376,12 +382,12 @@ public class RDF2Diagram {
 	
 	public DOTGenerator getDOTGenerator()
 	{
-		return new DOTGenerator(model,conf, classesSC, prefixMap);
+		return new DOTGenerator(model,conf, classesSC, prefixMap,restrictionList);
 	}
 	
 	public GraphMLGenerator getGraphMLGenerator()
 	{
-		return new GraphMLGenerator(model,conf, classesSC, prefixMap);
+		return new GraphMLGenerator(model,conf, classesSC, prefixMap,restrictionList);
 	}
 
 	public String printModel() {
@@ -406,6 +412,22 @@ public class RDF2Diagram {
 		{
 			classesSC.add(it.next().toString());
 		}
+	}
+	
+	
+	private void detectRestrictions()
+	{
+		
+		restrictionList = new ArrayList<String>();
+		
+		ExtendedIterator<Restriction> itr = model.listRestrictions();
+		while(itr.hasNext())
+		{
+			Restriction res = itr.next();
+			restrictionList.add(res.toString());
+			log(">>>>>>RESTRICTION:" + res);
+		}
+		
 	}
 	
 	//load the nsmap and swap keys and values

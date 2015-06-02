@@ -5,16 +5,19 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.ontology.DatatypeProperty;
 import com.hp.hpl.jena.ontology.Individual;
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntProperty;
+import com.hp.hpl.jena.ontology.Restriction;
 import com.hp.hpl.jena.rdf.model.NsIterator;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
@@ -47,6 +50,9 @@ public class DOTGenerator
 	//WHEN RANGE OR DOMAINS ARE EMPTY
 	private static final String DEFAULT_OBJ_PROP_VALUE = "http://www.w3.org/2002/07/owl#Thing";
 
+	//AVOID RESTRICTIONS
+	private static final boolean AVOID_RESTRICTION_NODES = true;
+
 
 	//CONF VALUES
 	private ConfigValues conf;
@@ -57,13 +63,20 @@ public class DOTGenerator
 	//DOT Triples
 	private ArrayList<AR2DTriple> dottriples;
 	
+	//ALL NODENAMES to be depicted
+	private HashSet<String> allDepictedNodeNames;
+	
 	//SHAPES&COLORS LISTS
 	private ArrayList<String> classesSC, individualsSC, literalsSC, ontPropertiesSC, dtPropertiesSC;
 
 	private Map<String, String> prefixMap;
+	
+	
+	//RESTRICTION LIST
+	private ArrayList<String> restrictionList;
 
 	
-	public DOTGenerator(OntModel m, ConfigValues c, ArrayList<String> clsc, Map<String, String> pm)
+	public DOTGenerator(OntModel m, ConfigValues c, ArrayList<String> clsc, Map<String, String> pm, ArrayList<String> reslist)
 	{
 		model = m;
 		conf = c;
@@ -74,6 +87,8 @@ public class DOTGenerator
 		ontPropertiesSC = new ArrayList<String>();
 		dtPropertiesSC = new ArrayList<String>();
 		objPropsMap = new HashMap<String,ObjPropPair<String,String>>();
+		allDepictedNodeNames = new HashSet<String>();
+		restrictionList = reslist;
 		prefixMap = pm;
 	}
 	
@@ -90,7 +105,7 @@ public class DOTGenerator
 	 */
 	public void applyTransformations() throws NullTripleMember
 	{
-				
+
 		//detecting classes
 		detectClasses();
 		
@@ -113,11 +128,20 @@ public class DOTGenerator
 			Resource s = st.getSubject();
 			Property p = st.getPredicate();
 			RDFNode o = st.getObject();
+
+ 
+			if((AVOID_RESTRICTION_NODES)&&(restrictionList.contains(s.toString())))
+				continue;
 			
 			//detecting literals
 			if(o.isLiteral())
 			{
 				literalsSC.add(st.getObject().toString());
+			}
+			else
+			{
+				if((AVOID_RESTRICTION_NODES)&&(restrictionList.contains(o.toString())))
+					continue;
 			}
 
 			
@@ -167,6 +191,7 @@ public class DOTGenerator
 		String dottail = "\n}";
 		
 		
+		
 		String dotsource = "";
 		for(AR2DTriple dt : dottriples)
 		{
@@ -177,6 +202,11 @@ public class DOTGenerator
 			
 			String spoviz = "\t\""+dt.getSource()+"\" -> \"" + dt.getTarget() + "\" [ label = \""+ dt.getEdge() + "\" ];\n";
 			dotsource += spoviz;
+			
+			//store all node names for later filtering ISSUE #25
+			allDepictedNodeNames.add(dt.getSource());
+			allDepictedNodeNames.add(dt.getEdge());
+			allDepictedNodeNames.add(dt.getTarget());
 		}
 		
 		String classStyle = "node [shape = "+ conf.getKeys().get("classShape") +", color=\""+ conf.getKeys().get("classColor") +"\"]; ";
@@ -188,7 +218,10 @@ public class DOTGenerator
 		String classesStyle = "";
 		for (String c : classesSC)
 		{
-			classesStyle +=  "\"" + c + "\" ";
+			if(allDepictedNodeNames.contains(c))
+			{
+				classesStyle +=  "\"" + c + "\" ";	
+			}
 		}
 		if(!classesStyle.equals(""))
 		{
@@ -198,7 +231,10 @@ public class DOTGenerator
 		String individualsStyle = "";
 		for (String i : individualsSC)
 		{
-			individualsStyle +=  "\"" + i + "\" ";
+			if(allDepictedNodeNames.contains(i))
+			{
+				individualsStyle +=  "\"" + i + "\" ";
+			}
 		}
 		if(!individualsStyle.equals(""))
 		{
@@ -209,7 +245,10 @@ public class DOTGenerator
 		String literalsStyle = "";
 		for (String l : literalsSC)
 		{
-			literalsStyle +=  "\"" + l + "\" ";
+			if(allDepictedNodeNames.contains(l))
+			{
+				literalsStyle +=  "\"" + l + "\" ";
+			}
 		}
 		if(!literalsStyle.equals(""))
 		{
@@ -219,7 +258,10 @@ public class DOTGenerator
 		String objPropsStyle = "";
 		for (String op : ontPropertiesSC)
 		{
-			objPropsStyle +=  "\"" + op + "\" ";
+			if(allDepictedNodeNames.contains(op))
+			{
+				objPropsStyle +=  "\"" + op + "\" ";
+			}
 		}
 		if(!objPropsStyle.equals(""))
 		{
@@ -229,7 +271,10 @@ public class DOTGenerator
 		String dtPropsStyle = "";
 		for (String dt : dtPropertiesSC)
 		{
-			dtPropsStyle +=  "\"" + dt + "\" ";
+			if(allDepictedNodeNames.contains(dt))
+			{
+				dtPropsStyle +=  "\"" + dt + "\" ";
+			}
 		}
 		if(!dtPropsStyle.equals(""))
 		{
