@@ -1,5 +1,6 @@
 package es.upm.oeg.ar2dtool;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -101,10 +102,25 @@ public class RDF2Diagram {
 		
 		//read the input stream
 		try {
-			model.read(in, null);
+
+			log("Loading model using RDF/XML parser...");
+			model.read(in, "RDFXML");
+			
 		} catch (org.apache.jena.riot.RiotException e) {
-			e.printStackTrace();
-			throw new RDFInputNotValid("RDF content not valid at "+pathToRdfFile);
+			try
+			{
+				in.close();
+				in = FileManager.get().open(pathToRdfFile);
+				log("Loading model using TTL parser...");
+				model.read(in, null, "TTL");
+			}
+			catch (org.apache.jena.riot.RiotException e2) {
+				e2.printStackTrace();
+				throw new RDFInputNotValid("RDF content not valid at "+pathToRdfFile);
+			} catch (IOException e1) {
+				e1.printStackTrace();
+				throw new RDFNotFound("RDF content not found at "+pathToRdfFile);
+			}
 		}
 		log("RDF model loaded from " + pathToRdfFile);
 
