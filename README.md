@@ -3,7 +3,7 @@
 
 Standalone tool
 ===============
-This tool receives as an input an RDF file and produces as an output a file with a graphical representation of the source RDF file
+This tool receives as an input an RDF file and produces as an output a file with a graphical representation of the source RDF file. AR2DTool support RDF/XML and TTL serialization formats.
 
 Command line syntax:
 
