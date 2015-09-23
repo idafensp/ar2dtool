@@ -38,4 +38,4 @@ synthesizeObjectProperties=true;
 #######
 
 
-ignoreElementList=[<http://www.w3.org/2000/01/rdf-schema#subClassOf>];
+ignoreElementList=[<http://www.w3.org/2000/01/rdf-schema#subClassOf,http://www.w3.org/2000/01/rdf-schema#subPropertyOf,http://www.w3.org/2002/07/owl#inverseOf,http://www.w3.org/2002/07/owl#disjointWith>];
