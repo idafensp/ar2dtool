@@ -5,9 +5,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang3.tuple.MutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntModelSpec;
@@ -18,14 +18,14 @@ import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 
 import es.upm.oeg.ar2dtool.ConfigValues;
-import es.upm.oeg.ar2dtool.Main;
+import es.upm.oeg.ar2dtool.logger.AR2DToolLogger;
 
 public class Rdf2Gv {
 	
 	private static final String rdfTypeUri = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 	private static final String rdfsRange = "http://www.w3.org/2000/01/rdf-schema#range";
 	private static final String rdfsDomain = "http://www.w3.org/2000/01/rdf-schema#domain";
-	
+	private static AR2DToolLogger log = AR2DToolLogger.getLogger("AR2DTool");
 	
 	private static String pathToRdf;
 	private static ConfigValues cv;
@@ -44,7 +44,7 @@ public class Rdf2Gv {
 		return dtLines;
 	}
 
-	private HashSet<String> gvLines;
+	//private HashSet<String> gvLines;
 	
 	public Rdf2Gv(String path, ConfigValues c)
 	{
@@ -54,7 +54,7 @@ public class Rdf2Gv {
 		classList = new HashSet<String>();
 		individualList = new HashSet<String>();
 		literalList = new HashSet<String>();
-		gvLines = new HashSet<String>();
+		//gvLines = new HashSet<String>();
 
 		objProps = new HashMap<String, MutablePair<String,String>>();
 		
@@ -80,7 +80,7 @@ public class Rdf2Gv {
 			RDFNode obj = st.getObject();
 			if(obj.isLiteral())
 			{
-				if(cv.keys.get("ignoreLiterals").equals("true")) //user wants to skip literals
+				if(cv.getKeys().get("ignoreLiterals").equals("true")) //user wants to skip literals
 					continue;
 					
 				oUri = "\"" + st.getString() + "\"";
@@ -92,7 +92,7 @@ public class Rdf2Gv {
 			
 			
 			//includeOnlyElementList Check
-			if((cv.includeOnlyElementList.size()>0)&&((!cv.includeOnlyElementList.contains(sUri))&&(!cv.includeOnlyElementList.contains(pUri))&&(!cv.includeOnlyElementList.contains(oUri))))
+			if((cv.getIncludeOnlyElementList().size()>0)&&((!cv.getIncludeOnlyElementList().contains(sUri))&&(!cv.getIncludeOnlyElementList().contains(pUri))&&(!cv.getIncludeOnlyElementList().contains(oUri))))
 			{
 				//one of the elements is included in the ignore list
 				dbg("includeOnlyElementList->Skipping triple:" + st);
@@ -101,7 +101,7 @@ public class Rdf2Gv {
 			
 
 			//ignoreElementList Check
-			if((cv.ignoreElementList.contains(sUri))||(cv.ignoreElementList.contains(pUri))||(cv.ignoreElementList.contains(oUri)))
+			if((cv.getIgnoreElementList().contains(sUri))||(cv.getIgnoreElementList().contains(pUri))||(cv.getIgnoreElementList().contains(oUri)))
 			{
 				//one of the elements is included in the ignore list
 				dbg("ignoreElementList->Skipping triple:" + st);
@@ -126,7 +126,7 @@ public class Rdf2Gv {
 			
 			
 // REMOVE			
-//			if(cv.keys.get("useFullUri").equals("false"))
+//			if(cv.getKeys().get("useFullUri").equals("false"))
 //			{
 //				//user wants to use local names instead of full URIs
 //				s="\"" + cMod.getResource(sUri).getLocalName() + "\"";
@@ -137,7 +137,7 @@ public class Rdf2Gv {
 //				}
 //			}
 			
-			if(cv.keys.get("synthesizeObjectProperties").equals("true")) //user wants to synthesize obj props
+			if(cv.getKeys().get("synthesizeObjectProperties").equals("true")) //user wants to synthesize obj props
 			{
 				if(pUri.equals(rdfsRange)) //the triple is defining the range of an obj. prop.
 				{
@@ -188,7 +188,7 @@ public class Rdf2Gv {
 				
 				dbg("adding " + sUri + "to individuals due to triple: [" + st +"]");
 								
-				if(cv.keys.get("ignoreRdfType").equals("true"))
+				if(cv.getKeys().get("ignoreRdfType").equals("true"))
 				{
 					//is RdfType prop and user wants to ignore it
 					dbg("ignoreRdfType->Skipping triple:" + st);
@@ -205,13 +205,13 @@ public class Rdf2Gv {
 		
 		
 		//defining the styles
-		String classStyle = "node [shape = "+ cv.keys.get("classShape") +", color="+ cv.keys.get("classColor") +"]; ";
-		String individualStyle = "node [shape = "+ cv.keys.get("individualShape") +", color="+ cv.keys.get("individualColor") +"]; ";
-		String literalStyle = "node [shape = "+ cv.keys.get("literalShape") +", color="+ cv.keys.get("literalColor") +"]; ";
+		String classStyle = "node [shape = "+ cv.getKeys().get("classShape") +", color="+ cv.getKeys().get("classColor") +"]; ";
+		String individualStyle = "node [shape = "+ cv.getKeys().get("individualShape") +", color="+ cv.getKeys().get("individualColor") +"]; ";
+		String literalStyle = "node [shape = "+ cv.getKeys().get("literalShape") +", color="+ cv.getKeys().get("literalColor") +"]; ";
 		String syntObjProp = getSynthesizeObjectPropertiesString(cMod);
 
 		
-		if(cv.keys.get("useFullUri").equals("false"))
+		if(cv.getKeys().get("useFullUri").equals("false"))
 		{
 			classList = getLocalNames(cMod,classList);
 			literalList = getLocalNames(cMod,literalList);
@@ -220,7 +220,7 @@ public class Rdf2Gv {
 		
 		//if we are ignoring the Rdf type property we don't include classes style 
 		//to avoid them to appear alone without any link pointing to them
-		if(cv.keys.get("ignoreRdfType").equals("true")) 
+		if(cv.getKeys().get("ignoreRdfType").equals("true")) 
 		{
 			classStyle="/*classes style ignored due to ignoreRdfType*/\n";
 		}
@@ -235,7 +235,7 @@ public class Rdf2Gv {
 		
 		//if we are ignoring literals we don't include their style 
 		//to avoid them to appear alone without any link pointing to them
-		if(cv.keys.get("ignoreLiterals").equals("true"))
+		if(cv.getKeys().get("ignoreLiterals").equals("true"))
 		{
 			literalStyle = "/*literal elements ignored*/\n";
 		}
@@ -252,9 +252,9 @@ public class Rdf2Gv {
 		}
 
 		String specialElementsStyle ="";
-		for(ArrayList<String> se : cv.specialElementsList)
+		for(ArrayList<String> se : cv.getSpecialElementsList())
 		{
-			if(cv.keys.get("useFullUri").equals("true"))
+			if(cv.getKeys().get("useFullUri").equals("true"))
 			{
 				specialElementsStyle +="node [shape = "+ se.get(1) +", color="+ se.get(2) +"]; \"" + se.get(0) + "\";\n";
 			}
@@ -293,7 +293,7 @@ public class Rdf2Gv {
 		
 		
 		
-		if(cv.keys.get("useFullUri").equals("false"))
+		if(cv.getKeys().get("useFullUri").equals("false"))
 		{
 			//we load all the triple URIs and get their local names and add quotes
 			ArrayList<DOTTriple> dtLinesLocal = new ArrayList<DOTTriple>();
@@ -331,14 +331,14 @@ public class Rdf2Gv {
 		}
 		
 		String conHead = "digraph ar2dtool_diagram { \n" +
-				"rankdir=" + cv.keys.get("rankdir") + ";\n" +
-				"size=\"" + cv.keys.get("imageSize") + "\"\n" +
+				"rankdir=" + cv.getKeys().get("rankdir") + ";\n" +
+				"size=\"" + cv.getKeys().get("imageSize") + "\"\n" +
 				specialElementsStyle+
 				classStyle+
 				individualStyle+
 				literalStyle+
 				"node [shape = ellipse];\n" +
-				"edge [color=\"" + cv.keys.get("arrowColor") + "\", dir=\"" +cv.keys.get("arrowdir") + "\", arrowhead=\"" +cv.keys.get("arrowhead") + "\",arrowtail=\"" +cv.keys.get("arrowtail") + "\"]\n";
+				"edge [color=\"" + cv.getKeys().get("arrowColor") + "\", dir=\"" +cv.getKeys().get("arrowdir") + "\", arrowhead=\"" +cv.getKeys().get("arrowhead") + "\",arrowtail=\"" +cv.getKeys().get("arrowtail") + "\"]\n";
 		
 		String conTail = "\n}";
 		gvContent = conHead + gvContent + syntObjProp + conTail ;
@@ -352,15 +352,15 @@ public class Rdf2Gv {
 	private String getSynthesizeObjectPropertiesString(OntModel cMod) 
 	{
 		String res ="";
-		Iterator it = objProps.entrySet().iterator();
+		Iterator<Entry<String, MutablePair<String, String>>> it = objProps.entrySet().iterator();
 	    while (it.hasNext()) {
-	        Map.Entry kv = (Map.Entry)it.next();
+	        Map.Entry<String,MutablePair<String,String>> kv = (Map.Entry<String,MutablePair<String,String>>)it.next();
 	        String propUri = (String) kv.getKey();
 	        MutablePair<String,String> mp = (MutablePair<String, String>) kv.getValue();
 	        String rangeUri = mp.getRight();
 	        String domainUri = mp.getLeft();
 	        
-			if(cv.keys.get("useFullUri").equals("false"))
+			if(cv.getKeys().get("useFullUri").equals("false"))
 			{
 				//user wants to use local names instead of full URIs
 				propUri="\"" + cMod.getResource(propUri).getLocalName() + "\"";
@@ -382,7 +382,7 @@ public class Rdf2Gv {
 
 	private static String checkEquivalentElementList(String e)
 	{
-		for(ArrayList<String> list : cv.equivalentElementList)
+		for(ArrayList<String> list : cv.getEquivalentElementList())
 		{
 			if(list.contains(e))
 			{
@@ -411,7 +411,7 @@ public class Rdf2Gv {
 	
 	public static void dbg(String msg)
 	{
-		Main.dbg(msg);
+		log.getWriter().log(msg);
 	}
 	
 	public String getGvContent()
