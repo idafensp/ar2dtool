@@ -8,17 +8,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Map.Entry;
 
-import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.ontology.DatatypeProperty;
 import com.hp.hpl.jena.ontology.Individual;
-import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntProperty;
-import com.hp.hpl.jena.ontology.Restriction;
-import com.hp.hpl.jena.rdf.model.NsIterator;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -26,12 +21,10 @@ import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 
-import es.upm.oeg.ar2dtool.RDF2Diagram;
-import es.upm.oeg.ar2dtool.exceptions.ConfigFileNotFoundException;
 import es.upm.oeg.ar2dtool.exceptions.NullTripleMember;
+import es.upm.oeg.ar2dtool.logger.AR2DToolLogger;
 import es.upm.oeg.ar2dtool.utils.AR2DTriple;
 import es.upm.oeg.ar2dtool.utils.ConfigValues;
-import es.upm.oeg.ar2dtool.utils.NodeNameMode;
 
 public class DOTGenerator 
 {
@@ -45,7 +38,7 @@ public class DOTGenerator
 	
 
 	// LOGGING
-	private static final Logger log = Logger.getLogger("AR2DTOOL");
+	private static final AR2DToolLogger log = AR2DToolLogger.getLogger("AR2DTOOL");
 	
 	//WHEN RANGE OR DOMAINS ARE EMPTY
 	private static final String DEFAULT_OBJ_PROP_VALUE = "http://www.w3.org/2002/07/owl#Thing";
@@ -332,9 +325,9 @@ public class DOTGenerator
 		if(!conf.synthesizeObjectProperties())
 			return;
 		
-		Iterator it = objPropsMap.entrySet().iterator();
+		Iterator<Entry<String, ObjPropPair<String, String>>> it = objPropsMap.entrySet().iterator();
 	    while (it.hasNext()) {
-	        Map.Entry kv = (Map.Entry)it.next();
+	        Map.Entry<String, ObjPropPair<String,String>> kv = (Map.Entry<String,ObjPropPair<String,String>>)it.next();
 	        String propUri = (String) kv.getKey();
 	        
 	        ObjPropPair<String,String> mp = (ObjPropPair<String, String>) kv.getValue();
@@ -448,6 +441,9 @@ public class DOTGenerator
 					return res.getURI().replace(ns, prefix+":");
 				}
 			}
+			default:
+				
+			break;
 		}
 
 		//at this point we know the user wants to use URIs
@@ -547,7 +543,7 @@ public class DOTGenerator
 	
 	private void log(String msg)
 	{
-		log.log(log.getLevel(), msg);
+		log.getWriter().log(msg);
 	}
 
 	

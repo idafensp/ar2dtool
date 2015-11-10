@@ -7,10 +7,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.NodeFactory;
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntModelSpec;
@@ -34,6 +31,7 @@ import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 import es.upm.oeg.ar2dtool.exceptions.ConfigFileNotFoundException;
 import es.upm.oeg.ar2dtool.exceptions.RDFInputNotValid;
 import es.upm.oeg.ar2dtool.exceptions.RDFNotFound;
+import es.upm.oeg.ar2dtool.logger.AR2DToolLogger;
 import es.upm.oeg.ar2dtool.utils.ConfigValues;
 import es.upm.oeg.ar2dtool.utils.dot.DOTGenerator;
 import es.upm.oeg.ar2dtool.utils.graphml.GraphMLGenerator;
@@ -63,12 +61,11 @@ public class RDF2Diagram {
 	
 	
 	//LOGGING
-	private static final Logger log = Logger.getLogger("AR2DTOOL");
+	private static final AR2DToolLogger log = AR2DToolLogger.getLogger("AR2DTOOL");
 
 
 	private static final String DEFAULT_BASE_PREFIX_VALUE = "base";
 	
-
 
 	public RDF2Diagram()
 	{
@@ -237,8 +234,8 @@ public class RDF2Diagram {
 		pUri = checkEquivalentElementList(pUri);
 		
 		
-		Node s =  NodeFactory.createURI(sUri);
-		Node p =  NodeFactory.createURI(pUri);
+		//Node s =  NodeFactory.createURI(sUri);
+		//Node p =  NodeFactory.createURI(pUri);
 		
 		RDFNode obj = st.getObject();
 		if(obj.isLiteral())
@@ -371,28 +368,10 @@ public class RDF2Diagram {
 	public void setConf(ConfigValues conf) {
 		this.conf = conf;
 	}
-
-	public static Level getLogLevel() {
-		return log.getLevel();
-	}
-
-	public static void setLogLevel(Level ll) {
-		log.setLevel(ll); 
-	}	
 	
 	private void log(String msg)
 	{
-		log.log(log.getLevel(), msg);
-	}
-	
-	private void INFO(String msg)
-	{
-		log.info( msg);
-	}
-	
-	private void SEVERE(String msg)
-	{
-		log.severe(msg);
+		log.getWriter().log(msg);
 	}
 
 	
@@ -454,7 +433,7 @@ public class RDF2Diagram {
 		prefixMap = new HashMap<String,String>();
 
 
-        System.out.println("****PREFIX MAP****");
+        log.getWriter().log("****PREFIX MAP****",Level.INFO);
 		Iterator<Map.Entry<String,String>> it = pm.entrySet().iterator();
 	    while (it.hasNext()) {
 	    	
@@ -467,7 +446,7 @@ public class RDF2Diagram {
 	        	key = DEFAULT_BASE_PREFIX_VALUE;
 	        }
 	        
-	        System.out.println(value+":"+key);
+	        log.getWriter().log(value+":"+key,Level.INFO);
 	        
 	        prefixMap.put(value, key);
 	        
@@ -494,19 +473,19 @@ public class RDF2Diagram {
 			    String value = qs.get("?s").toString();
 			    String key = qs.get("?o").toString();
 			    
-			    System.out.println(value+":"+key);
+			    log.getWriter().log(value+":"+key,Level.INFO);
 		        
 		        prefixMap.put(value, key);
 			    //never any results
 			  }
 			} catch (Exception ex) {
-			  System.out.println(ex);
+				  log.getWriter().log(ex,Level.SEVERE);
 			}
 		}
 		
 	    
 
-        System.out.println("****END PREFIX MAP****");
+		log.getWriter().log("****END PREFIX MAP****",Level.INFO);
         
 	    NsIterator itns = model.listNameSpaces();
 	    while(itns.hasNext())

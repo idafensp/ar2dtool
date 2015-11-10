@@ -1,12 +1,12 @@
 package es.upm.oeg.ar2dtool;
 
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import es.upm.oeg.ar2dtool.exceptions.ConfigFileNotFoundException;
 import es.upm.oeg.ar2dtool.exceptions.NullTripleMember;
 import es.upm.oeg.ar2dtool.exceptions.RDFInputNotValid;
 import es.upm.oeg.ar2dtool.exceptions.RDFNotFound;
+import es.upm.oeg.ar2dtool.logger.AR2DToolLogger;
 import es.upm.oeg.ar2dtool.utils.dot.DOTGenerator;
 import es.upm.oeg.ar2dtool.utils.graphml.GraphMLGenerator;
 
@@ -22,8 +22,9 @@ public class Main {
 	private static boolean DEBUG = false;
 
 	// LOGGING
-	private static Level logLevel = Level.INFO;
-	private static final Logger log = Logger.getLogger("AR2DTOOL");
+	private static Level logLevelToSee = Level.INFO;
+	private static Level logLevel = Level.FINE;
+	private static final AR2DToolLogger log = AR2DToolLogger.getLogger("AR2DTOOL");
 	
 	//GENERATION FLAGS
 	private static boolean GENERATE_GV = false;
@@ -31,25 +32,25 @@ public class Main {
 	private static boolean COMPILE_GV = false;
 
 	public static void main(String[] args) {
-
 		parseArgs(args);
-
+		log.getWriter().setLogLevelDefault(logLevel);
 		if ((pathToInputFile.equals("")) || (outputFileType.equals(""))
 				|| (pathToOuputFile.equals("")) || (pathToConfFile.equals(""))) {
-			System.err.println(syntaxErrorMsg);
+			//WebServices.debugWrite();
+			dbg(syntaxErrorMsg,Level.WARNING);
 			return;
 		}
 		
 		if(DEBUG)
 		{
-			logLevel =Level.INFO;
+			logLevelToSee =Level.INFO;
 		}
 		else
 		{
-			logLevel =Level.OFF;
+			logLevelToSee =Level.FINE;
 		}
 		
-		log.setLevel(logLevel);
+		log.getWriter().setVisibleLogLevel(logLevelToSee);
 		
 		log("pathToInputFile:" + pathToInputFile);
 		log("pathToOuputFile:" + pathToOuputFile);
@@ -145,7 +146,7 @@ public class Main {
 
 	private static void parseArgs(String[] args) {
 		if (args.length < ARG_LENGTH) {
-			System.err.println(syntaxErrorMsg);
+			//System.err.println(syntaxErrorMsg);
 			return;
 		}
 
@@ -192,7 +193,7 @@ public class Main {
 										else
 										{
 
-											System.err.println(syntaxErrorMsg);
+											dbg(syntaxErrorMsg,Level.WARNING);
 											return;	
 										}
 									}
@@ -206,6 +207,11 @@ public class Main {
 	}
 
 	private static void log(String msg) {
-		log.log(logLevel, msg);
+		log.getWriter().log(msg);
 	}
+	
+	private static void dbg(String msg, Level logLevel){
+		log.getWriter().log(msg,logLevel);
+	}
+
 }

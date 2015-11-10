@@ -7,14 +7,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.logging.Logger;
+import java.util.Map.Entry;
 
 import com.hp.hpl.jena.ontology.DatatypeProperty;
 import com.hp.hpl.jena.ontology.Individual;
-import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntProperty;
-import com.hp.hpl.jena.rdf.model.NsIterator;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -23,6 +21,7 @@ import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 
 import es.upm.oeg.ar2dtool.exceptions.NullTripleMember;
+import es.upm.oeg.ar2dtool.logger.AR2DToolLogger;
 import es.upm.oeg.ar2dtool.utils.AR2DTriple;
 import es.upm.oeg.ar2dtool.utils.ConfigValues;
 import es.upm.oeg.ar2dtool.utils.dot.ObjPropPair;
@@ -44,7 +43,7 @@ public class GraphMLGenerator
 	
 
 	// LOGGING
-	private static final Logger log = Logger.getLogger("AR2DTOOL");
+	private static final AR2DToolLogger log = AR2DToolLogger.getLogger("AR2DTOOL");
 	
 	//DEFAULT SHAPES AND COLORS
 	private static final String DEFAULT_NODE_COLOR = "white";
@@ -317,9 +316,9 @@ public class GraphMLGenerator
 		if(!conf.synthesizeObjectProperties())
 			return;
 		
-		Iterator it = objPropsMap.entrySet().iterator();
+		Iterator<Entry<String, ObjPropPair<String, String>>> it = objPropsMap.entrySet().iterator();
 	    while (it.hasNext()) {
-	        Map.Entry kv = (Map.Entry)it.next();
+	        Map.Entry<String,ObjPropPair<String,String>> kv = (Map.Entry<String,ObjPropPair<String,String>>)it.next();
 	        String propUri = (String) kv.getKey();
 	        
 	        ObjPropPair<String,String> mp = (ObjPropPair<String, String>) kv.getValue();
@@ -419,6 +418,8 @@ public class GraphMLGenerator
 					return res.getURI().replace(ns, prefix+":");
 				}
 			}
+			default:
+			break;
 		}
 
 		//at this point we know the user wants to use URIs
@@ -518,7 +519,7 @@ public class GraphMLGenerator
 	
 	private void log(String msg)
 	{
-		log.log(log.getLevel(), msg);
+		log.getWriter().log(msg);
 	}
 	
 	private String getGraphMLHeader(int edges, int nodes)

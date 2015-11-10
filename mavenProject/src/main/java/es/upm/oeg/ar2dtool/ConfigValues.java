@@ -5,22 +5,31 @@ import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.logging.Level;
 
-public class ConfigValues {
+import es.upm.oeg.ar2dtool.logger.AR2DToolLogger;
+
+public class ConfigValues implements Serializable{
 	
-	public static String configPath ="";
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1912013956103655512L;
+	private static String configPath ="";
 	private static final String fileErrorMsg = "CONFIG FILE ERROR: we couldn't open the config file at ";
-	public ArrayList<ArrayList<String>> equivalentElementList;
-	public ArrayList<ArrayList<String>> specialElementsList;
-	public ArrayList<String> ignoreElementList;
-	public ArrayList<String> includeOnlyElementList;
-	
+	private ArrayList<ArrayList<String>> equivalentElementList;
+	private ArrayList<ArrayList<String>> specialElementsList;
+	private ArrayList<String> ignoreElementList;
+	private ArrayList<String> includeOnlyElementList;
+	private static AR2DToolLogger log = AR2DToolLogger.getLogger("AR2DTool");
 
-	public Map<String,String> keys;
+	private Map<String,String> keys;
 	
 	
 	public ConfigValues(String path)
@@ -78,7 +87,7 @@ public class ConfigValues {
 			// Close the input stream
 			in.close();
 		} catch (Exception e) {// Catch exception if any
-			System.err.println(fileErrorMsg + configPath + "\n" + e.getMessage());
+			log.getWriter().log(fileErrorMsg + configPath + "\n" + e.getMessage(), Level.SEVERE);
 		}
 	}
 	
@@ -219,7 +228,7 @@ public class ConfigValues {
 	
 	public static void dbg(String msg)
 	{
-		Main.dbg(msg);
+		log.getWriter().log(msg);
 	}
 
 	
@@ -232,9 +241,9 @@ public class ConfigValues {
 		res+="ignoreElementList"+ignoreElementList.toString()+"\n";
 		res+="includeOnlyElementList"+includeOnlyElementList.toString()+"\n";
 		
-		Iterator it = keys.entrySet().iterator();
+		Iterator<Entry<String, String>> it = keys.entrySet().iterator();
 	    while (it.hasNext()) {
-	        Map.Entry kv = (Map.Entry)it.next();
+	        Map.Entry<String,String> kv = (Map.Entry<String,String>)it.next();
 	        res+=kv.getKey()+":"+kv.getValue()+"\n";
 	    }
 		
@@ -243,5 +252,49 @@ public class ConfigValues {
 	    
 		return res;
 	}
+	
+	public ArrayList<ArrayList<String>> getEquivalentElementList() {
+		return equivalentElementList;
+	}
+
+	public void setEquivalentElementList(
+			ArrayList<ArrayList<String>> equivalentElementList) {
+		this.equivalentElementList = equivalentElementList;
+	}
+
+	public ArrayList<ArrayList<String>> getSpecialElementsList() {
+		return specialElementsList;
+	}
+
+	public void setSpecialElementsList(
+			ArrayList<ArrayList<String>> specialElementsList) {
+		this.specialElementsList = specialElementsList;
+	}
+
+	public ArrayList<String> getIgnoreElementList() {
+		return ignoreElementList;
+	}
+
+	public void setIgnoreElementList(ArrayList<String> ignoreElementList) {
+		this.ignoreElementList = ignoreElementList;
+	}
+
+	public ArrayList<String> getIncludeOnlyElementList() {
+		return includeOnlyElementList;
+	}
+
+	public void setIncludeOnlyElementList(ArrayList<String> includeOnlyElementList) {
+		this.includeOnlyElementList = includeOnlyElementList;
+	}
+
+	public Map<String, String> getKeys() {
+		return keys;
+	}
+
+	public void setKeys(Map<String, String> keys) {
+		this.keys = keys;
+	}
+	
+	
 	
 }
