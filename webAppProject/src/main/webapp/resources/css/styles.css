@@ -1,0 +1,275 @@
+* { box-sizing: border-box; 
+    position: relative;
+}
+
+html,body{
+    width: 100%;
+    height: 100%;
+    display: -webkit-flex;
+    display: -moz-flex;
+    display: -ms-flexbox;
+    display: flex;
+    overflow: hidden;
+    margin: 0px;
+    font-family: 'Helvetica', sans-serif, 'Arial';
+    color: white;
+}
+
+
+
+.header{
+    -webkit-flex-basis: 75px;
+    -ms-flex-basis: 75px;
+    flex-basis: 75px;
+    -webkit-box-shadow: 1px 1px 1px 1px rgba(0,0,0,0.4);
+    -moz-box-shadow: 1px 1px 1px 1px rgba(0,0,0,0.4);
+    box-shadow: 1px 1px 1px 1px rgba(0,0,0,0.4);
+    z-index:10;
+}
+
+.menu{
+    background:rgba(70, 121, 189,1);
+}
+
+.mainContent{
+    overflow: hidden;
+}
+
+.navMenu{
+    color: #FFFFFF;
+}
+
+.dropMenuContentContainer{
+    word-wrap: break-word;
+    word-break: break-all;
+    overflow-y: scroll;
+}
+
+.dropMenuContainerOpen{
+    background:rgba(70, 121, 189,0.9);
+    /*-webkit-box-shadow: 1px 1px 1px 0px rgba(0,0,0,0.6);
+    -moz-box-shadow: 1px 1px 1px 0px rgba(0,0,0,0.6);
+    box-shadow: 1px 1px 1px 0px rgba(0,0,0,0.6);*/
+    z-index:5;
+    position: absolute;
+    height: 100%;
+}
+
+@media screen and (min-width : 861px){
+	.dropMenuContainerClose{
+	    background:rgba(70, 121, 189,0.9);
+	    z-index:5;
+	    position: absolute;
+	    height: 100%;
+	    left: -30em;
+	    
+	}
+
+	.dropMenuContentContainerOpen{
+	    width:30em;
+	}
+	
+	.dropMenuContentContainerClose{
+	    width:30em;
+	}
+}
+
+@media screen and (max-width : 860px) and (min-width: 641px){
+	.dropMenuContainerClose{
+	    background:rgba(70, 121, 189,0.9);
+	    z-index:5;
+	    position: absolute;
+	    height: 100%;
+	    left: -25em;
+	}
+
+	.dropMenuContentContainerOpen{
+	    width:25em;
+	}
+	
+	.dropMenuContentContainerClose{
+	    width:25em;
+	}
+}
+
+@media screen and (max-width : 640px) and (min-width: 431px){
+	.dropMenuContainerClose{
+	    background:rgba(70, 121, 189,0.9);
+	    z-index:5;
+	    position: absolute;
+	    height: 100%;
+	    left: -20em;
+	}
+
+	.dropMenuContentContainerOpen{
+	    width:20em;
+	}
+	
+	.dropMenuContentContainerClose{
+	    width:20em;
+	}
+}
+@media screen and (max-width : 430px){
+	.dropMenuContainerClose{
+	    background:rgba(70, 121, 189,0.9);
+	    z-index:5;
+	    position: absolute;
+	    height: 100%;
+	    left: -10em;
+	}
+
+	.dropMenuContentContainerOpen{
+	    width:10em;
+	}
+	
+	.dropMenuContentContainerClose{
+	    width:10em;
+	}
+}
+
+div.dropClickMenu{
+    background:rgba(70, 121, 189,0.5);
+    cursor: pointer;
+    flex-shrink: 0;
+    /*margin-right:-2px;*/
+}
+
+@media screen and (min-width : 1024px){
+	img.dropClickMenu{
+	    width: 23px;
+	}
+	.dropClickMenu{
+	    -webkit-flex-basis: 25px;
+	    -ms-flex-basis: 25px;
+	    flex-basis: 25px;
+	}
+	.imageContainer{
+	    position: relative;
+	    left: 23px;
+	    padding-right: 23px;
+	}
+}
+
+@media screen and (max-width : 1023px){
+	img.dropClickMenu{
+	    width: 35px;
+	}
+	.dropClickMenu{
+	    -webkit-flex-basis: 37px;
+	    -ms-flex-basis: 37px;
+	    flex-basis: 37px;
+	}
+	.imageContainer{
+	    position: relative;
+	    left: 35px;
+	    padding-right: 35px;
+	}
+}
+
+img.Logo{
+    height: 64px;
+}
+
+div.Logo{
+    padding: 3px 3px 3px 3px;
+}
+
+
+.imageImg{
+    width: 100%;
+    height:auto;
+}
+
+.generateDiv{
+    position:absolute;
+    width:80px;
+    height:55px;
+    bottom:0px;
+    right: 0px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+}
+
+.generateButton{
+    width:100%;
+    height: 100%;
+}
+
+.crossAxisFlexCenter{
+    -ms-align-items: center;
+    -webkit-align-items: center;
+    align-items: center;
+}
+
+.mainAxisFlexCenter{
+    -ms-justify-content: center;
+    -webkit-justify-content: center;
+    justify-content: center;
+}
+
+.maxCrossAxisFlexSize{
+    -webkit-align-self: stretch;
+    -ms-flex-item-align: stretch;
+    align-self: stretch;
+}
+
+.maxMainAxisFlexSize{
+    -webkit-flex-basis: 100%;
+    -ms-flex-basis: 100%;
+    flex-basis: 100%;
+}
+
+
+.flex-container-column{
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    -webkit-flex-wrap: nowrap;
+    -ms-flex-wrap: nowrap;
+    flex-wrap: nowrap;
+}
+
+.flex-container-row{
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: row;
+    -ms-flex-direction: row;
+    flex-direction: row;
+    -webkit-flex-wrap: nowrap;
+    -ms-flex-wrap: nowrap;
+    flex-wrap: nowrap;
+}
+
+.flex-order0{
+    -webkit-order: 0;
+    -ms-flex-order: 0;
+    order: 0;
+}
+
+.flex-item{
+    -webkit-flex-grow: 0;
+    -ms-flex-grow: 0;
+    flex-grow: 0;
+}
+    
+.flex-item-main{
+    -webkit-flex-grow: 1;
+    -ms-flex-grow: 1;
+    flex-grow: 1;
+}
+
+.flex-shrink0{
+    -webkit-flex-shrink: 0;
+    -ms-flex-shrink: 0;
+    flex-shrink: 0;
+}
+
+.flex-align-center{
+    -webkit-align-self: center;
+    -ms-flex-item-align: center;
+    align-self: center;
+}
