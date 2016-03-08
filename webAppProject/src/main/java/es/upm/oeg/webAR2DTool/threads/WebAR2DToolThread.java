@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 import es.upm.oeg.ar2dtool.RDF2Diagram;
 import es.upm.oeg.ar2dtool.utils.ConfigValues;
 import es.upm.oeg.ar2dtool.utils.dot.DOTGenerator;
+import es.upm.oeg.ar2dtool.utils.graphml.GraphMLGenerator;
 import es.upm.oeg.webAR2DTool.responses.WebConfig;
 
 public class WebAR2DToolThread extends Thread {
@@ -62,6 +63,16 @@ public class WebAR2DToolThread extends Thread {
 				generatedImage = null;
 			}
 			// log("Compiled! Path="+pathToOuputFile);
+			//get the GraphMLGenerator with the resultant info
+			GraphMLGenerator gg = r2d.getGraphMLGenerator();
+			
+			//apply transformations
+			gg.applyTransformations();
+			
+			log("GraphML source " + gg.generateGraphMLSource());
+			
+			//save the GraphML source to file
+			gg.saveSourceToFile(filePath+".graphml");
 		} catch (Exception e) {
 
 		}

@@ -29,9 +29,10 @@ function closeLeftMenu(){
 }
 
 function generateImage(){
+	jQuery('#imageContainerZoomAndPan').imagePanAndZoom('');
 	ajax('webapi/methods/generateImage',{config:JSON.stringify(configJSON)},function(data){
 		if(!isError(data)){
-			jQuery('#imageContainerZoomAndPan').imagePanAndZoom('webapi/methods/getImage');
+			jQuery('#imageContainerZoomAndPan').imagePanAndZoom('webapi/methods/getImage?d='+new Date().getTime());
 		}
 	},function(error){
 		swal("Upload error",error,"error");
