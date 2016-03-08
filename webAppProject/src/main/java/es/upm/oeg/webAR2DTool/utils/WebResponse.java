@@ -10,6 +10,12 @@ public class WebResponse implements Serializable{
 	
 	public WebResponse(Object response,String idErrorMessage,String errorMessage){
 		this.response = response;
+		if(response instanceof String){
+			String responseString = String.valueOf(response);
+			if(responseString.isEmpty()){
+				this.response = null;
+			}
+		}
 		this.errorMessage = errorMessage;
 		this.idErrorMessage = idErrorMessage;
 	}

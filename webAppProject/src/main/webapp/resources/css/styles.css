@@ -166,14 +166,30 @@ div.dropClickMenu{
 	}
 }
 
-img.Logo{
-    height: 64px;
+@media screen and (max-width : 450px){
+	img.Logo{
+    	max-width:100px;
+    	max-height:64px;
+	}
+	div.Logo{
+    	padding: 3px 3px 3px 3px;
+    	display: -ms-flexbox;
+    	display: -webkit-flex;
+    	display: flex;
+    	-webkit-flex-direction: row;
+    	-ms-flex-direction: row;
+    	flex-direction: row;
+    	align-items: center;
+	}
 }
-
-div.Logo{
-    padding: 3px 3px 3px 3px;
+@media screen and (min-width : 451px){
+	img.Logo{
+    	height: 64px;
+	}
+	div.Logo{
+    	padding: 3px 3px 3px 3px;
+	}
 }
-
 
 .imageImg{
     width: 100%;
@@ -193,6 +209,33 @@ div.Logo{
 .generateButton{
     width:100%;
     height: 100%;
+}
+
+.configColor{
+	width:35px;
+	height:35px;
+	margin:0px 5px 0px 5px;
+	cursor: pointer;
+	padding: 3px 3px 3px 3px;
+	background-clip:content-box;
+}
+
+.configColor.selected{
+	border:solid 2px white;
+}
+
+.configColor.notSelected{
+	/*border:outset 3px;*/
+}
+
+.configKeyParamContainer{
+	margin-top: 5px;
+	margin-bottom:5px;
+	padding-bottom:3px;
+	border-bottom: solid 1px;
+	-webkit-flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
 }
 
 .crossAxisFlexCenter{
@@ -219,7 +262,6 @@ div.Logo{
     flex-basis: 100%;
 }
 
-
 .flex-container-column{
     display: -ms-flexbox;
     display: -webkit-flex;
@@ -227,9 +269,9 @@ div.Logo{
     -webkit-flex-direction: column;
     -ms-flex-direction: column;
     flex-direction: column;
-    -webkit-flex-wrap: nowrap;
+    /*-webkit-flex-wrap: nowrap;
     -ms-flex-wrap: nowrap;
-    flex-wrap: nowrap;
+    flex-wrap: nowrap;*/
 }
 
 .flex-container-row{
@@ -239,9 +281,9 @@ div.Logo{
     -webkit-flex-direction: row;
     -ms-flex-direction: row;
     flex-direction: row;
-    -webkit-flex-wrap: nowrap;
+    /*-webkit-flex-wrap: nowrap;
     -ms-flex-wrap: nowrap;
-    flex-wrap: nowrap;
+    flex-wrap: nowrap;*/
 }
 
 .flex-order0{

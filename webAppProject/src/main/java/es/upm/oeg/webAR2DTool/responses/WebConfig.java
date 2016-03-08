@@ -4,7 +4,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -49,6 +48,11 @@ public class WebConfig  implements Serializable{
 			Properties prop = new Properties();
 			try {
 				prop.load(new FileInputStream(sContext.getRealPath(Constants.SERVER_PROPERTIES)));
+				for(Object key:prop.keySet()){
+					if(key instanceof String){
+						serverKeys.put((String)key, prop.getProperty((String) key));
+					}
+				}
 			} catch (IOException e) {
 				logger.log(Level.SEVERE, "Can not load server.properties", e);
 			}
@@ -68,10 +72,10 @@ public class WebConfig  implements Serializable{
 		
 		
 		//FOR TESTING REMOVE IT
-		equivalentElementList.add(new ArrayList<String>(Arrays.asList(new String[]{"holaEquivalent","adiosEquivalent"})));
-		specialElementsList.add(new ArrayList<String>(Arrays.asList(new String[]{"holaSpecial","adiosSpecial"})));
-		ignoreElementList.addAll(new ArrayList<String>(Arrays.asList(new String[]{"holaIgnore","adiosIgnore"})));
-		includeOnlyElementList.addAll(new ArrayList<String>(Arrays.asList(new String[]{"holaInclude","adiosInclude"})));
+		//equivalentElementList.add(new ArrayList<String>(Arrays.asList(new String[]{"holaEquivalent","adiosEquivalent"})));
+		//specialElementsList.add(new ArrayList<String>(Arrays.asList(new String[]{"holaSpecial","adiosSpecial"})));
+		//ignoreElementList.addAll(new ArrayList<String>(Arrays.asList(new String[]{"holaIgnore","adiosIgnore"})));
+		//includeOnlyElementList.addAll(new ArrayList<String>(Arrays.asList(new String[]{"holaInclude","adiosInclude"})));
 		//END FOR TESTING
 		
 		ConfigValues config = new ConfigValues();
@@ -107,7 +111,9 @@ public class WebConfig  implements Serializable{
 		}
 		for(String key:serverKeys.keySet()){
 			try {
-				toReturn.setKeys(key, serverKeys.get(key));
+				if(toReturn.getKeys().containsKey(key)){
+					toReturn.setKeys(key, serverKeys.get(key));
+				}
 			} catch (ConfigKeyNotFound e) {
 				logger.log(Level.WARNING, "Not found action for key: "+key+", ignore it.", e);
 			}
