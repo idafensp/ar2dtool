@@ -47,6 +47,7 @@ public class WebConfig  implements Serializable{
 			serverKeys = new HashMap<String,String>();
 			Properties prop = new Properties();
 			try {
+				logger.log(Level.INFO, sContext.getRealPath(Constants.SERVER_PROPERTIES));
 				prop.load(new FileInputStream(sContext.getRealPath(Constants.SERVER_PROPERTIES)));
 				for(Object key:prop.keySet()){
 					if(key instanceof String){
@@ -54,6 +55,7 @@ public class WebConfig  implements Serializable{
 					}
 				}
 			} catch (IOException e) {
+				serverKeys=null;
 				logger.log(Level.SEVERE, "Can not load server.properties", e);
 			}
 		}
