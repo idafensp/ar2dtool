@@ -1,0 +1,32 @@
+.containerPanAndZoom{
+    position: relative;
+    cursor: all-scroll;
+    overflow:hidden; 
+}
+
+.zoomTextContainer{
+    color: white;
+    position: absolute;
+    top: 0%;
+    left:48%;
+    -webkit-box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.75);
+    -moz-box-shadow:    0px 0px 2px 0px rgba(0, 0, 0, 0.75);
+    box-shadow:         0px 0px 2px 0px rgba(0, 0, 0, 0.75);
+    padding: 2px;
+    margin: 5px 0px 0px 0px;
+    background: rgba(70, 121, 189,1);
+    z-index:10;
+}
+
+.noDraggablePanAndZoom{
+    /* For Opera and <= IE9, we need to add unselectable="on" attribute onto each element */
+    /* Check this site for more details: http://help.dottoro.com/lhwdpnva.php */
+    -moz-user-select: none; /* These user-select properties are inheritable, used to prevent text selection */
+    -moz-user-drag: none;
+    -webkit-user-select: none;
+    -ms-user-select: none; /* From IE10 only */
+    user-select: none; /* Not valid CSS yet, as of July 2012 */
+
+    -webkit-user-drag: none; /* Prevents dragging of images/divs etc */
+    user-drag: none;
+}

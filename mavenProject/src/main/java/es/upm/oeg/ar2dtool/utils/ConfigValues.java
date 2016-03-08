@@ -6,18 +6,22 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import es.upm.oeg.ar2dtool.exceptions.ConfigFileNotFoundException;
 import es.upm.oeg.ar2dtool.exceptions.ConfigKeyNotFound;
 
-public class ConfigValues {
+public class ConfigValues implements Serializable{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4522640585732511884L;
 	private static final String fileNotFoundErrorMsg = "CONFIG FILE ERROR:  couldn't open config file at ";
 	private static final String fileNotCompliantErrorMsg = "CONFIG FILE ERROR: config file is not compliant with the sintax aroun line ";
 
