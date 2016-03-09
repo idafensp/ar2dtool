@@ -166,7 +166,7 @@ function getDefaultConfig(){
 	
 }
 var configTaxonomyJSON=[ { "param":"keys", "container":"DIV", "type":"CONTAINER", "content": [ { "param":"imageSize", "container":"DIV", "type":"CONTAINER", "content":[{"type":"value","container":"DIV","attributes":{"css":{},"attr":{"contenteditable":"true"},"class":{}}}] }, { "param":"arrowColor", "container":"CHECKBOX", "type":"CONTAINER", "content":[{"container":"DIV","attributes":{"css":{},"attr":{"contenteditable":"true"},"class":{}}}] } ] } ];
-var configJSON={"equivalentElementList":[],"ignoreElementList":["http://www.w3.org/2000/01/rdf-schema#subClassOf"],"includeOnlyElementList":[],"keys":{"arrowColor":"black","literalShape":"rectangle","individualShape":"rectangle","classShape":"rectangle","nodeNameMode":"localname","arrowhead":"normal","literalColor":"black","rankdir":"LR","classColor":"orange","arrowdir":"forward","ignoreRdfType":"true","ignoreLiterals":"true","individualColor":"black","imageSize":"1501","arrowtail":"normal","synthesizeObjectProperties":"true"},"specialElementsList":[]};
+var configJSON={"equivalentElementList":[],"ignoreElementList":[],"includeOnlyElementList":[],"keys":{"arrowColor":"black","literalShape":"rectangle","individualShape":"rectangle","classShape":"rectangle","nodeNameMode":"localname","arrowhead":"normal","literalColor":"black","rankdir":"LR","classColor":"black","arrowdir":"forward","ignoreRdfType":false,"ignoreLiterals":false,"individualColor":"black","imageSize":"1500","arrowtail":"normal","synthesizeObjectProperties":false},"specialElementsList":[]};
 //var configJSON={"equivalentElementList":[],"ignoreElementList":["http://www.w3.org/2000/01/rdf-schema#subClassOf"],"includeOnlyElementList":[],"specialElementsList":[],"keys":{"arrowColor":"green","literalShape":"ellipse","individualShape":"triangle","classShape":"diamond","nodeNameMode":"fulluri","arrowhead":"odot","literalColor":"orange","rankdir":"TB","classColor":"blue","arrowdir":"forward","ignoreRdfType":"true","ignoreLiterals":"true","individualColor":"red","imageSize":"1501","arrowtail":"dot","synthesizeObjectProperties":"true"}};
 function generateConfig(config){
 	//#dropMenuContentContainer #configContainer
@@ -275,9 +275,9 @@ function ajaxUploadFile(idContainer){
 function isError(response){
 	if(response["errorResponse"]){
 		if(response["idErrorMessage"]){
-			swal("Service error",response["idErrorMessage"]+":"+response["errorMessage"]);
+			swal("Service error",response["idErrorMessage"]+":"+response["errorMessage"],"error");
 		}else{
-			swal("Service error",response["errorMessage"]);
+			swal("Service error",response["errorMessage"],"error");
 		}
 		return true;
 	}

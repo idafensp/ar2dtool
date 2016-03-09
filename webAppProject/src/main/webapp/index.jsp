@@ -21,15 +21,18 @@
 	</head>
 	<body>
 		<div class='flex-container-column  maxMainAxisFlexSize maxCrossAxisFlexSize'>
-			<div class='flex-container-row flex-item maxCrossAxisFlexSize header menu flex-shrink0'>
+			<header class='flex-container-row flex-item maxCrossAxisFlexSize header menu flex-shrink0'>
 				<div class='flex-item Logo'><img src="resources/img/Logo_AR2DTool.png" alt="AR2DTool Logo" class='Logo'></div>
-				<div class='navMenu flex-item-main maxCrossAxisFlexSize flex-container-row mainAxisFlexCenter crossAxisFlexCenter'>
-					<a>MENU</a>
-				</div>
+				<nav class='navMenu flex-item-main maxCrossAxisFlexSize flex-container-row mainAxisFlexCenter crossAxisFlexCenter'>
+				<div><a href='webapi/methods/getGraphml' target="_blank">Download Graphml</a></div>
+				<div><a href='webapi/methods/getDot' target="_blank">Download Dot</a></div>
+				<div><a href='webapi/methods/getImage' target="_blank">Download Image</a></div>
+				<div><a href='webapi/methods/getAR2DToolLog' target="_blank">Download AR2DTool Log</a></div>
+				</nav>
 				<div class='flex-item Logo'><img src="resources/img/OEG_Logo.png" alt="OEG Logo" class='Logo'></div>
-			</div>
-			<div class='flex-container-row flex-item-main maxCrossAxisFlexSize maxMainAxisFlexSize mainContent'>
-				<div id='dropMenuContainer' class='dropMenuContainerClose flex-item flex-container-row'>
+			</header>
+			<section class='flex-container-row flex-item-main maxCrossAxisFlexSize maxMainAxisFlexSize mainContent'>
+				<aside id='dropMenuContainer' class='dropMenuContainerClose flex-item flex-container-row'>
 					<div id='dropMenuContentContainer' class='dropMenuContentContainerClose dropMenuContentContainer'>
 						<div id='configContainer' class="flex-container-column">
 							<div id='keysContainer' configContainer='keys' class='flex-container-column' style='padding-top:5px;padding-left:5px'>
@@ -94,7 +97,6 @@
 										<option configValue='localname' configSelected=true class='selected' value='localname' selected>Localname</option>
 										<option configValue='fulluri' configSelected=false class='notSelected' value='fulluri'>Fulluri</option>
 										<option configValue='prefix' configSelected=false class='notSelected' value='prefix'>Prefix</option>
-										<option configValue='base' configSelected=false class='notSelected' value='base'>Base</option>
 									</select>							
 								</div>
 								<div configParam='arrowhead' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>arrowhead: </div>
@@ -194,12 +196,12 @@
 							<img id='dropleftClickMenuImg' src="resources/img/dropleft.png" alt="DropLeft menu image" class='dropClickMenu' style='display:none'>
 						</div>
 					</div>			
-				</div>
-				<div id='imageContainerZoomAndPan' class='flex-item-main maxCrossAxisFlexSize maxMainAxisFlexSize imageContainer'>
-				</div>
-			</div>
+				</aside>
+				<article id='imageContainerZoomAndPan' class='flex-item-main maxCrossAxisFlexSize maxMainAxisFlexSize imageContainer'>
+				</article>
+			</section>
 		</div>
-		<div class='generateDiv' ><button class='generateButton' onclick='generateImage()'>Generar</button></div>
+		<div class='generateDiv' ><button class='generateButton' onclick='generateImage()'>Generate</button></div>
 	</body>
 </html>
 

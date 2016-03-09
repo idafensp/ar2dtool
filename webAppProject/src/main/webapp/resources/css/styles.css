@@ -15,7 +15,30 @@ html,body{
     color: white;
 }
 
+nav div{
+	padding: 5px 5px 5px 5px;
+	margin: 3px 3px 3px 3px;
+	/*border: solid 3px white;
+	border-style: outset;*/
+	display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: row;
+    -ms-flex-direction: row;
+    flex-direction: row;
+    -ms-align-items: center;
+    -webkit-align-items: center;
+    align-items: center;
+	-webkit-align-self: stretch;
+    -ms-flex-item-align: stretch;
+    align-self: stretch;
+}
 
+nav div a{
+	cursor:pointer;   
+ 	text-decoration:none;
+ 	color:white;
+}
 
 .header{
     -webkit-flex-basis: 75px;

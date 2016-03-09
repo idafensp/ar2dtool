@@ -132,6 +132,10 @@ public class AR2DToolMethods {
 			return new WebResponse(null, "server.canNotUseFolder",
 					"Server error can not use the folder with your session ID.");
 		}
+		if(contentDispositionHeader.getFileName()==null || contentDispositionHeader.getFileName().isEmpty()){
+			return new WebResponse(null, "server.emptyFileName",
+					"Empty file name please upload a file.");
+		}
 		toUploadString += File.separator + contentDispositionHeader.getFileName();
 		File toUpload = new File(toUploadString);
 		try {
@@ -179,8 +183,6 @@ public class AR2DToolMethods {
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces(MediaType.APPLICATION_JSON)
 	public WebResponse generateImage(@Context HttpServletRequest request, @FormParam("config") String configJSON) {
-		// TODO IMPLEMENT
-		System.out.println(configJSON);
 		String jSessionID = request.getSession(true).getId();
 		if (!updateSession(jSessionID)) {
 			return new WebResponse(null, "server.noUploadedFile", "Not have uploaded file with this session ID.");
@@ -207,11 +209,58 @@ public class AR2DToolMethods {
 		if (!updateSession(jSessionID)) {
 			return Response.noContent().build();
 		}
-		if (sessions.get(jSessionID).getImage() == null) {
+		if (sessions.get(jSessionID).getImage() == null || !sessions.get(jSessionID).getImage().exists()) {
 			return Response.noContent().build();
 		}
 		ResponseBuilder responseBuilder = Response.ok((Object) sessions.get(jSessionID).getImage());
 		responseBuilder.header("Content-Disposition", "attachment; filename=\""+sessions.get(jSessionID).getImage().getName()+"\"");
+		return responseBuilder.build();
+	}
+	@GET
+	@Path("getGraphml")
+	@Produces(MediaType.APPLICATION_OCTET_STREAM)
+	public Response getGraphml(@Context HttpServletRequest request) {
+		String jSessionID = request.getSession(true).getId();
+		if (!updateSession(jSessionID)) {
+			return Response.noContent().build();
+		}
+		if (sessions.get(jSessionID).getGrapml() == null || !sessions.get(jSessionID).getGrapml().exists()) {
+			return Response.noContent().build();
+		}
+		ResponseBuilder responseBuilder = Response.ok((Object) sessions.get(jSessionID).getGrapml());
+		responseBuilder.header("Content-Disposition", "attachment; filename=\""+sessions.get(jSessionID).getGrapml().getName()+"\"");
+		return responseBuilder.build();
+	}
+	
+	@GET
+	@Path("getDot")
+	@Produces(MediaType.APPLICATION_OCTET_STREAM)
+	public Response getDot(@Context HttpServletRequest request) {
+		String jSessionID = request.getSession(true).getId();
+		if (!updateSession(jSessionID)) {
+			return Response.noContent().build();
+		}
+		if (sessions.get(jSessionID).getDot() == null || !sessions.get(jSessionID).getDot().exists()) {
+			return Response.noContent().build();
+		}
+		ResponseBuilder responseBuilder = Response.ok((Object) sessions.get(jSessionID).getDot());
+		responseBuilder.header("Content-Disposition", "attachment; filename=\""+sessions.get(jSessionID).getDot().getName()+"\"");
+		return responseBuilder.build();
+	}
+	
+	@GET
+	@Path("getAR2DToolLog")
+	@Produces(MediaType.APPLICATION_OCTET_STREAM)
+	public Response getAR2DToolLog(@Context HttpServletRequest request) {
+		String jSessionID = request.getSession(true).getId();
+		if (!updateSession(jSessionID)) {
+			return Response.noContent().build();
+		}
+		if (sessions.get(jSessionID).getLog() == null || !sessions.get(jSessionID).getLog().exists()) {
+			return Response.noContent().build();
+		}
+		ResponseBuilder responseBuilder = Response.ok((Object) sessions.get(jSessionID).getLog());
+		responseBuilder.header("Content-Disposition", "attachment; filename=\""+sessions.get(jSessionID).getLog().getName()+"\"");
 		return responseBuilder.build();
 	}
 
