@@ -66,6 +66,33 @@ public class AR2DToolManager {
 		return thread.getGeneratedImage();
 	}
 	
+	public File getGrapml(){
+		if(thread==null){
+			return null;
+		}
+		String graphmlPath = file.getAbsolutePath()+".graphml";
+		File graphml = new File(graphmlPath);
+		return graphml;
+	}
+	
+	public File getDot(){
+		if(thread==null){
+			return null;
+		}
+		String dotPath = file.getAbsolutePath()+".dot";
+		File dot = new File(dotPath);
+		return dot;
+	}
+	
+	public File getLog(){
+		if(thread==null){
+			return null;
+		}
+		String logPath = file.getAbsolutePath()+".log";
+		File log = new File(logPath);
+		return log;
+	}
+	
 	public void destroy() {
 		cancelTimeout();
 		try{

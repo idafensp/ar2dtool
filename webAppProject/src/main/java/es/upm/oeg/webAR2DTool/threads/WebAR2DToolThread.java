@@ -1,21 +1,25 @@
 package es.upm.oeg.webAR2DTool.threads;
 
 import java.io.File;
+import java.util.logging.Level;
 
 import org.apache.log4j.Logger;
 
 import es.upm.oeg.ar2dtool.RDF2Diagram;
+import es.upm.oeg.ar2dtool.logger.AR2DToolLogger;
 import es.upm.oeg.ar2dtool.utils.ConfigValues;
 import es.upm.oeg.ar2dtool.utils.dot.DOTGenerator;
 import es.upm.oeg.ar2dtool.utils.graphml.GraphMLGenerator;
 import es.upm.oeg.webAR2DTool.responses.WebConfig;
+import es.upm.oeg.webAR2DTool.utils.FileLoggerWriter;
 
 public class WebAR2DToolThread extends Thread {
 
 	private File generatedImage = null;
 	private ConfigValues config;
 	private String filePath = "";
-	private static Logger logger = Logger.getLogger("AR2DTool");
+	private static Logger logger = Logger.getLogger("WebAR2DTool");
+	private final AR2DToolLogger ar2dtoolLog = AR2DToolLogger.getLogger("AR2DTOOL");
 	
 	public WebAR2DToolThread(WebConfig config, String filePath) {
 		this.config = config.toConfigValues();
@@ -24,6 +28,10 @@ public class WebAR2DToolThread extends Thread {
 
 	@Override
 	public void run() {
+		String logFilePath = filePath;
+		logFilePath += ".log";
+		FileLoggerWriter loggerWriter = new FileLoggerWriter("AR2DTOOL_FILE",Level.FINE, logFilePath);
+		ar2dtoolLog.setWriter(loggerWriter);
 		RDF2Diagram r2d = new RDF2Diagram();
 		try {
 			// load config info
@@ -73,13 +81,16 @@ public class WebAR2DToolThread extends Thread {
 			
 			//save the GraphML source to file
 			gg.saveSourceToFile(filePath+".graphml");
+			loggerWriter.close();
 		} catch (Exception e) {
-
+			ar2dtoolLog.getWriter().log(e,Level.SEVERE);
+			loggerWriter.close();
 		}
 	}
 
 	private void log(String string) {
-		System.out.println(string);
+		ar2dtoolLog.getWriter().log(string);
+		//System.out.println(string);
 	}
 
 	public File getGeneratedImage() {
