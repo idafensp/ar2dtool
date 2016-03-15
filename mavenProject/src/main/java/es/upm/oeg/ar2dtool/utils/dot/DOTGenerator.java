@@ -293,7 +293,7 @@ public class DOTGenerator
 	
 	}
 	
-	public void generateDOTDiagram(String dotSource, String outPath, String type)
+	public int generateDOTDiagram(String dotSource, String outPath, String type)
 	{
 		GraphViz gv = new GraphViz(conf.getKeys().get("pathToDot"),conf.getKeys().get("pathToTempDir"));
 		gv.add(dotSource);
@@ -317,7 +317,7 @@ public class DOTGenerator
 		// 		String repesentationType= "circo";
 		
 		File out = new File(outPath);   // Linux
-		gv.writeGraphToFile( gv.getGraph(gv.getDotSource(), type, repesentationType), out );
+		return gv.writeGraphToFile( gv.getGraph(gv.getDotSource(), type, repesentationType), out );
 	}
 	
 	private void generateSyntObjPropertiesTriples() throws NullTripleMember 

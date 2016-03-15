@@ -102,9 +102,15 @@ public class Main {
 
 					log("Compiling GV, this may take a little while...");
 					//compile src code into a graph 
-					dg.generateDOTDiagram(src,pathToOuputFile,outputFileType);	
+					int gvo = dg.generateDOTDiagram(src,pathToOuputFile,outputFileType);
 					
-					log("Compiled! Path="+pathToOuputFile);
+					if(gvo!=1) {
+						log("Problem when compiling the DOT image");
+						
+					} else {
+						log("Compiled! Path="+pathToOuputFile);
+					}
+					
 				}	
 			}
 			
