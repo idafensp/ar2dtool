@@ -264,34 +264,46 @@ function ajaxUploadFile(idContainer){
       processData: false,  // tell jQuery not to process the data
       contentType: false   // tell jQuery not to set contentType
     }).done(function( data ) {
-    	if(!isError(data)){
-    		swal("Uploaded ttl file", "The file has been uploaded.", "success");
+    	if(!isError(data,function(isConfirm){showUploadPopUp()})){
+    		swal("Uploaded file", "The file has been uploaded.", "success");
     	}
     }).error(function(error){
     	swal("Upload error",error,"error");
     });
 }
 
-function isError(response){
+function isError(response,callback){
 	if(response["errorResponse"]){
 		if(response["idErrorMessage"]){
-			swal("Service error",response["idErrorMessage"]+":"+response["errorMessage"],"error");
+			if(callback!=null){
+				swal("Service error",response["idErrorMessage"]+":"+response["errorMessage"],"error",callback);
+			}else{
+				swal("Service error",response["idErrorMessage"]+":"+response["errorMessage"],"error");
+			}
 		}else{
-			swal("Service error",response["errorMessage"],"error");
+			if(callback!=null){
+				swal("Service error",response["errorMessage"],"error",callback);
+			}else{
+				swal("Service error",response["errorMessage"],"error");
+			}
 		}
 		return true;
 	}
 	return false;
 }
 
+function showUploadPopUp(){
+	var formText = '<form id="uploadFileForm" action="webapi/methods/uploadFile" method="post" enctype="multipart/form-data"><input type="file" name="file" style="display:block;border:0px;margin-top:10px;"><p> or put a URI:</p><input type="text" name="uri" style="display:block;border:0px;margin-top:10px;">';
+	swal({   title: "Upload a file",   text: formText,allowEscapeKey:false,html:true,   type: null,   showCancelButton: false,   closeOnConfirm: false,   showLoaderOnConfirm: true, }, function(){
+		ajaxUploadFile("uploadFileForm");
+	});
+}
+
 window.onload = function(){
 	if( window.jQuery ) {
 		bindEvents();
 		generateConfig();
-		var formText = '<form id="ttlFileForm" action="webapi/methods/uploadFile" method="post" enctype="multipart/form-data"><input type="file" name="file" style="display:block;border:0px;margin-top:10px;">';
-		swal({   title: "Upload a ttl file",   text: formText,allowEscapeKey:false,html:true,   type: null,   showCancelButton: false,   closeOnConfirm: false,   showLoaderOnConfirm: true, }, function(){
-			ajaxUploadFile("ttlFileForm");
-		});
+		showUploadPopUp();
 	} else {
 		window.setTimeout( runScript, 100 );
 	}
