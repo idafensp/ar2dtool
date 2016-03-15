@@ -75,6 +75,12 @@
 			<version>2.4</version>
 		</dependency>
 		<dependency>
+            <groupId>org.apache.jena</groupId>
+            <artifactId>apache-jena-libs</artifactId>
+            <type>pom</type>
+        	<version>3.0.1</version>
+        </dependency>   
+		<dependency>
 			<groupId>es.upm.oeg</groupId>
 			<artifactId>ar2dtool</artifactId>
 			<version>0.1.0</version>
