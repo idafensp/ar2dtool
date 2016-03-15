@@ -34,6 +34,7 @@ public class WebAR2DToolThread extends Thread {
 		ar2dtoolLog.setWriter(loggerWriter);
 		RDF2Diagram r2d = new RDF2Diagram();
 		try {
+			String fileName = new File(filePath).getName();
 			// load config info
 			r2d.setConf(config);
 
@@ -57,7 +58,7 @@ public class WebAR2DToolThread extends Thread {
 			// save the DOT source to file
 			dg.saveSourceToFile(filePath + ".dot");
 
-			log("Generated! Path="+filePath+".dot");
+			log("Generated! Path="+fileName+".dot");
 
 			// get source DOT code
 			String src = dg.generateDOTSource();

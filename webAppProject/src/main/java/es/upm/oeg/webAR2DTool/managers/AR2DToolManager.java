@@ -1,7 +1,9 @@
 package es.upm.oeg.webAR2DTool.managers;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Timer;
@@ -28,8 +30,36 @@ public class AR2DToolManager {
 		this.sessionID = sessionID;
 		this.file = file;
 		this.workspaceFolder = workspaceFolder;
-		timer = new Timer();
-		thread = null;
+		this.timer = new Timer();
+		this.thread = null;
+	}
+	
+	public AR2DToolManager(String sessionID,String ontUri, File workspaceFolder){
+		this.sessionID = sessionID;
+		String [] splitUri = ontUri.split("/");
+		String uriFile = splitUri[splitUri.length-1];
+		this.file = new File(workspaceFolder,uriFile+".rdf");
+		if(file.exists()){
+			file.delete();
+		}
+		try {
+			if(file.createNewFile()){
+				Writer writer = new FileWriter(file);
+				writer.write("<?xml version=\"1.0\"?>\n");
+				writer.write("<rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\" xmlns:owl=\"http://www.w3.org/2002/07/owl#\">\n");
+				writer.write("\t<owl:Ontology rdf:about=\"\">\n");
+				writer.write("\t\t<owl:imports rdf:resource=\""+ontUri+"\"/>\n");
+				writer.write("\t</owl:Ontology>\n");
+				writer.write("</rdf:RDF>");
+				writer.flush();
+				writer.close();
+			}
+		} catch (IOException e) {
+			logger.log(Level.SEVERE, "Can not save to file uri:"+ontUri,e);
+		}
+		this.workspaceFolder = workspaceFolder;
+		this.timer = new Timer();
+		this.thread = null;
 	}
 	
 	public void cancelTimeout(){
