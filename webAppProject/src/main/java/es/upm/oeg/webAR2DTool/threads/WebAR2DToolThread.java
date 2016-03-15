@@ -40,7 +40,7 @@ public class WebAR2DToolThread extends Thread {
 
 			// print config values
 			log(r2d.getConf().toString());
-
+			
 			// load model
 			r2d.loadRdf(filePath);
 

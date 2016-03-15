@@ -29,13 +29,16 @@ function closeLeftMenu(){
 }
 
 function generateImage(){
-	jQuery('#imageContainerZoomAndPan').imagePanAndZoom('');
+	jQuery('#imageContainerZoomAndPan').imagePanAndZoom(null);
+	var imageHtml = "";
+	swal({   title: "Loading", text:imageHtml,showConfirmButton:false, allowEscapeKey:false,html:true,   type: null,   showCancelButton: false,   closeOnConfirm: false,   showLoaderOnConfirm: false, });
 	ajax('webapi/methods/generateImage',{config:JSON.stringify(configJSON)},function(data){
 		if(!isError(data)){
+			swal.close();
 			jQuery('#imageContainerZoomAndPan').imagePanAndZoom('webapi/methods/getImage?d='+new Date().getTime());
 		}
 	},function(error){
-		swal("Upload error",error,"error");
+		swal("Generate error:",error,"error");
 	});
 }
 
@@ -253,9 +256,16 @@ function ajax(urlString,data,funcionDone,funcionError){
 	}).done(funcionDone).error(funcionError);
 }
 
-function ajaxUploadFile(idContainer){
+function ajaxUploadFile(idContainer,idInput){
 	var urlString="webapi/methods/uploadFile";
 	var fd = new FormData(document.getElementById(idContainer));
+	if(idInput){
+		var input = document.getElementById(idInput);
+		if(input && input.files && input.files[0]){
+			fd.append("fileSize",input.files[0].size);
+			console.log("Uploaded file size: "+input.files[0].size+" bytes");
+		}
+	}
     jQuery.ajax({
       url: urlString,
       type: "POST",
@@ -275,13 +285,13 @@ function ajaxUploadFile(idContainer){
 function isError(response,callback){
 	if(response["errorResponse"]){
 		if(response["idErrorMessage"]){
-			if(callback!=null){
+			if(callback){
 				swal("Service error",response["idErrorMessage"]+":"+response["errorMessage"],"error",callback);
 			}else{
 				swal("Service error",response["idErrorMessage"]+":"+response["errorMessage"],"error");
 			}
 		}else{
-			if(callback!=null){
+			if(callback){
 				swal("Service error",response["errorMessage"],"error",callback);
 			}else{
 				swal("Service error",response["errorMessage"],"error");
@@ -293,9 +303,9 @@ function isError(response,callback){
 }
 
 function showUploadPopUp(){
-	var formText = '<form id="uploadFileForm" action="webapi/methods/uploadFile" method="post" enctype="multipart/form-data"><input type="file" name="file" style="display:block;border:0px;margin-top:10px;"><p> or put a URI:</p><input type="text" name="uri" style="display:block;border:0px;margin-top:10px;">';
+	var formText = '<form id="uploadFileForm" action="webapi/methods/uploadFile" method="post" enctype="multipart/form-data"><input id="uploadFileInput" type="file" name="file" multiple="false" style="display:block;margin-top:10px;padding:0px 0px 43px 0px;"><p> or put a URI:</p><input type="text" name="uri" style="display:block;margin-top:10px;">';
 	swal({   title: "Upload a file",   text: formText,allowEscapeKey:false,html:true,   type: null,   showCancelButton: false,   closeOnConfirm: false,   showLoaderOnConfirm: true, }, function(){
-		ajaxUploadFile("uploadFileForm");
+		ajaxUploadFile("uploadFileForm","uploadFileInput","uploadFileSizeInput");
 	});
 }
 
