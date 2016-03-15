@@ -23,7 +23,7 @@
 		<div class='flex-container-column  maxMainAxisFlexSize maxCrossAxisFlexSize'>
 			<header class='flex-container-row flex-item maxCrossAxisFlexSize header menu flex-shrink0'>
 				<div class='flex-item Logo'><img src="resources/img/Logo_AR2DTool.png" alt="AR2DTool Logo" class='Logo'></div>
-				<nav class='navMenu flex-item-main maxCrossAxisFlexSize flex-container-row mainAxisFlexCenter crossAxisFlexCenter'>
+				<nav class='navMenu flex-item-main maxCrossAxisFlexSize mainAxisFlexCenter crossAxisFlexCenter'>
 				<div><a href='webapi/methods/getGraphml' target="_blank">Download Graphml</a></div>
 				<div><a href='webapi/methods/getDot' target="_blank">Download Dot</a></div>
 				<div><a href='webapi/methods/getImage' target="_blank">Download Image</a></div>
@@ -35,7 +35,7 @@
 				<aside id='dropMenuContainer' class='dropMenuContainerClose flex-item flex-container-row'>
 					<div id='dropMenuContentContainer' class='dropMenuContentContainerClose dropMenuContentContainer'>
 						<div id='configContainer' class="flex-container-column">
-							<div id='keysContainer' configContainer='keys' class='flex-container-column' style='padding-top:5px;padding-left:5px'>
+							<div id='keysContainer' configContainer='keys' class='flex-container-column padL5 padT5'>
 								<div configParam='arrowColor' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>arrowColor: </div>
 									<div configValue='black' configSelected=true class='configColor selected' style='background-color:black'></div>
 									<div configValue='red' configSelected=false class='configColor notSelected' style='background-color:red'></div>
