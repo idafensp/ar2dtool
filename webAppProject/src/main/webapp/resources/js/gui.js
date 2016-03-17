@@ -286,15 +286,19 @@ function isError(response,callback){
 	if(response["errorResponse"]){
 		if(response["idErrorMessage"]){
 			if(callback){
-				swal("Service error",response["idErrorMessage"]+":"+response["errorMessage"],"error",callback);
+				//swal("Service error",response["idErrorMessage"]+":"+response["errorMessage"],"error",callback);
+				swal({title: "Service error",   text:response["idErrorMessage"]+":"+response["errorMessage"] ,   type: "error",closeOnConfirm: false,   closeOnCancel: false},callback);
 			}else{
-				swal("Service error",response["idErrorMessage"]+":"+response["errorMessage"],"error");
+				swal({title: "Service error",   text:response["idErrorMessage"]+":"+response["errorMessage"] ,   type: "error",closeOnConfirm: false,   closeOnCancel: false});
+				//swal("Service error",response["idErrorMessage"]+":"+response["errorMessage"],"error");
 			}
 		}else{
 			if(callback){
-				swal("Service error",response["errorMessage"],"error",callback);
+				swal({title: "Service error",   text:response["errorMessage"] ,   type: "error",closeOnConfirm: false,   closeOnCancel: false},callback);
+				//swal("Service error",response["errorMessage"],"error",callback);
 			}else{
-				swal("Service error",response["errorMessage"],"error");
+				swal({title: "Service error",   text:response["errorMessage"] ,   type: "error",closeOnConfirm: false,   closeOnCancel: false});
+				//swal("Service error",response["errorMessage"],"error");
 			}
 		}
 		return true;

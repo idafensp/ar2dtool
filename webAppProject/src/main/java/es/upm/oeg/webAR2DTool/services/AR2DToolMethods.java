@@ -5,6 +5,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TimerTask;
@@ -27,6 +30,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
@@ -34,12 +38,14 @@ import org.glassfish.jersey.media.multipart.FormDataParam;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntModelSpec;
+import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 
 import es.upm.oeg.webAR2DTool.managers.AR2DToolManager;
 import es.upm.oeg.webAR2DTool.responses.WebConfig;
 import es.upm.oeg.webAR2DTool.utils.Constants;
 import es.upm.oeg.webAR2DTool.utils.ParameterNames;
+import es.upm.oeg.webAR2DTool.utils.PosibleLangsJena;
 import es.upm.oeg.webAR2DTool.utils.WebResponse;
 
 @Path("methods")
@@ -113,27 +119,26 @@ public class AR2DToolMethods {
 			@FormDataParam("uri") String uri,
 			@FormDataParam("fileSize") long fileSize){
 		String toUploadString = uploadedFilesFolder;
-		String jSessionID = request.getSession(true).getId();
 		if (!toUploadString.endsWith(File.separator)) {
 			toUploadString += File.separator;
 		}
-		String sessionID = request.getSession(true).getId();
-		if (sessionID == null || sessionID.isEmpty()) {
+		String jSessionID = request.getSession(true).getId();
+		if (jSessionID == null || jSessionID.isEmpty()) {
 			return new WebResponse(null, "server.errorNoID", "Error session ID not found or can not create it.");
 		}
-		if (sessions.containsKey(sessionID) && sessions.get(sessionID).getWorkspaceFolder().exists()) {
-			if (sessions.get(sessionID).getWorkspaceFolder().isDirectory()) {
+		if (sessions.containsKey(jSessionID) && sessions.get(jSessionID).getWorkspaceFolder().exists()) {
+			if (sessions.get(jSessionID).getWorkspaceFolder().isDirectory()) {
 				try {
-					FileUtils.cleanDirectory(sessions.get(sessionID).getWorkspaceFolder());
+					FileUtils.cleanDirectory(sessions.get(jSessionID).getWorkspaceFolder());
 				} catch (IOException e) {
 					logger.log(Level.SEVERE, "Can not clean workspace folder:"
-							+ sessions.get(sessionID).getWorkspaceFolder().getAbsolutePath(), e);
+							+ sessions.get(jSessionID).getWorkspaceFolder().getAbsolutePath(), e);
 				}
 			} else {
-				sessions.get(sessionID).getWorkspaceFolder().delete();
+				sessions.get(jSessionID).getWorkspaceFolder().delete();
 			}
 		}
-		toUploadString += sessionID;
+		toUploadString += jSessionID;
 		File toUploadFolder = new File(toUploadString);
 		if (!toUploadFolder.exists()) {
 			if (!toUploadFolder.mkdirs()) {
@@ -152,11 +157,18 @@ public class AR2DToolMethods {
 				try{
 					java.net.URL url = new java.net.URL(uri);
 					url.openConnection();
-					createNewSession(sessionID, uri, toUploadFolder);
-					WebResponse response = checkNumberOfTriples(jSessionID);
+					String realURL = uri;
+					try{
+						realURL = obtainRealURI(uri);
+					}catch(Exception e){
+						return new WebResponse(null, "server.canNotReadDataFromURI", "Can not read data from uri:"+uri);
+					}
+					WebResponse response = checkNumberOfTriples(realURL);
 					if(response!=null){
 						return response;
 					}
+					createNewSession(jSessionID, realURL, toUploadFolder);
+					checkNumberOfTriples(sessions.get(jSessionID).getFile().getAbsolutePath());
 					return new WebResponse("{isFileUploaded: true}", null, null);
 				}catch(Exception e){
 					logger.log(Level.INFO,"Invalid URI:"+uri,e);
@@ -179,38 +191,34 @@ public class AR2DToolMethods {
 			OutputStream out = new FileOutputStream(toUpload);
 			int read = 0;
 			byte[] bytes = new byte[1024];
-			while ((read = fileInputStream.read(bytes)) != -1) {
+			long totalBytesRead = 0;
+			boolean exceedLimit = false;
+			while ((read = fileInputStream.read(bytes)) != -1 && !exceedLimit) {
 				out.write(bytes, 0, read);
+				totalBytesRead += read;
+				if(totalBytesRead>limitFileSizeUploadMB*1024*1024){
+					exceedLimit = true;
+				}
 			}
 			out.flush();
 			out.close();
-			createNewSession(sessionID, toUpload, toUploadFolder);
-			WebResponse response = checkNumberOfTriples(jSessionID);
+			if(exceedLimit){
+				return new WebResponse(null, "fileSizeUpload.exceeded", "Error file size is 0 or exceed the upload limit: "+limitFileSizeUploadMB+" MB");
+			}
+			WebResponse response = checkNumberOfTriples(toUpload.getAbsolutePath());
 			if(response!=null){
 				return response;
 			}
+			createNewSession(jSessionID, toUpload, toUploadFolder);
 		} catch (IOException e) {
 			logger.log(Level.SEVERE,
-					"Error when try to upload a file. Session ID=" + sessionID + " . FilePath=" + toUploadString, e);
+					"Error when try to upload a file. Session ID=" + jSessionID + " . FilePath=" + toUploadString, e);
 			return new WebResponse(null, "server.errorUploadFile",
 					"An unexpected error when upload the file please contact with system admin.");
 		}
 		return new WebResponse("{isFileUploaded: true}", null, null);
 	}
-
-	private WebResponse checkNumberOfTriples(String jSessionID) {
-		try{
-			OntModel ontModel = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM,  RDFDataMgr.loadModel(sessions.get(jSessionID).getFile().getAbsolutePath()));
-			if(ontModel.size()>numberOfTriplesOnFile){
-				return new WebResponse(null,"server.exceededNumberOfTuples","File or URI exceeded the maximun number of triples: "+numberOfTriplesOnFile);
-			}
-		}catch(Exception e){
-			logger.log(Level.SEVERE, "Can not obtain model from your uri or file.", e);
-			return new WebResponse(null,"server.canNotObtainModel","Can not obtain Ont Model from your uri or file.");
-		}
-		return null;
-	}
-
+	
 	@GET
 	@Path("getDefaultConfigValues")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -281,7 +289,7 @@ public class AR2DToolMethods {
 
 	@GET
 	@Path("getImage")
-	@Produces({ "image/*" })
+	@Produces(MediaType.APPLICATION_OCTET_STREAM)
 	public Response getImage(@Context HttpServletRequest request) {
 		String jSessionID = request.getSession(true).getId();
 		if (!updateSession(jSessionID)) {
@@ -439,5 +447,39 @@ public class AR2DToolMethods {
 		}
 		return null;
 	}
+	
+	private WebResponse checkNumberOfTriples(String fullPathOrUri) {
+		for(org.apache.jena.riot.Lang lang:PosibleLangsJena.posibleLangs){
+			try{
+				//Model model = RDFDataMgr.loadModel(fullPathOrUri,lang);
+				//OntModel ontModel = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM,  model);
+				OntModel ontModel = ModelFactory.createOntologyModel();
+				ontModel.read(fullPathOrUri,lang.getName());
+				if(ontModel.size()>numberOfTriplesOnFile){
+					return new WebResponse(null,"server.exceededNumberOfTuples","File or URI exceeded the maximun number of triples: "+numberOfTriplesOnFile);
+				}else{
+					return null;
+				}
+			}catch(Exception e){
+				if(lang!=Lang.TURTLE){
+					logger.log(Level.INFO, "Can not obtain ont model from file or uri:"+fullPathOrUri+" and "+lang);
+				}else{
+					logger.log(Level.INFO, "Can not obtain ont model from file or uri:"+fullPathOrUri+" and "+lang,e);
+				}
+			}
+		}
+		logger.log(Level.SEVERE, "Can not obtain ont model from your uri or file.");
+		return new WebResponse(null,"server.canNotObtainModel","Can not obtain Ont Model from your uri or file.");
+	}
+
+	private String obtainRealURI(String URL) throws MalformedURLException, IOException{
+		URLConnection con = new URL(URL).openConnection();
+		con.connect();
+		InputStream is = con.getInputStream();
+		java.net.URL toReturn = con.getURL();
+		is.close();
+		return toReturn.toString();
+	}
+	
 	
 }

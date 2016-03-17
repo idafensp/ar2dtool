@@ -91,7 +91,6 @@ public class WebAR2DToolThread extends Thread {
 
 	private void log(String string) {
 		ar2dtoolLog.getWriter().log(string);
-		//System.out.println(string);
 	}
 
 	public File getGeneratedImage() {
