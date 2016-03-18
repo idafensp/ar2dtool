@@ -31,14 +31,11 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.jena.riot.Lang;
-import org.apache.jena.riot.RDFDataMgr;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hp.hpl.jena.ontology.OntModel;
-import com.hp.hpl.jena.ontology.OntModelSpec;
-import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 
 import es.upm.oeg.webAR2DTool.managers.AR2DToolManager;
@@ -103,9 +100,17 @@ public class AR2DToolMethods {
 	@Produces(MediaType.APPLICATION_JSON)
 	public WebResponse hasUploadedFile(@Context HttpServletRequest request) {
 		String jSessionID = request.getSession(true).getId();
-		String response = "{\"hasUploadedFile\":\"";
-		response += updateSession(jSessionID);
-		response += "\"}";
+		boolean hasSession = updateSession(jSessionID); 
+		String response = "{\"hasUploadedFile\":";
+		response += hasSession;
+		if(hasSession){
+			response += ","+"\"hasGeneratedImage\":";
+			boolean hasImage = sessions.get(jSessionID).getImage() !=null 
+					&& sessions.get(jSessionID).getImage().exists()
+					&& sessions.get(jSessionID).getImage().length()>0;
+			response += hasImage;
+		}
+		response += "}";
 		return new WebResponse(response, "", "");
 	}
 
@@ -156,19 +161,24 @@ public class AR2DToolMethods {
 			if(uri != null && !uri.isEmpty()){
 				try{
 					java.net.URL url = new java.net.URL(uri);
-					url.openConnection();
+					URLConnection urlCon = url.openConnection();
 					String realURL = uri;
 					try{
 						realURL = obtainRealURI(uri);
 					}catch(Exception e){
 						return new WebResponse(null, "server.canNotReadDataFromURI", "Can not read data from uri:"+uri);
 					}
-					WebResponse response = checkNumberOfTriples(realURL);
+					String [] splitUri = realURL.split("/");
+					String uriFile = splitUri[splitUri.length-1];
+					toUploadString += File.separator + uriFile ;
+					File toUpload = new File(toUploadString);
+					toUpload.createNewFile();
+					OutputStream out = new FileOutputStream(toUpload);
+					WebResponse response = uploadFile(urlCon.getInputStream(), out,toUpload.getAbsolutePath());
 					if(response!=null){
 						return response;
 					}
-					createNewSession(jSessionID, realURL, toUploadFolder);
-					checkNumberOfTriples(sessions.get(jSessionID).getFile().getAbsolutePath());
+					createNewSession(jSessionID, toUpload, toUploadFolder);
 					return new WebResponse("{isFileUploaded: true}", null, null);
 				}catch(Exception e){
 					logger.log(Level.INFO,"Invalid URI:"+uri,e);
@@ -189,28 +199,12 @@ public class AR2DToolMethods {
 		try {
 			toUpload.createNewFile();
 			OutputStream out = new FileOutputStream(toUpload);
-			int read = 0;
-			byte[] bytes = new byte[1024];
-			long totalBytesRead = 0;
-			boolean exceedLimit = false;
-			while ((read = fileInputStream.read(bytes)) != -1 && !exceedLimit) {
-				out.write(bytes, 0, read);
-				totalBytesRead += read;
-				if(totalBytesRead>limitFileSizeUploadMB*1024*1024){
-					exceedLimit = true;
-				}
-			}
-			out.flush();
-			out.close();
-			if(exceedLimit){
-				return new WebResponse(null, "fileSizeUpload.exceeded", "Error file size is 0 or exceed the upload limit: "+limitFileSizeUploadMB+" MB");
-			}
-			WebResponse response = checkNumberOfTriples(toUpload.getAbsolutePath());
+			WebResponse response = uploadFile(fileInputStream, out,toUpload.getAbsolutePath()); 
 			if(response!=null){
 				return response;
 			}
 			createNewSession(jSessionID, toUpload, toUploadFolder);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			logger.log(Level.SEVERE,
 					"Error when try to upload a file. Session ID=" + jSessionID + " . FilePath=" + toUploadString, e);
 			return new WebResponse(null, "server.errorUploadFile",
@@ -417,14 +411,6 @@ public class AR2DToolMethods {
 		}
 	}
 	
-	private void createNewSession(String sessionID, String ontUri, File workspaceFolder) {
-		if (sessionID != null && !sessionID.isEmpty() && ontUri != null && !ontUri.isEmpty()) {
-			sessions.put(sessionID, new AR2DToolManager(sessionID, ontUri, workspaceFolder));
-		} else {
-			logger.severe("Invalid create new session with sessionID: " + sessionID + " or invalid uri.");
-		}
-	}
-	
 	private WebResponse getErrorWebResponse(AR2DToolManager ar2dToolManager) {
 		if(!ar2dToolManager.getGrapml().exists() || ar2dToolManager.getGrapml().length()<=0){
 			if(!ar2dToolManager.getDot().exists() || ar2dToolManager.getDot().length()<=0){
@@ -454,7 +440,7 @@ public class AR2DToolMethods {
 				//Model model = RDFDataMgr.loadModel(fullPathOrUri,lang);
 				//OntModel ontModel = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM,  model);
 				OntModel ontModel = ModelFactory.createOntologyModel();
-				ontModel.read(fullPathOrUri,lang.getName());
+				ontModel.read(fullPathOrUri,null,lang.getName());
 				if(ontModel.size()>numberOfTriplesOnFile){
 					return new WebResponse(null,"server.exceededNumberOfTuples","File or URI exceeded the maximun number of triples: "+numberOfTriplesOnFile);
 				}else{
@@ -481,5 +467,28 @@ public class AR2DToolMethods {
 		return toReturn.toString();
 	}
 	
+	private WebResponse uploadFile(InputStream in,OutputStream out,String absolutePath) throws IOException{
+		int read = 0;
+		byte[] bytes = new byte[1024];
+		long totalBytesRead = 0;
+		boolean exceedLimit = false;
+		while ((read = in.read(bytes)) != -1 && !exceedLimit) {
+			out.write(bytes, 0, read);
+			totalBytesRead += read;
+			if(totalBytesRead>limitFileSizeUploadMB*1024*1024){
+				exceedLimit = true;
+			}
+		}
+		out.flush();
+		out.close();
+		if(exceedLimit){
+			return new WebResponse(null, "fileSizeUpload.exceeded", "Error file size is 0 or exceed the upload limit: "+limitFileSizeUploadMB+" MB");
+		}
+		WebResponse response = checkNumberOfTriples("file://"+absolutePath);
+		if(response!=null){
+			return response;
+		}
+		return null;
+	}
 	
 }

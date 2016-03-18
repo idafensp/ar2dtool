@@ -28,13 +28,21 @@ function closeLeftMenu(){
 	leftMenuOpen = false;
 }
 
-function generateImage(){
-	jQuery('#imageContainerZoomAndPan').imagePanAndZoom(null);
+function showLoading(){
 	var imageHtml = "";
 	swal({   title: "Loading", text:imageHtml,showConfirmButton:false, allowEscapeKey:false,html:true,   type: null,   showCancelButton: false,   closeOnConfirm: false,   showLoaderOnConfirm: false, });
-	ajax('webapi/methods/generateImage',{config:JSON.stringify(configJSON)},function(data){
+}
+
+function closeLoading(){
+	swal.close();
+}
+
+function generateImage(){
+	jQuery('#imageContainerZoomAndPan').imagePanAndZoom(null);
+	showLoading()
+	ajaxPost('webapi/methods/generateImage',{config:JSON.stringify(configJSON)},function(data){
 		if(!isError(data)){
-			swal.close();
+			closeLoading();
 			jQuery('#imageContainerZoomAndPan').imagePanAndZoom('webapi/methods/getImage?d='+new Date().getTime());
 		}
 	},function(error){
@@ -247,11 +255,26 @@ function bindConfigEvents(){
 	});
 }
 
-function ajax(urlString,data,funcionDone,funcionError){
+function ajaxPost(urlString,data,funcionDone,funcionError){
 	jQuery.ajax({
 		url: urlString,
 	    type: "POST",
 	    data : data,
+	    contentType: 'application/x-www-form-urlencoded'
+	}).done(funcionDone).error(funcionError);
+}
+function ajaxGet(urlString,data,funcionDone,funcionError){
+	if(data && data.length>0){
+		urlString+='?';
+		jQuery.each(data,function(key,val){
+			urlString+=key+'='+val+'&';
+		});
+		urlString = urlString.substring(0,urlString.length-1);
+	}
+	urlString = encodeURI(urlString);
+	jQuery.ajax({
+		url: urlString,
+	    type: "GET",
 	    contentType: 'application/x-www-form-urlencoded'
 	}).done(funcionDone).error(funcionError);
 }
@@ -313,11 +336,34 @@ function showUploadPopUp(){
 	});
 }
 
+function startWebPage(){
+	var hasUploadedFile = 'webapi/methods/hasUploadedFile';
+	showLoading();
+	ajaxGet(hasUploadedFile,null,function( data ) {
+		if(!isError(data)){
+    		var response = JSON.parse(data['response']);
+    		if(response && response['hasUploadedFile'] && response['hasUploadedFile']==true){
+    			if(response['hasGeneratedImage'] && response['hasGeneratedImage']==true){
+    				jQuery('#imageContainerZoomAndPan').imagePanAndZoom('webapi/methods/getImage?d='+new Date().getTime());
+    				closeLoading();
+    			}else{
+    				generateImage();
+    			}
+    		}else{
+    			showUploadPopUp();
+    		}
+    	}
+    },function(error){
+    	swal("HasUploadedFile error",error,"error");
+    });
+	
+}
+
 window.onload = function(){
 	if( window.jQuery ) {
 		bindEvents();
 		generateConfig();
-		showUploadPopUp();
+		startWebPage();
 	} else {
 		window.setTimeout( runScript, 100 );
 	}
