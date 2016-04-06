@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Level;
 
 import com.hp.hpl.jena.ontology.DatatypeProperty;
 import com.hp.hpl.jena.ontology.Individual;
@@ -32,6 +33,8 @@ public class DOTGenerator
 	//POPULAR URIS
 	private static final String RDFS_RANGE = "http://www.w3.org/2000/01/rdf-schema#range";
 	private static final String RDFS_DOMAIN = "http://www.w3.org/2000/01/rdf-schema#domain";
+	
+	private static final AR2DToolLogger logger = AR2DToolLogger.getLogger("AR2DTOOL");
 	
 	//OBJ PROP LIST
 	private Map<String,ObjPropPair<String,String>> objPropsMap;
@@ -288,7 +291,8 @@ public class DOTGenerator
 			out.println(this.generateDOTSource());
 			out.close();
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			logger.getWriter().log(e,Level.SEVERE);
+			//e.printStackTrace();
 		}
 	
 	}
