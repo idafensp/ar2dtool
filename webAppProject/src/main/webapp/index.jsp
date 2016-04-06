@@ -24,6 +24,7 @@
 			<header class='flex-container-row flex-item maxCrossAxisFlexSize header menu flex-shrink0'>
 				<div class='flex-item Logo'><img src="resources/img/Logo_AR2DTool.png" alt="AR2DTool Logo" class='Logo'></div>
 				<nav class='navMenu flex-item-main maxCrossAxisFlexSize mainAxisFlexCenter crossAxisFlexCenter'>
+				<div><a onclick='showUploadPopUp()'>Upload a File</a></div>
 				<div><a href='webapi/methods/getGraphml' target="_blank">Download Graphml</a></div>
 				<div><a href='webapi/methods/getDot' target="_blank">Download Dot</a></div>
 				<div><a href='webapi/methods/getImage' target="_blank">Download Image</a></div>

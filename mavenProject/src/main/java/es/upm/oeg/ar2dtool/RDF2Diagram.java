@@ -112,10 +112,12 @@ public class RDF2Diagram {
 				model.read(in, null, "TTL");
 			}
 			catch (org.apache.jena.riot.RiotException e2) {
-				e2.printStackTrace();
+				log.getWriter().log(e,Level.SEVERE);
+				//e2.printStackTrace();
 				throw new RDFInputNotValid("RDF content not valid at "+pathToRdfFile);
 			} catch (IOException e1) {
-				e1.printStackTrace();
+				log.getWriter().log(e,Level.SEVERE);
+				//e1.printStackTrace();
 				throw new RDFNotFound("RDF content not found at "+pathToRdfFile);
 			}
 		}

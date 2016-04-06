@@ -32,7 +32,13 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.Properties;
+import java.util.logging.Level;
+
+import org.apache.log4j.lf5.LogLevel;
+
+import es.upm.oeg.ar2dtool.logger.AR2DToolLogger;
 
 /**
 * <dl>
@@ -79,6 +85,8 @@ public class GraphViz
 	 * Detects the client's operating system.
 	 */
 	private final static String osName = System.getProperty("os.name").replaceAll("\\s","");
+	
+	private final static AR2DToolLogger logger = AR2DToolLogger.getLogger("AR2DTOOL");
 
 	/**
 	 * Load the config.properties file.
@@ -216,7 +224,7 @@ public class GraphViz
 			{
 				img_stream = get_img_stream(dot, type, representationType);
 				if (dot.delete() == false) 
-					System.err.println("Warning: " + dot.getAbsolutePath() + " could not be deleted!");
+					logger.getWriter().log("Warning: " + dot.getAbsolutePath() + " could not be deleted!",Level.WARNING);
 				return img_stream;
 			}
 			return null;
@@ -279,7 +287,9 @@ public class GraphViz
 
 			// patch by Mike Chenault
 			// representation type with -K argument by Olivier Duplouy
-			String[] args = {DOT, "-T"+type, "-K"+representationType, "-Gdpi="+dpiSizes[this.currentDpiPos], dot.getAbsolutePath(), "-o", img.getAbsolutePath()};
+			//String[] args = {DOT, "-T"+type, "-K"+representationType, "-Gdpi="+dpiSizes[this.currentDpiPos], dot.getAbsolutePath(), "-o", img.getAbsolutePath()};
+			//Removed -Gdpi param because it generate a bad SVG file.
+			String[] args = {DOT, "-T"+type, "-K"+representationType, dot.getAbsolutePath(), "-o", img.getAbsolutePath()};
 			Process p = rt.exec(args);
 			p.waitFor();
 
@@ -290,16 +300,17 @@ public class GraphViz
 			if( in != null ) in.close();
 
 			if (img.delete() == false) 
-				System.err.println("Warning: " + img.getAbsolutePath() + " could not be deleted!");
+				logger.getWriter().log("Warning: " + img.getAbsolutePath() + " could not be deleted!",Level.WARNING);
 		}
 		catch (java.io.IOException ioe) {
-			System.err.println("Error:    in I/O processing of tempfile in dir " + GraphViz.TEMP_DIR+"\n");
-			System.err.println("       or in calling external command");
-			ioe.printStackTrace();
+			logger.getWriter().log("Error:    in I/O processing of tempfile in dir " + GraphViz.TEMP_DIR+"\n"+"       or in calling external command",Level.SEVERE);
+			logger.getWriter().log(ioe,Level.SEVERE);
+			//ioe.printStackTrace();
 		}
 		catch (java.lang.InterruptedException ie) {
-			System.err.println("Error: the execution of the external program was interrupted");
-			ie.printStackTrace();
+			logger.getWriter().log("Error: the execution of the external program was interrupted",Level.SEVERE);
+			logger.getWriter().log(ie,Level.SEVERE);
+			//ie.printStackTrace();
 		}
 
 		return img_stream;
