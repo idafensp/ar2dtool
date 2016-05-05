@@ -43,7 +43,7 @@ function generateImage(){
 	ajaxPost('webapi/methods/generateImage',{config:JSON.stringify(configJSON)},function(data){
 		if(!isError(data)){
 			closeLoading();
-			jQuery('#imageContainerZoomAndPan').imagePanAndZoom('webapi/methods/getImage?d='+new Date().getTime());
+			jQuery('#imageContainerZoomAndPan').imagePanAndZoom('webapi/methods/getImage.svg?d='+new Date().getTime());
 		}
 	},function(error){
 		swal("Generate error:",error,"error");
@@ -344,7 +344,7 @@ function startWebPage(){
     		var response = JSON.parse(data['response']);
     		if(response && response['hasUploadedFile'] && response['hasUploadedFile']==true){
     			if(response['hasGeneratedImage'] && response['hasGeneratedImage']==true){
-    				jQuery('#imageContainerZoomAndPan').imagePanAndZoom('webapi/methods/getImage?d='+new Date().getTime());
+    				jQuery('#imageContainerZoomAndPan').imagePanAndZoom('webapi/methods/getImage.svg?d='+new Date().getTime());
     				closeLoading();
     			}else{
     				generateImage();

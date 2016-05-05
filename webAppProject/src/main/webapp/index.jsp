@@ -173,9 +173,6 @@
 								<div configParam='synthesizeObjectProperties' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>synthesizeObjectProperties: </div>
 									<input configValue type="checkbox">
 								</div>
-								<div configParam='imageSize' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>imageSize: </div>
-									<input configValue type="number" min="300" max="2500">
-								</div>
 							</div>
 							<div configContainer='equivalentElementList' configParam='equivalentElementList' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>equivalentElementList: </div>
 								<input configValue type="text">

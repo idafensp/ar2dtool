@@ -103,7 +103,7 @@ nav div a{
 .dropMenuContentContainer{
     word-wrap: break-word;
     word-break: break-all;
-    overflow-y: scroll;
+    overflow-y: auto;
 }
 
 .dropMenuContainerOpen{
