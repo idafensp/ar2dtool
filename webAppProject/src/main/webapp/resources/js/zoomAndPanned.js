@@ -9,8 +9,8 @@ function initZoomAndPanned(){
 		var widthPercentPan = 100;
 		var container = jQuery(this);
 		var zoomContainer = null;
-		var zoomTimeout = null;	
-		var img = jQuery("<img></img>");
+		var zoomTimeout = null;
+		var img = jQuery("<div></div>");
 		var zoomTouch0 = null;
 		var zoomTouch1 = null;
 		var distanceToIncZoom = 30;
@@ -19,11 +19,15 @@ function initZoomAndPanned(){
 		container.empty();
 		container.unbind('mousedown touchstart mousemove touchmove touchend mouseup mouseout wheel');
 		container.addClass('containerPanAndZoom noDraggablePanAndZoom');
-		img.attr("src", imageURL);
+		//img.attr("src", imageURL);
 		img.attr("style", "position:relative; width:100%;height:auto; left:0px;top:0px");
 		img.attr('class','noDraggablePanAndZoom');
+
 		container.append(img);
-		
+		img.load(imageURL,function(){
+			jQuery(img).find("svg").attr("width","100%");
+			jQuery(img).find("svg").attr("height","100%");
+		});
 		function removeLastZoom(){
     			if(zoomContainer !== null){
 			        zoomContainer.remove();
