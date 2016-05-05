@@ -1,13 +1,6 @@
 package es.upm.oeg.webAR2DTool.managers;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Writer;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Timer;
@@ -51,9 +44,9 @@ public class AR2DToolManager {
 		try {
 			FileUtils.deleteDirectory(workspaceFolder);
 			return true;
-		} catch (IOException e) {
-			logger.log(Level.SEVERE, "Can not remove workspace: "+workspaceFolder.getAbsolutePath()+" sessionID:"+sessionID, e);
-			return false;
+		} catch (Exception e) {
+			logger.log(Level.SEVERE, "Can not remove workspace: "+workspaceFolder.getAbsolutePath()+" sessionID:"+sessionID+". Try to force remove it.", e);
+			return workspaceFolder.delete();
 		}
 	}
 	

@@ -2,14 +2,16 @@ package es.upm.oeg.webAR2DTool.services;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Scanner;
 import java.util.TimerTask;
 import java.util.HashMap;
 import java.util.logging.Level;
@@ -17,6 +19,7 @@ import java.util.logging.Logger;
 
 import javax.inject.Singleton;
 import javax.servlet.ServletContext;
+import javax.servlet.ServletContextListener;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -30,7 +33,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.jena.riot.Lang;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
@@ -44,6 +46,7 @@ import es.upm.oeg.webAR2DTool.utils.Constants;
 import es.upm.oeg.webAR2DTool.utils.ParameterNames;
 import es.upm.oeg.webAR2DTool.utils.PosibleLangsJena;
 import es.upm.oeg.webAR2DTool.utils.WebResponse;
+import riotcmd.json;
 
 @Path("methods")
 @Singleton
@@ -51,14 +54,18 @@ public class AR2DToolMethods {
 
 	private static final Logger logger = Logger.getLogger(Constants.WEBAPP_NAME);
 	private final Map<String, AR2DToolManager> sessions = new HashMap<String, AR2DToolManager>();
-
+	
+	private static final String HTTP_ACCEPT_TYPES = "application/rdf+xml,application/owl+xml,application/n-triples,application/ld+json,text/trig,application/n-quads,application/trix+xml,application/rdf+thrift";
+	
 	private String uploadedFilesFolder = "";
 	private int sessionTimeoutSeconds = 3600;
 	private boolean removeDirSession = true;
 	private int timeoutUploadSeconds = 5;//Seconds
 	private double limitFileSizeUploadMB = 5; //Mega-bytes
-	private int numberOfTriplesOnFile = 2000;
+	private int numberOfTriplesOnFile = 5000;
 
+	private static AR2DToolMethods unica;
+	
 	public AR2DToolMethods(@Context ServletContext sContext) {
 		try {
 			WebConfig config = new WebConfig(sContext);
@@ -85,14 +92,19 @@ public class AR2DToolMethods {
 						tempUploadedFilesFolder.getAbsolutePath() + " can not be readed, writed or executed");
 			}
 			uploadedFilesFolder = prop.getProperty(ParameterNames.PATH_TO_UPLOADED_FILES);
-			sessionTimeoutSeconds = Integer.parseInt(prop.getProperty(ParameterNames.SESSION_TIMEOUT_IN_SECONDS,"3600"));
-			removeDirSession = Boolean.valueOf(prop.getProperty(ParameterNames.REMOVE_DIR_SESSION,"true"));
-			timeoutUploadSeconds = Integer.parseInt(prop.getProperty(ParameterNames.UPLOAD_TIMEOUT_SECONDS,"5"));
-			limitFileSizeUploadMB = Double.parseDouble(prop.getProperty(ParameterNames.UPLOAD_FILE_SIZE_MB,"5"));
-			numberOfTriplesOnFile = Integer.parseInt(prop.getProperty(ParameterNames.GENERATE_TRIPLETS_LIMIT,"2000"));
+			sessionTimeoutSeconds = Integer.parseInt(prop.getProperty(ParameterNames.SESSION_TIMEOUT_IN_SECONDS,"3600").trim().replaceAll(" ", ""));
+			removeDirSession = Boolean.valueOf(prop.getProperty(ParameterNames.REMOVE_DIR_SESSION,"true").trim().replaceAll(" ", ""));
+			timeoutUploadSeconds = Integer.parseInt(prop.getProperty(ParameterNames.UPLOAD_TIMEOUT_SECONDS,"5").trim().replaceAll(" ", ""));
+			limitFileSizeUploadMB = Double.parseDouble(prop.getProperty(ParameterNames.UPLOAD_FILE_SIZE_MB,"5").trim().replaceAll(" ", ""));
+			numberOfTriplesOnFile = Integer.parseInt(prop.getProperty(ParameterNames.GENERATE_TRIPLETS_LIMIT,"2000").trim().replaceAll(" ", ""));
 		} catch (Exception e) {
 			logger.log(Level.SEVERE, "Can not load " + Constants.SERVER_PROPERTIES + " file", e);
 		}
+		unica=this;
+	}
+	
+	public static AR2DToolMethods instance(){
+		return unica;
 	}
 
 	@GET
@@ -160,8 +172,8 @@ public class AR2DToolMethods {
 				|| contentDispositionHeader.getFileName()==null || contentDispositionHeader.getFileName().isEmpty()){
 			if(uri != null && !uri.isEmpty()){
 				try{
-					java.net.URL url = new java.net.URL(uri);
-					URLConnection urlCon = url.openConnection();
+					/*java.net.URL url = new java.net.URL(uri);
+					URLConnection urlCon = url.openConnection();*/
 					String realURL = uri;
 					try{
 						realURL = obtainRealURI(uri);
@@ -174,7 +186,16 @@ public class AR2DToolMethods {
 					File toUpload = new File(toUploadString);
 					toUpload.createNewFile();
 					OutputStream out = new FileOutputStream(toUpload);
+					HttpURLConnection urlCon = (HttpURLConnection) new URL(realURL).openConnection();
+					urlCon.setRequestProperty("Accept", HTTP_ACCEPT_TYPES);
+					urlCon.connect();
 					WebResponse response = uploadFile(urlCon.getInputStream(), out,toUpload.getAbsolutePath());
+					if(response!=null){
+						return response;
+					}
+					response = null; //Can be removed. Before this line response == null all time.
+					//I write this line for view that response ir null.
+					response = checkNumberOfTriples(toUpload.getAbsolutePath());
 					if(response!=null){
 						return response;
 					}
@@ -239,6 +260,7 @@ public class AR2DToolMethods {
 	@Produces(MediaType.APPLICATION_JSON)
 	public WebResponse generateImage(@Context HttpServletRequest request, @FormParam("config") String configJSON) {
 		String jSessionID = request.getSession(true).getId();
+		System.out.println("JSESSIONID en generate:"+jSessionID);
 		if (!updateSession(jSessionID)) {
 			return new WebResponse(null, "server.noUploadedFile", "Not have uploaded file with this session ID.");
 		}
@@ -283,7 +305,8 @@ public class AR2DToolMethods {
 
 	@GET
 	@Path("getImage")
-	@Produces(MediaType.APPLICATION_OCTET_STREAM)
+	//@Produces(MediaType.APPLICATION_OCTET_STREAM)
+	@Produces("image/svg+xml")
 	public Response getImage(@Context HttpServletRequest request) {
 		String jSessionID = request.getSession(true).getId();
 		if (!updateSession(jSessionID)) {
@@ -295,6 +318,50 @@ public class AR2DToolMethods {
 		ResponseBuilder responseBuilder = Response.ok((Object) sessions.get(jSessionID).getImage());
 		responseBuilder.header("Content-Disposition", "attachment; filename=\""+sessions.get(jSessionID).getImage().getName()+"\"");
 		return responseBuilder.build();
+	}
+	
+	@GET
+	@Path("getImage.svg")
+	@Produces("image/svg+xml")
+	//@Produces(MediaType.TEXT_HTML)
+	public Response getImageSVG(@Context HttpServletRequest request) {
+		String jSessionID = request.getSession(true).getId();
+		if (!updateSession(jSessionID)) {
+			return Response.status(404).build();
+		}
+		if (sessions.get(jSessionID).getImage() == null || !sessions.get(jSessionID).getImage().exists()) {
+			return Response.status(404).build();
+		}
+		ResponseBuilder responseBuilder = Response.ok((Object) sessions.get(jSessionID).getImage());
+		responseBuilder.header("Content-Disposition", "attachment; filename=\""+sessions.get(jSessionID).getImage().getName()+"\"");
+		return responseBuilder.build();
+	}
+	
+	public String getSVGImage(HttpServletRequest request){
+		System.out.println("ME LLAMAN!!!!!!!!!!!!!!!!!!!!!");
+		try{
+			String jSessionID = request.getSession(true).getId();
+			System.out.println("JSessionID en getSVGImage="+jSessionID);
+			if (!updateSession(jSessionID)) {
+				System.out.println("No hay session ID");
+				return "Not found";
+			}
+			if (sessions.get(jSessionID).getImage() == null || !sessions.get(jSessionID).getImage().exists()) {
+				System.out.println("No hay imagen con el session ID");
+				return "Not found";
+			}
+			File img = sessions.get(jSessionID).getImage();
+			StringBuffer toReturn = new StringBuffer();
+			Scanner scan = new Scanner(img);
+			while(scan.hasNextLine()){
+				toReturn.append(scan.nextLine());
+			}
+			scan.close();
+			return toReturn.toString();
+		}catch(Exception e){
+			e.printStackTrace();
+			return "Not found";
+		}
 	}
 	@GET
 	@Path("getGraphml")
@@ -406,6 +473,7 @@ public class AR2DToolMethods {
 		if (sessionID != null && !sessionID.isEmpty() && uploadedFile != null && uploadedFile.exists()
 				&& uploadedFile.isFile() && uploadedFile.canRead() && uploadedFile.canWrite()) {
 			sessions.put(sessionID, new AR2DToolManager(sessionID, uploadedFile, workspaceFolder));
+			updateSession(sessionID);
 		} else {
 			logger.severe("Invalid create new session with sessionID: " + sessionID + " or invalid uploaded file.");
 		}
@@ -447,11 +515,7 @@ public class AR2DToolMethods {
 					return null;
 				}
 			}catch(Exception e){
-				if(lang!=Lang.TURTLE){
-					logger.log(Level.INFO, "Can not obtain ont model from file or uri:"+fullPathOrUri+" and "+lang);
-				}else{
-					logger.log(Level.INFO, "Can not obtain ont model from file or uri:"+fullPathOrUri+" and "+lang,e);
-				}
+				logger.log(Level.INFO, "Can not obtain ont model from file or uri:"+fullPathOrUri+" and "+lang);
 			}
 		}
 		logger.log(Level.SEVERE, "Can not obtain ont model from your uri or file.");
@@ -459,12 +523,23 @@ public class AR2DToolMethods {
 	}
 
 	private String obtainRealURI(String URL) throws MalformedURLException, IOException{
-		URLConnection con = new URL(URL).openConnection();
+	    HttpURLConnection con = (HttpURLConnection) new URL(URL).openConnection();
+	    con.setRequestProperty("Accept", HTTP_ACCEPT_TYPES);
+	    con.setInstanceFollowRedirects(false);
+	    con.connect();
+	    con.getInputStream();
+	    if (con.getResponseCode() == HttpURLConnection.HTTP_MOVED_PERM || con.getResponseCode() == HttpURLConnection.HTTP_MOVED_TEMP
+	    		|| con.getResponseCode() == HttpURLConnection.HTTP_SEE_OTHER) {
+	        String redirectUrl = con.getHeaderField("Location");
+	        return obtainRealURI(redirectUrl);
+	    }
+	    return URL;
+		/*URLConnection con = new URL(URL).openConnection();
 		con.connect();
 		InputStream is = con.getInputStream();
 		java.net.URL toReturn = con.getURL();
 		is.close();
-		return toReturn.toString();
+		return toReturn.toString();*/
 	}
 	
 	private WebResponse uploadFile(InputStream in,OutputStream out,String absolutePath) throws IOException{
