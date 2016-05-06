@@ -40,36 +40,44 @@
 						<div id='configContainer' class="flex-container-column">
 							<div id='keysContainer' configContainer='keys' class='flex-container-column padL5 padT5'>
 								<div configParam='arrowColor' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>arrowColor: </div>
-									<div configValue='black' configSelected=true class='configColor selected' style='background-color:black'></div>
-									<div configValue='red' configSelected=false class='configColor notSelected' style='background-color:red'></div>
-									<div configValue='blue' configSelected=false class='configColor notSelected' style='background-color:blue'></div>
-									<div configValue='green' configSelected=false class='configColor notSelected' style='background-color:green'></div>
-									<div configValue='orange' configSelected=false class='configColor notSelected' style='background-color:orange'></div>
-									<div configValue='yellow' configSelected=false class='configColor notSelected' style='background-color:yellow'></div>								
+									<select>
+										<option style="background-color:black;color:black;font-size:140%" configvalue="black" configselected="true" class="selected" value="black" selected="">black</option>
+										<option style="background-color:red;color:red;font-size:140%" configvalue="red" configselected="true" class="selected" value="red">red</option>
+										<option style="background-color:blue;color:blue;font-size:140%" configvalue="blue" configselected="true" class="selected" value="blue">blue</option>
+										<option style="background-color:green;color:green;font-size:140%" configvalue="green" configselected="true" class="selected" value="green">green</option>
+										<option style="background-color:orange;color:orange;font-size:140%" configvalue="orange" configselected="true" class="selected" value="orange">orange</option>
+										<option style="background-color:yellow;color:yellow;font-size:140%" configvalue="yellow" configselected="true" class="selected" value="yellow">yellow</option>
+									</select>
 								</div>
 								<div configParam='literalColor' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>literalColor: </div>
-									<div configValue='black' configSelected=true class='configColor selected' style='background-color:black'></div>
-									<div configValue='red' configSelected=false class='configColor notSelected' style='background-color:red'></div>
-									<div configValue='blue' configSelected=false class='configColor notSelected' style='background-color:blue'></div>
-									<div configValue='green' configSelected=false class='configColor notSelected' style='background-color:green'></div>
-									<div configValue='orange' configSelected=false class='configColor notSelected' style='background-color:orange'></div>
-									<div configValue='yellow' configSelected=false class='configColor notSelected' style='background-color:yellow'></div>								
+									<select>
+										<option style="background-color:black;color:black;font-size:140%" configvalue="black" configselected="true" class="selected" value="black" selected="">black</option>
+										<option style="background-color:red;color:red;font-size:140%" configvalue="red" configselected="true" class="selected" value="red">red</option>
+										<option style="background-color:blue;color:blue;font-size:140%" configvalue="blue" configselected="true" class="selected" value="blue">blue</option>
+										<option style="background-color:green;color:green;font-size:140%" configvalue="green" configselected="true" class="selected" value="green">green</option>
+										<option style="background-color:orange;color:orange;font-size:140%" configvalue="orange" configselected="true" class="selected" value="orange">orange</option>
+										<option style="background-color:yellow;color:yellow;font-size:140%" configvalue="yellow" configselected="true" class="selected" value="yellow">yellow</option>
+									</select>								
 								</div>
 								<div configParam='classColor' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>classColor: </div>
-									<div configValue='black' configSelected=true class='configColor selected' style='background-color:black'></div>
-									<div configValue='red' configSelected=false class='configColor notSelected' style='background-color:red'></div>
-									<div configValue='blue' configSelected=false class='configColor notSelected' style='background-color:blue'></div>
-									<div configValue='green' configSelected=false class='configColor notSelected' style='background-color:green'></div>
-									<div configValue='orange' configSelected=false class='configColor notSelected' style='background-color:orange'></div>
-									<div configValue='yellow' configSelected=false class='configColor notSelected' style='background-color:yellow'></div>								
+									<select>
+										<option style="background-color:black;color:black;font-size:140%" configvalue="black" configselected="true" class="selected" value="black" selected="">black</option>
+										<option style="background-color:red;color:red;font-size:140%" configvalue="red" configselected="true" class="selected" value="red">red</option>
+										<option style="background-color:blue;color:blue;font-size:140%" configvalue="blue" configselected="true" class="selected" value="blue">blue</option>
+										<option style="background-color:green;color:green;font-size:140%" configvalue="green" configselected="true" class="selected" value="green">green</option>
+										<option style="background-color:orange;color:orange;font-size:140%" configvalue="orange" configselected="true" class="selected" value="orange">orange</option>
+										<option style="background-color:yellow;color:yellow;font-size:140%" configvalue="yellow" configselected="true" class="selected" value="yellow">yellow</option>
+									</select>								
 								</div>
 								<div configParam='individualColor' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>individualColor: </div>
-									<div configValue='black' configSelected=true class='configColor selected' style='background-color:black'></div>
-									<div configValue='red' configSelected=false class='configColor notSelected' style='background-color:red'></div>
-									<div configValue='blue' configSelected=false class='configColor notSelected' style='background-color:blue'></div>
-									<div configValue='green' configSelected=false class='configColor notSelected' style='background-color:green'></div>
-									<div configValue='orange' configSelected=false class='configColor notSelected' style='background-color:orange'></div>
-									<div configValue='yellow' configSelected=false class='configColor notSelected' style='background-color:yellow'></div>								
+									<select>
+										<option style="background-color:black;color:black;font-size:140%" configvalue="black" configselected="true" class="selected" value="black" selected="">black</option>
+										<option style="background-color:red;color:red;font-size:140%" configvalue="red" configselected="true" class="selected" value="red">red</option>
+										<option style="background-color:blue;color:blue;font-size:140%" configvalue="blue" configselected="true" class="selected" value="blue">blue</option>
+										<option style="background-color:green;color:green;font-size:140%" configvalue="green" configselected="true" class="selected" value="green">green</option>
+										<option style="background-color:orange;color:orange;font-size:140%" configvalue="orange" configselected="true" class="selected" value="orange">orange</option>
+										<option style="background-color:yellow;color:yellow;font-size:140%" configvalue="yellow" configselected="true" class="selected" value="yellow">yellow</option>
+									</select>								
 								</div>
 								<div configParam='literalShape' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>literalShape: </div>
 									<select>
