@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang='<%=request.getLocale()%>'>
+<html lang='<%=request.getLocale()%>' class="no-js">
 	<head>
 		<title>WebAR2DTool</title>
 		<meta charset='UTF-8'>
@@ -9,6 +9,8 @@
 		<!--jQuery and jQuery libraries-->
 		<script src='http://code.jquery.com/jquery-latest.min.js' type='text/javascript'></script>
 		<script src='resources/js/jquery-handler-toolkit.js' type='text/javascript'></script>
+		<!--Modernizr library for detect browser functionalities-->
+		<script src='resources/js/modernizr-custom.js' type='text/javascript'></script>
 		<!--Page CSS and JavaScript-->
 		<script src='resources/js/gui.js' type='text/javascript'></script>
 		<link rel='stylesheet' href='resources/css/styles.css'>

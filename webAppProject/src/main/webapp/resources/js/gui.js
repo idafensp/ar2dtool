@@ -42,8 +42,21 @@ function generateImage(){
 	showLoading()
 	ajaxPost('webapi/methods/generateImage',{config:JSON.stringify(configJSON)},function(data){
 		if(!isError(data)){
-			closeLoading();
-			jQuery('#imageContainerZoomAndPan').imagePanAndZoom('webapi/methods/getImage.svg?d='+new Date().getTime());
+			/*TEST IF WE CAN USE SVG IMG:
+			svgasimg: true
+			inlinesvg: true
+			*/
+			if(Modernizr.inlinesvg){
+				jQuery('#imageContainerZoomAndPan').imagePanAndZoom('webapi/methods/getImage.svg?d='+new Date().getTime(),"SVG");
+				closeLoading();
+			}else if(Modernizr.svgasimg){
+				jQuery('#imageContainerZoomAndPan').imagePanAndZoom('webapi/methods/getImage.svg?d='+new Date().getTime());
+				swal({title: "SVG incompatible browser",   text:"Your browser is not compatible with the HTML5 SVG tag, so searching in the image is not enabled."
+					,   type: "warning",closeOnConfirm: false,   closeOnCancel: false});
+			}else{
+				swal({title: "SVG incompatible browser",   text:"Your browser is no capable of displaying SVG images. Please download your SVG file and open it in your computer (download menu)."
+					,   type: "error",closeOnConfirm: false,   closeOnCancel: false});
+			}
 		}
 	},function(error){
 		swal("Generate error:",error,"error");
@@ -361,9 +374,32 @@ function startWebPage(){
 
 window.onload = function(){
 	if( window.jQuery ) {
-		bindEvents();
-		generateConfig();
-		startWebPage();
+		//CHECK IS BROWSER IS GOOD
+		if(Modernizr && Modernizr.boxsizing && Modernizr.cookies && Modernizr.flexbox 
+				&& Modernizr.flexboxlegacy && Modernizr.svg
+				&& Modernizr.json && Modernizr.xhrresponsetypejson){
+			bindEvents();
+			generateConfig();
+			startWebPage();
+		}else{
+			swal({title: "Incompatible browser",   text:"Your browser is not currently supported by AR2DTool. By pressing OK you accept that this site may not work properly. Sorry for that ;)"
+			,   type: "error",closeOnConfirm: false,   closeOnCancel: false}
+			,function(){
+				bindEvents();
+				generateConfig();
+				startWebPage();
+			});
+		}
+		/*
+		boxsizing: true
+cookies: true
+cssanimations: true
+flexbox: true
+flexboxlegacy: true
+svg: true
+json: true
+xhrresponsetypejson: true*/
+		
 	} else {
 		window.setTimeout( runScript, 100 );
 	}

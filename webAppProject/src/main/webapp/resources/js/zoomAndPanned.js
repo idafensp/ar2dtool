@@ -1,5 +1,5 @@
 function initZoomAndPanned(){
-	jQuery.fn.imagePanAndZoom = function(imageURL){
+	jQuery.fn.imagePanAndZoom = function(imageURL,option){
 	
 		var mouseDownPan = false;
 		var mouseXPan = 0;
@@ -10,24 +10,33 @@ function initZoomAndPanned(){
 		var container = jQuery(this);
 		var zoomContainer = null;
 		var zoomTimeout = null;
-		var img = jQuery("<div></div>");
+		var img;
 		var zoomTouch0 = null;
 		var zoomTouch1 = null;
 		var distanceToIncZoom = 30;
-				
+		if(option && (typeof option === 'string' || option instanceof String) && option.toLowerCase().indexOf("svg")>-1){
+			img = jQuery("<div></div>");
+		}else{
+			img = jQuery("<img></img>");
+		}
 		//Init containers
 		container.empty();
 		container.unbind('mousedown touchstart mousemove touchmove touchend mouseup mouseout wheel');
 		container.addClass('containerPanAndZoom noDraggablePanAndZoom');
-		//img.attr("src", imageURL);
+		if(!(option && (typeof option === 'string' || option instanceof String) && option.toLowerCase().indexOf("svg")>-1)){
+			img.attr("src", imageURL);
+		}
+		
 		img.attr("style", "position:relative; width:100%;height:auto; left:0px;top:0px");
 		img.attr('class','noDraggablePanAndZoom');
 
 		container.append(img);
-		img.load(imageURL,function(){
-			jQuery(img).find("svg").attr("width","100%");
-			jQuery(img).find("svg").attr("height","100%");
-		});
+		if(option && (typeof option === 'string' || option instanceof String) && option.toLowerCase().indexOf("svg")>-1){
+			img.load(imageURL,function(){
+				jQuery(img).find("svg").attr("width","100%");
+				jQuery(img).find("svg").attr("height","100%");
+			});
+		}
 		function removeLastZoom(){
     			if(zoomContainer !== null){
 			        zoomContainer.remove();
