@@ -1,200 +1,216 @@
+<%@ page contentType="text/html; charset=UTF-8" %>
 <!DOCTYPE html>
-<html lang='<%=request.getLocale()%>' class="no-js">
+<html lang='en-gb' class="no-js">
 	<head>
 		<title>WebAR2DTool</title>
 		<meta charset='UTF-8'>
 		<meta name='description' content='Web application for AR2DTool'>
-		<meta id='metaLocale' name='locale' content='<%=request.getLocale()%>'>
+		<meta id='metaLocale' name='locale' content='en-gb'>
 		<meta content='width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
 		<!--jQuery and jQuery libraries-->
-		<script src='http://code.jquery.com/jquery-latest.min.js' type='text/javascript'></script>
+		<script src='resources/js/jquery-latest.min.js' type='text/javascript'></script>
 		<script src='resources/js/jquery-handler-toolkit.js' type='text/javascript'></script>
 		<!--Modernizr library for detect browser functionalities-->
 		<script src='resources/js/modernizr-custom.js' type='text/javascript'></script>
 		<!--Page CSS and JavaScript-->
 		<script src='resources/js/gui.js' type='text/javascript'></script>
+		<script src='resources/js/configSpecialContainers.js' type='text/javascript'></script>
 		<link rel='stylesheet' href='resources/css/styles.css'>
-		<!--Zoom and panned library-->
+		<link rel='stylesheet' href='resources/css/configSpecial.css'>
+		<link rel='stylesheet' href='resources/css/animations.css'>
+		<!--Zoom and panned library for Move and Zoom main image-->
 		<script src='resources/js/zoomAndPanned.js' type='text/javascript'></script>
 		<link rel='stylesheet' href='resources/css/zoomAndPanned.css'>
-		<!-- SweetAlert library -->
+		<!-- SweetAlert library (Beautifuls alerts, messages etc...-->
 		<script src='resources/sweetAlert/sweetalert.min.js' type='text/javascript'></script>
 		<link rel='stylesheet' href='resources/sweetAlert/sweetalert.css'>
+		<!-- Chosen and ImageSelect libraries (Selects for images in config panel)-->
+		<script src='resources/imageSelect/chosen.jquery.min.js' type='text/javascript'></script>
+		<script src='resources/imageSelect/ImageSelect.jquery.js' type='text/javascript'></script>
+		<link rel='stylesheet' href='resources/imageSelect/chosen.min.css'>
+		<link rel='stylesheet' href='resources/imageSelect/Flat.css'>
+		<link rel='stylesheet' href='resources/imageSelect/ImageSelect.css'>
 	</head>
 	<body>
 		<div class='flex-container-column  maxMainAxisFlexSize maxCrossAxisFlexSize'>
 			<header class='flex-container-row flex-item maxCrossAxisFlexSize header menu flex-shrink0'>
-				<div class='flex-item Logo'><img src="resources/img/Logo_AR2DTool.png" alt="AR2DTool Logo" class='Logo'></div>
-				<nav class='navMenu flex-item-main maxCrossAxisFlexSize mainAxisFlexCenter crossAxisFlexCenter'>
-				<div><a onclick='showUploadPopUp()'>Upload a File</a></div>
-				<div><a href='webapi/methods/getGraphml' target="_blank">Download Graphml</a></div>
-				<div><a href='webapi/methods/getDot' target="_blank">Download Dot</a></div>
-				<div><a href='webapi/methods/getImage' target="_blank">Download Image</a></div>
-				<div><a href='webapi/methods/getAR2DToolLog' target="_blank">Download AR2DTool Log</a></div>
+				<div class='flex-item Logo'><img src="resources/img/Logo_AR2DTool.png" alt="AR2DTool Logo" class='Logo LogoMin'></div>
+				<nav class='navMenu flex-item-main maxCrossAxisFlexSize mainAxisFlexCenter crossAxisFlexCenter notActivateResponsive'>
+					<div class="navMenuButton" onclick='showUploadPopUp()'><a>Upload a File</a></div>
+					<div class="navMenuButton navDropDownContainer notActivateResponsive">
+						<div class="flex-container-row crossAxisFlexCenter navDropDownClick">
+							<a>Downloads</a>
+							<img class="dropDownImage" src="resources/img/dropdown.png" alt="DropDown menu image">
+							<img class="dropUpImage" src="resources/img/dropup.png" alt="DropUp menu image">
+						</div>
+						<div class='navDropDownItem'>
+							<div><a href='webapi/methods/getGraphml' target="_blank">Download Graphml</a></div>
+							<div><a href='webapi/methods/getDot' target="_blank">Download Dot</a></div>
+							<div><a href='webapi/methods/getImage' target="_blank">Download Image</a></div>
+						</div>
+					</div>
+					<div class="navMenuButton" onclick='alert("hola")'><a>About</a></div>
+					<div class="navMenuButton" onclick='showReportPopup()'><a>Report a error</a></div>
 				</nav>
 				<div class='flex-item Logo'><img src="resources/img/OEG_Logo.png" alt="OEG Logo" class='Logo'></div>
+				<div class='flex-item imgMenu'><img src="resources/img/nav.png" alt="Menu IMG" class='imgMenu'></div>
 			</header>
 			<section class='flex-container-row flex-item-main maxCrossAxisFlexSize maxMainAxisFlexSize mainContent'>
+				<!-- for w3c validation -->
+				<h2 class="displayNone">Dashborad</h2>
+				<!-- end  w3c validation-->
 				<aside id='dropMenuContainer' class='dropMenuContainerClose flex-item flex-container-row'>
 					<div id='dropMenuContentContainer' class='dropMenuContentContainerClose dropMenuContentContainer'>
 						<div id='configContainer' class="flex-container-column">
-							<div id='keysContainer' configContainer='keys' class='flex-container-column padL5 padT5'>
-								<div configParam='arrowColor' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>arrowColor: </div>
-									<select>
-										<option style="background-color:black;color:black;font-size:140%" configvalue="black" configselected="true" class="selected" value="black" selected="">black</option>
-										<option style="background-color:red;color:red;font-size:140%" configvalue="red" configselected="true" class="selected" value="red">red</option>
-										<option style="background-color:blue;color:blue;font-size:140%" configvalue="blue" configselected="true" class="selected" value="blue">blue</option>
-										<option style="background-color:green;color:green;font-size:140%" configvalue="green" configselected="true" class="selected" value="green">green</option>
-										<option style="background-color:orange;color:orange;font-size:140%" configvalue="orange" configselected="true" class="selected" value="orange">orange</option>
-										<option style="background-color:yellow;color:yellow;font-size:140%" configvalue="yellow" configselected="true" class="selected" value="yellow">yellow</option>
-									</select>
+							<div id='keysContainer' data-configContainer='keys' class='flex-container-column padL5 padT5'>
+								<div data-configParam='arrowColor' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>arrowColor: </div>
+									<div class='colorSelectBackground'>
+										<select name='ColorSelect'>
+											<option data-img-src='black' data-configValue="black" data-configSelected="true" class="selected" value="black" data-selected="">black</option>
+											<option data-img-src='red' data-configValue="red" data-configSelected="true" class="selected" value="red">red</option>
+											<option data-img-src='blue' data-configValue="blue" data-configSelected="true" class="selected" value="blue">blue</option>
+											<option data-img-src='green' data-configValue="green" data-configSelected="true" class="selected" value="green">green</option>
+											<option data-img-src='orange' data-configValue="orange" data-configSelected="true" class="selected" value="orange">orange</option>
+											<option data-img-src='yellow' data-configValue="yellow" data-configSelected="true" class="selected" value="yellow">yellow</option>
+										</select>
+									</div>
 								</div>
-								<div configParam='literalColor' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>literalColor: </div>
-									<select>
-										<option style="background-color:black;color:black;font-size:140%" configvalue="black" configselected="true" class="selected" value="black" selected="">black</option>
-										<option style="background-color:red;color:red;font-size:140%" configvalue="red" configselected="true" class="selected" value="red">red</option>
-										<option style="background-color:blue;color:blue;font-size:140%" configvalue="blue" configselected="true" class="selected" value="blue">blue</option>
-										<option style="background-color:green;color:green;font-size:140%" configvalue="green" configselected="true" class="selected" value="green">green</option>
-										<option style="background-color:orange;color:orange;font-size:140%" configvalue="orange" configselected="true" class="selected" value="orange">orange</option>
-										<option style="background-color:yellow;color:yellow;font-size:140%" configvalue="yellow" configselected="true" class="selected" value="yellow">yellow</option>
-									</select>								
+								<div data-configParam='literalColor' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>literalColor: </div>
+									<div class='colorSelectBackground'>
+										<select name='ColorSelect'>
+											<option data-img-src='black' data-configValue="black" data-configSelected="true" class="selected" value="black" data-selected="">black</option>
+											<option data-img-src='red' data-configValue="red" data-configSelected="true" class="selected" value="red">red</option>
+											<option data-img-src='blue' data-configValue="blue" data-configSelected="true" class="selected" value="blue">blue</option>
+											<option data-img-src='green' data-configValue="green" data-configSelected="true" class="selected" value="green">green</option>
+											<option data-img-src='orange' data-configValue="orange" data-configSelected="true" class="selected" value="orange">orange</option>
+											<option data-img-src='yellow' data-configValue="yellow" data-configSelected="true" class="selected" value="yellow">yellow</option>
+										</select>
+									</div>								
 								</div>
-								<div configParam='classColor' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>classColor: </div>
-									<select>
-										<option style="background-color:black;color:black;font-size:140%" configvalue="black" configselected="true" class="selected" value="black" selected="">black</option>
-										<option style="background-color:red;color:red;font-size:140%" configvalue="red" configselected="true" class="selected" value="red">red</option>
-										<option style="background-color:blue;color:blue;font-size:140%" configvalue="blue" configselected="true" class="selected" value="blue">blue</option>
-										<option style="background-color:green;color:green;font-size:140%" configvalue="green" configselected="true" class="selected" value="green">green</option>
-										<option style="background-color:orange;color:orange;font-size:140%" configvalue="orange" configselected="true" class="selected" value="orange">orange</option>
-										<option style="background-color:yellow;color:yellow;font-size:140%" configvalue="yellow" configselected="true" class="selected" value="yellow">yellow</option>
-									</select>								
+								<div data-configParam='classColor' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>classColor: </div>
+									<div class='colorSelectBackground'>
+										<select name='ColorSelect'>
+											<option data-img-src='black' data-configValue="black" data-configSelected="true" class="selected" value="black" data-selected="">black</option>
+											<option data-img-src='red' data-configValue="red" data-configSelected="true" class="selected" value="red">red</option>
+											<option data-img-src='blue' data-configValue="blue" data-configSelected="true" class="selected" value="blue">blue</option>
+											<option data-img-src='green' data-configValue="green" data-configSelected="true" class="selected" value="green">green</option>
+											<option data-img-src='orange' data-configValue="orange" data-configSelected="true" class="selected" value="orange">orange</option>
+											<option data-img-src='yellow' data-configValue="yellow" data-configSelected="true" class="selected" value="yellow">yellow</option>
+										</select>
+									</div>								
 								</div>
-								<div configParam='individualColor' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>individualColor: </div>
-									<select>
-										<option style="background-color:black;color:black;font-size:140%" configvalue="black" configselected="true" class="selected" value="black" selected="">black</option>
-										<option style="background-color:red;color:red;font-size:140%" configvalue="red" configselected="true" class="selected" value="red">red</option>
-										<option style="background-color:blue;color:blue;font-size:140%" configvalue="blue" configselected="true" class="selected" value="blue">blue</option>
-										<option style="background-color:green;color:green;font-size:140%" configvalue="green" configselected="true" class="selected" value="green">green</option>
-										<option style="background-color:orange;color:orange;font-size:140%" configvalue="orange" configselected="true" class="selected" value="orange">orange</option>
-										<option style="background-color:yellow;color:yellow;font-size:140%" configvalue="yellow" configselected="true" class="selected" value="yellow">yellow</option>
-									</select>								
+								<div data-configParam='individualColor' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>individualColor: </div>
+									<div class='colorSelectBackground'>
+										<select name='ColorSelect'>
+											<option data-img-src='black' data-configValue="black" data-configSelected="true" class="selected" value="black" data-selected="">black</option>
+											<option data-img-src='red' data-configValue="red" data-configSelected="true" class="selected" value="red">red</option>
+											<option data-img-src='blue' data-configValue="blue" data-configSelected="true" class="selected" value="blue">blue</option>
+											<option data-img-src='green' data-configValue="green" data-configSelected="true" class="selected" value="green">green</option>
+											<option data-img-src='orange' data-configValue="orange" data-configSelected="true" class="selected" value="orange">orange</option>
+											<option data-img-src='yellow' data-configValue="yellow" data-configSelected="true" class="selected" value="yellow">yellow</option>
+										</select>
+									</div>								
 								</div>
-								<div configParam='literalShape' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>literalShape: </div>
+								<div data-configParam='literalShape' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>literalShape: </div>
 									<select>
-										<option configValue='rectangle' configSelected=true class='selected' value='rectangle' selected>Rectangle</option>
-										<option configValue='ellipse' configSelected=false class='notSelected' value='ellipse'>Ellipse</option>
-										<option configValue='triangle' configSelected=false class='notSelected' value='triangle'>Triangle</option>
-										<option configValue='diamond' configSelected=false class='notSelected' value='diamond'>Diamond</option>
+										<option data-configValue='rectangle' data-configSelected=true class='selected' value='rectangle' selected>Rectangle</option>
+										<option data-configValue='ellipse' data-configSelected=false class='notSelected' value='ellipse'>Ellipse</option>
+										<option data-configValue='triangle' data-configSelected=false class='notSelected' value='triangle'>Triangle</option>
+										<option data-configValue='diamond' data-configSelected=false class='notSelected' value='diamond'>Diamond</option>
 									</select>							
 								</div>
-								<div configParam='individualShape' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>individualShape: </div>
+								<div data-configParam='individualShape' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>individualShape: </div>
 									<select>
-										<option configValue='rectangle' configSelected=true class='selected' value='rectangle' selected>Rectangle</option>
-										<option configValue='ellipse' configSelected=false class='notSelected' value='ellipse'>Ellipse</option>
-										<option configValue='triangle' configSelected=false class='notSelected' value='triangle'>Triangle</option>
-										<option configValue='diamond' configSelected=false class='notSelected' value='diamond'>Diamond</option>
+										<option data-configValue='rectangle' data-configSelected=true class='selected' value='rectangle' selected>Rectangle</option>
+										<option data-configValue='ellipse' data-configSelected=false class='notSelected' value='ellipse'>Ellipse</option>
+										<option data-configValue='triangle' data-configSelected=false class='notSelected' value='triangle'>Triangle</option>
+										<option data-configValue='diamond' data-configSelected=false class='notSelected' value='diamond'>Diamond</option>
 									</select>							
 								</div>
-								<div configParam='classShape' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>classShape: </div>
+								<div data-configParam='classShape' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>classShape: </div>
 									<select>
-										<option configValue='rectangle' configSelected=true class='selected' value='rectangle' selected>Rectangle</option>
-										<option configValue='ellipse' configSelected=false class='notSelected' value='ellipse'>Ellipse</option>
-										<option configValue='triangle' configSelected=false class='notSelected' value='triangle'>Triangle</option>
-										<option configValue='diamond' configSelected=false class='notSelected' value='diamond'>Diamond</option>
+										<option data-configValue='rectangle' data-configSelected=true class='selected' value='rectangle' selected>Rectangle</option>
+										<option data-configValue='ellipse' data-configSelected=false class='notSelected' value='ellipse'>Ellipse</option>
+										<option data-configValue='triangle' data-configSelected=false class='notSelected' value='triangle'>Triangle</option>
+										<option data-configValue='diamond' data-configSelected=false class='notSelected' value='diamond'>Diamond</option>
 									</select>							
 								</div>
-								<div configParam='nodeNameMode' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>nodeNameMode: </div>
+								<div data-configParam='nodeNameMode' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>nodeNameMode: </div>
 									<select>
-										<option configValue='localname' configSelected=true class='selected' value='localname' selected>Localname</option>
-										<option configValue='fulluri' configSelected=false class='notSelected' value='fulluri'>Fulluri</option>
-										<option configValue='prefix' configSelected=false class='notSelected' value='prefix'>Prefix</option>
+										<option data-configValue='localname' data-configSelected=true class='selected' value='localname' selected>Localname</option>
+										<option data-configValue='fulluri' data-configSelected=false class='notSelected' value='fulluri'>Fulluri</option>
+										<option data-configValue='prefix' data-configSelected=false class='notSelected' value='prefix'>Prefix</option>
 									</select>							
 								</div>
-								<div configParam='arrowhead' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>arrowhead: </div>
+								<div data-configParam='arrowhead' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>arrowhead: </div>
+									<div class='imageSelectBackground'>
+										<select name='ImageSelect'>
+											<option data-img-src='resources/img/arrows/normal.gif' data-configValue='normal' data-configSelected=true class='selected' value='normal' selected>Normal</option>
+											<option data-img-src='resources/img/arrows/onormal.gif' data-configValue='onormal' data-configSelected=true class='notSelected' value='onormal'>ONormal</option>
+											<option data-img-src='resources/img/arrows/box.gif' data-configValue='box' data-configSelected=true class='notSelected' value='box'>Box</option>
+											<option data-img-src='resources/img/arrows/obox.gif' data-configValue='obox' data-configSelected=true class='notSelected' value='obox'>OBox</option>
+											<option data-img-src='resources/img/arrows/dot.gif' data-configValue='dot' data-configSelected=true class='notSelected' value='dot'>Dot</option>
+											<option data-img-src='resources/img/arrows/odot.gif' data-configValue='odot' data-configSelected=true class='notSelected' value='odot'>ODot</option>
+											<option data-img-src='resources/img/arrows/inv.gif' data-configValue='inv' data-configSelected=true class='notSelected' value='inv'>Inv</option>
+											<option data-img-src='resources/img/arrows/oinv.gif' data-configValue='oinv' data-configSelected=true class='notSelected' value='oinv'>OInv</option>
+											<option data-img-src='resources/img/arrows/diamond.gif' data-configValue='diamond' data-configSelected=true class='notSelected' value='diamond'>Diamond</option>
+											<option data-img-src='resources/img/arrows/odiamond.gif' data-configValue='odiamond' data-configSelected=true class='notSelected' value='odiamond'>ODiamond</option>
+										</select>
+									</div>
+								</div>
+								<div data-configParam='arrowtail' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>arrowtail: </div>
+									<div class='imageSelectBackground'>
+										<select name='ImageSelect'>
+											<option data-img-src='resources/img/arrows/normal.gif' data-configValue='normal' data-configSelected=true class='selected' value='normal' selected>Normal</option>
+											<option data-img-src='resources/img/arrows/onormal.gif' data-configValue='onormal' data-configSelected=true class='notSelected' value='onormal'>ONormal</option>
+											<option data-img-src='resources/img/arrows/box.gif' data-configValue='box' data-configSelected=true class='notSelected' value='box'>Box</option>
+											<option data-img-src='resources/img/arrows/obox.gif' data-configValue='obox' data-configSelected=true class='notSelected' value='obox'>OBox</option>
+											<option data-img-src='resources/img/arrows/dot.gif' data-configValue='dot' data-configSelected=true class='notSelected' value='dot'>Dot</option>
+											<option data-img-src='resources/img/arrows/odot.gif' data-configValue='odot' data-configSelected=true class='notSelected' value='odot'>ODot</option>
+											<option data-img-src='resources/img/arrows/inv.gif' data-configValue='inv' data-configSelected=true class='notSelected' value='inv'>Inv</option>
+											<option data-img-src='resources/img/arrows/oinv.gif' data-configValue='oinv' data-configSelected=true class='notSelected' value='oinv'>OInv</option>
+											<option data-img-src='resources/img/arrows/diamond.gif' data-configValue='diamond' data-configSelected=true class='notSelected' value='diamond'>Diamond</option>
+											<option data-img-src='resources/img/arrows/odiamond.gif' data-configValue='odiamond' data-configSelected=true class='notSelected' value='odiamond'>ODiamond</option>
+										</select>
+									</div>
+								</div>
+								<div data-configParam='arrowdir' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>arrowdir: </div>
 								<select>
-									<option configValue='normal' configSelected=true class='selected' value='normal' selected>Normal</option>
-									<option configValue='inv' configSelected=false class='notSelected' value='inv'>Inv</option>
-									<option configValue='dot' configSelected=false class='notSelected' value='dot'>Dot</option>
-									<option configValue='invdot' configSelected=false class='notSelected' value='invdot'>Invdot</option>
-									<option configValue='odot' configSelected=false class='notSelected' value='odot'>Odot</option>
-									<option configValue='invodot' configSelected=false class='notSelected' value='invodot'>Invodot</option>
-									<option configValue='none' configSelected=false class='notSelected' value='none'>None</option>
-									<option configValue='tee' configSelected=false class='notSelected' value='tee'>Tee</option>
-									<option configValue='empty' configSelected=false class='notSelected' value='empty'>Empty</option>
-									<option configValue='invempty' configSelected=false class='notSelected' value='invempty'>Invempty</option>
-									<option configValue='diamond' configSelected=false class='notSelected' value='diamond'>Diamond</option>
-									<option configValue='odiamond' configSelected=false class='notSelected' value='odiamond'>Odiamond</option>
-									<option configValue='ediamond' configSelected=false class='notSelected' value='ediamond'>Ediamond</option>
-									<option configValue='crow' configSelected=false class='notSelected' value='crow'>Crow</option>
-									<option configValue='box' configSelected=false class='notSelected' value='box'>Box</option>
-									<option configValue='obox' configSelected=false class='notSelected' value='obox'>Obox</option>
-									<option configValue='open' configSelected=false class='notSelected' value='open'>Open</option>
-									<option configValue='halfopen' configSelected=false class='notSelected' value='halfopen'>Halfopen</option>
-									<option configValue='vee' configSelected=false class='notSelected' value='vee'>Vee</option>
-									<option configValue='circle' configSelected=false class='notSelected' value='circle'>Circle</option>
+									<option data-configValue='forward' data-configSelected=true class='selected' value='forward' selected>Forward</option>
+									<option data-configValue='back' data-configSelected=false class='notSelected' value='back'>Back</option>
+									<option data-configValue='both' data-configSelected=false class='notSelected' value='both'>Both</option>
+									<option data-configValue='none' data-configSelected=false class='notSelected' value='none'>None</option>
 								</select>
 								</div>
-								<div configParam='arrowtail' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>arrowtail: </div>
+								<div data-configParam='rankdir' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>rankdir: </div>
 								<select>
-									<option configValue='normal' configSelected=true class='selected' value='normal' selected>Normal</option>
-									<option configValue='inv' configSelected=false class='notSelected' value='inv'>Inv</option>
-									<option configValue='dot' configSelected=false class='notSelected' value='dot'>Dot</option>
-									<option configValue='invdot' configSelected=false class='notSelected' value='invdot'>Invdot</option>
-									<option configValue='odot' configSelected=false class='notSelected' value='odot'>Odot</option>
-									<option configValue='invodot' configSelected=false class='notSelected' value='invodot'>Invodot</option>
-									<option configValue='none' configSelected=false class='notSelected' value='none'>None</option>
-									<option configValue='tee' configSelected=false class='notSelected' value='tee'>Tee</option>
-									<option configValue='empty' configSelected=false class='notSelected' value='empty'>Empty</option>
-									<option configValue='invempty' configSelected=false class='notSelected' value='invempty'>Invempty</option>
-									<option configValue='diamond' configSelected=false class='notSelected' value='diamond'>Diamond</option>
-									<option configValue='odiamond' configSelected=false class='notSelected' value='odiamond'>Odiamond</option>
-									<option configValue='ediamond' configSelected=false class='notSelected' value='ediamond'>Ediamond</option>
-									<option configValue='crow' configSelected=false class='notSelected' value='crow'>Crow</option>
-									<option configValue='box' configSelected=false class='notSelected' value='box'>Box</option>
-									<option configValue='obox' configSelected=false class='notSelected' value='obox'>Obox</option>
-									<option configValue='open' configSelected=false class='notSelected' value='open'>Open</option>
-									<option configValue='halfopen' configSelected=false class='notSelected' value='halfopen'>Halfopen</option>
-									<option configValue='vee' configSelected=false class='notSelected' value='vee'>Vee</option>
-									<option configValue='circle' configSelected=false class='notSelected' value='circle'>Circle</option>
+									<option data-configValue='LR' data-configSelected=true class='selected' value='LR' selected>Left-Right</option>
+									<option data-configValue='RL' data-configSelected=false class='notSelected' value='RL'>Right-Left</option>
+									<option data-configValue='TB' data-configSelected=false class='notSelected' value='TB'>Top-Bottom</option>
+									<option data-configValue='BT' data-configSelected=false class='notSelected' value='BT'>Bottom-Top</option>
 								</select>
 								</div>
-								<div configParam='arrowdir' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>arrowdir: </div>
-								<select>
-									<option configValue='forward' configSelected=true class='selected' value='forward' selected>Forward</option>
-									<option configValue='back' configSelected=false class='notSelected' value='back'>Back</option>
-									<option configValue='both' configSelected=false class='notSelected' value='both'>Both</option>
-									<option configValue='none' configSelected=false class='notSelected' value='none'>None</option>
-								</select>
+								<div data-configParam='ignoreRdfType' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>ignoreRdfType: </div>
+									<input data-configValue type="checkbox">
 								</div>
-								<div configParam='rankdir' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>rankdir: </div>
-								<select>
-									<option configValue='LR' configSelected=true class='selected' value='LR' selected>Left-Right</option>
-									<option configValue='RL' configSelected=false class='notSelected' value='RL'>Right-Left</option>
-									<option configValue='TB' configSelected=false class='notSelected' value='TB'>Top-Bottom</option>
-									<option configValue='BT' configSelected=false class='notSelected' value='BT'>Bottom-Top</option>
-								</select>
+								<div data-configParam='ignoreLiterals' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>ignoreLiterals: </div>
+									<input data-configValue type="checkbox">
 								</div>
-								<div configParam='ignoreRdfType' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>ignoreRdfType: </div>
-									<input configValue type="checkbox">
-								</div>
-								<div configParam='ignoreLiterals' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>ignoreLiterals: </div>
-									<input configValue type="checkbox">
-								</div>
-								<div configParam='synthesizeObjectProperties' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>synthesizeObjectProperties: </div>
-									<input configValue type="checkbox">
+								<div data-configParam='synthesizeObjectProperties' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>synthesizeObjectProperties: </div>
+									<input data-configValue type="checkbox">
 								</div>
 							</div>
-							<div configContainer='equivalentElementList' configParam='equivalentElementList' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>equivalentElementList: </div>
-								<input configValue type="text">
+							<div data-configContainer='equivalentElementList' data-configParam='equivalentElementList' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>equivalentElementList: </div>
+								<div data-configSpecial='equivalentElementList' class="configListButton">Edit</div>
 							</div>
-							<div configContainer='ignoreElementList' configParam='ignoreElementList' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>ignoreElementList: </div>
-								<input configValue type="text">
+							<div data-configContainer='ignoreElementList' data-configParam='ignoreElementList' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>ignoreElementList: </div>
+								<div data-configSpecial='ignoreElementList' class="configListButton">Edit</div>
 							</div>
-							<div configContainer='includeOnlyElementList' configParam='includeOnlyElementList' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>includeOnlyElementList: </div>
-								<input configValue type="text">
+							<div data-configContainer='includeOnlyElementList' data-configParam='includeOnlyElementList' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>includeOnlyElementList: </div>
+								<div data-configSpecial='includeOnlyElementList' class="configListButton">Edit</div>
 							</div>
-							<div configContainer='specialElementList' configParam='specialElementsList' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>specialElementsList: </div>
-								<input configValue type="text">
+							<div data-configContainer='specialElementsList' data-configParam='specialElementsList' class='configKeyParamContainer flex-container-row crossAxisFlexCenter'><div>specialElementsList: </div>
+								<div data-configSpecial='specialElementList' class="configListButton">Edit</div>
 							</div>
 						</div>
 					</div>
@@ -205,11 +221,98 @@
 						</div>
 					</div>			
 				</aside>
-				<article id='imageContainerZoomAndPan' class='flex-item-main maxCrossAxisFlexSize maxMainAxisFlexSize imageContainer'>
+				<article id='includeOnlyElementList' class='maxWidthAndHeightAbsolute configSpecialPanel notAnimationOnLoad' style='display:none'>
+					<!-- for w3c validation -->
+					<h2 class="displayNone">Include only element list</h2>
+					<!-- end  w3c validation-->
+					<div class='flex-container-row flex-wrap maxWidthAndHeight'>
+						<div id='includeOnlyElementListURIS' class='flex-container-column flex-item-main maxCrossAxisFlexSize configSpecialMinMaxMobile configListContainer'>
+						</div>
+						<div class='flex-container-column flex-item-main maxCrossAxisFlexSize configSpecialMinMaxMobile'>
+							<p class='flex-align-center textTittleConfigSpecial'>Include Only List:</p>
+							<div id='includeOnlyElementListAdded' class='flex-container-column flex-item-main maxCrossAxisFlexSize configListContainer'>							
+							</div>
+							<div class='configSpecialSubmitButton configListButton' onclick='toggleConfigSpecial("includeOnlyElementList")'>Save</div>
+						</div>
+					</div>
+				</article>
+				<article id='ignoreElementList' class='maxWidthAndHeightAbsolute configSpecialPanel notAnimationOnLoad' style='display:none'>
+					<!-- for w3c validation -->
+					<h2 class="displayNone">Ignore element list</h2>
+					<!-- end  w3c validation-->
+					<div class='flex-container-row flex-wrap maxWidthAndHeight'>
+						<div id='ignoreElementListURIS' class='flex-container-column flex-item-main maxCrossAxisFlexSize configSpecialMinMaxMobile configListContainer'>
+						</div>
+						<div class='flex-container-column flex-item-main maxCrossAxisFlexSize configSpecialMinMaxMobile'>
+							<p class='flex-align-center textTittleConfigSpecial'>Ignore Element List:</p>
+							<div id='ignoreElementListAdded' class='flex-container-column flex-item-main maxCrossAxisFlexSize configListContainer'>							
+							</div>
+							<div class='configSpecialSubmitButton configListButton' onclick='toggleConfigSpecial("ignoreElementList")'>Save</div>
+						</div>
+					</div>
+				</article>
+				<article id='equivalentElementList' class='maxWidthAndHeightAbsolute configSpecialPanel notAnimationOnLoad' style='display:none'>
+					<!-- for w3c validation -->
+					<h2 class="displayNone">Equivalent element list</h2>
+					<!-- end  w3c validation-->
+					<div class='flex-container-row flex-wrap maxWidthAndHeight'>
+						<div id='equivalentElementListURIS' class='flex-container-column flex-item-main maxCrossAxisFlexSize configSpecialMinMaxMobile configListContainer'>
+						</div>
+						<div class='flex-container-column flex-item-main maxCrossAxisFlexSize configSpecialMinMaxMobile'>
+							<p class='flex-align-center textTittleConfigSpecial'>Equivalent List:</p>
+							<div id='equivalentElementListAdded' class='flex-container-column flex-item-main maxCrossAxisFlexSize configListContainer'>						
+							</div>
+							<div class='configSpecialSubmitButton configListButton' onclick='toggleConfigSpecial("equivalentElementList")'>Save</div>
+						</div>
+					</div>
+				</article>
+				<article id='specialElementList' class='maxWidthAndHeightAbsolute configSpecialPanel notAnimationOnLoad' style='display:none'>
+					<!-- for w3c validation -->
+					<h2 class="displayNone">Special element list</h2>
+					<!-- end  w3c validation-->
+					<div class='flex-container-row flex-wrap maxWidthAndHeight'>
+						<div id='specialElementListURIS' class='flex-container-column flex-item-main maxCrossAxisFlexSize configSpecialMinMaxMobile configListContainer'>
+						</div>
+						<div class='flex-container-column flex-item-main maxCrossAxisFlexSize configSpecialMinMaxMobile'>
+							<p class='flex-align-center textTittleConfigSpecial'>Edit special element:</p>
+							<div id='specialElementListEdit' class='flex-container-column flex-item-main maxCrossAxisFlexSize specialListEditContainer'>
+								<div class='specialListParamContainer flex-container-row crossAxisFlexCenter'><div class='specialListKey'>Edit: </div>
+									<div data-specialList='edit' class='specialCheckbox'></div>
+								</div>			
+								<div  data-specialList='shapeContainer' class='specialListParamContainer flex-container-row crossAxisFlexCenter disableSpecial'><div class='specialListKey'>Shape: </div>
+									<select  data-specialList='shape'>
+										<option data-specialList='rectangle' class='selected' value='rectangle' selected>Rectangle</option>
+										<option data-specialList='ellipse' class='notSelected' value='ellipse'>Ellipse</option>
+										<option data-specialList='triangle' class='notSelected' value='triangle'>Triangle</option>
+										<option data-specialList='diamond' class='notSelected' value='diamond'>Diamond</option>
+									</select>							
+								</div>
+								<div  data-specialList='colorContainer' class='specialListParamContainer flex-container-row crossAxisFlexCenter disableSpecial'><div class='specialListKey'>Color: </div>
+									<div id='toResetSpecialColor' class='colorSelectBackground'>
+										<select name='SelectSpecialColor'  data-specialList='color'>
+											<option data-img-src='black' data-specialList="black" class="selected" value="black" data-selected="">black</option>
+											<option data-img-src='red' data-specialList="red"  class="notSelected" value="red">red</option>
+											<option data-img-src='blue' data-specialList="blue" class="notSelected" value="blue">blue</option>
+											<option data-img-src='green' data-specialList="green" class="notSelected" value="green">green</option>
+											<option data-img-src='orange' data-specialList="orange" class="notSelected" value="orange">orange</option>
+											<option data-img-src='yellow' data-specialList="yellow" class="notSelected" value="yellow">yellow</option>
+										</select>
+									</div>
+								</div>
+							</div>
+							<div class='configSpecialSubmitButton configListButton' onclick='toggleConfigSpecial("specialElementList")'>Save</div>
+						</div>
+					</div>
+				</article>
+				<article class='flex-container-column flex-item-main maxCrossAxisFlexSize maxMainAxisFlexSize imageContainer'>
+					<!-- for w3c validation -->
+					<h2 class="displayNone">Image container</h2>
+					<!-- end  w3c validation-->
+					<div id='imageContainerZoomAndPan' class='flex-item-main maxCrossAxisFlexSize maxMainAxisFlexSize'></div>
 				</article>
 			</section>
 		</div>
-		<div class='generateDiv' ><button class='generateButton' onclick='generateImage()'>Generate</button></div>
+		<div class='generateDiv' onclick='generateImage()'><img src='resources/img/generateIcon.png'></img></div>
 	</body>
 </html>
 

@@ -47,10 +47,10 @@ function generateImage(){
 			inlinesvg: true
 			*/
 			if(Modernizr.inlinesvg){
-				jQuery('#imageContainerZoomAndPan').imagePanAndZoom('webapi/methods/getImage.svg?d='+new Date().getTime(),"SVG");
+				jQuery('#imageContainerZoomAndPan').imagePanAndZoom('webapi/methods/getImage?d='+new Date().getTime(),"SVG");
 				closeLoading();
 			}else if(Modernizr.svgasimg){
-				jQuery('#imageContainerZoomAndPan').imagePanAndZoom('webapi/methods/getImage.svg?d='+new Date().getTime());
+				jQuery('#imageContainerZoomAndPan').imagePanAndZoom('webapi/methods/getImage?d='+new Date().getTime());
 				swal({title: "SVG incompatible browser",   text:"Your browser is not compatible with the HTML5 SVG tag, so searching in the image is not enabled."
 					,   type: "warning",closeOnConfirm: false,   closeOnCancel: false});
 			}else{
@@ -126,6 +126,42 @@ function bindEvents(){
 			jQuery("#dropMenuContainer").css("left","");
 		}
 	});
+	jQuery(".navDropDownContainer .navDropDownClick").bind("tap click",function(event){
+		if(jQuery(this).closest(".navDropDownContainer").hasClass("notActivateResponsive")){
+			jQuery(this).closest(".navDropDownContainer").removeClass("notActivateResponsive");
+			jQuery(this).closest(".navDropDownContainer").addClass("activateResponsive");
+		}else if(jQuery(this).closest(".navDropDownContainer").hasClass("activateResponsive")){
+			jQuery(this).closest(".navDropDownContainer").removeClass("activateResponsive");
+			jQuery(this).closest(".navDropDownContainer").addClass("notActivateResponsive");
+		}else{
+			jQuery(this).closest(".navDropDownContainer").addClass("notActivateResponsive");
+		}
+	});
+	/* This code is for click out and touch out, if occurs them close the menu.
+	 * jQuery("body").bind("click touchend",function(event){
+		if(jQuery("nav").hasClass("activateResponsive") && !jQuery(".imgMenu").is(event.target) 
+				&& !jQuery(".navDropDownContainer .navDropDownClick").is(jQuery(event.target).closest(".navDropDownClick").get(0))
+				&& jQuery(".navDropDownItem").is(jQuery(event.target).closest(".navDropDownItem").get(0))){
+			if(jQuery(".navDropDownItem").is(jQuery(event.target).closest(".navDropDownItem").get(0))
+					&& event.type == "touchend"){
+				jQuery(event.target).trigger("click");
+			}
+			jQuery("nav").removeClass("activateResponsive");
+			jQuery("nav").addClass("notActivateResponsive");
+		}
+	});*/
+	jQuery("div.imgMenu").bind("tap click",function(event){
+		if(jQuery("nav").hasClass("notActivateResponsive")){
+			jQuery("nav").removeClass("notActivateResponsive");
+			jQuery("nav").addClass("activateResponsive");
+		}else if(jQuery("nav").hasClass("activateResponsive")){
+			jQuery("nav").removeClass("activateResponsive");
+			jQuery("nav").addClass("notActivateResponsive");
+		}else{
+			jQuery("nav").addClass("notActivateResponsive");
+		}
+	});
+	
 }
 
 function isArray(object){
@@ -203,9 +239,9 @@ function generateConfig(config){
 function putConfigValuesToConfigView(json,container){
 	jQuery.each(json,function(key,value){
 		if(isObject(json[key])){
-			putConfigValuesToConfigView(json[key], jQuery(container).find('[configContainer='+key+']')[0]);
+			putConfigValuesToConfigView(json[key], jQuery(container).find('[data-configContainer='+key+']')[0]);
 		}else{
-			changeValueOfContainer(jQuery(container).find('[configParam='+key+'] [configValue]')[0], value);
+			changeValueOfContainer(jQuery(container).find('[data-configParam='+key+'] [data-configValue]')[0], value);
 		}
 	});
 }
@@ -224,32 +260,34 @@ function changeValueOfContainer(container,value){
 		}
 	}else{
 		var parent = jQuery(container).parent()[0];
-		jQuery(parent).children("[configValue]").removeClass("selected").addClass("notSelected");
-		jQuery(parent).children('[configValue='+value+']').removeClass("notSelected").addClass("selected");
+		if(jQuery(parent).children("[data-configValue]").length>0){
+			jQuery(parent).children("[data-configValue]").removeClass("selected").addClass("notSelected");
+			jQuery(parent).children('[data-configValue='+value+']').removeClass("notSelected").addClass("selected");
+		}
 	}
 }
 
 function bindConfigEvents(){
-	jQuery("#configContainer").find("[configParam]").each(function(i,param){
-		jQuery(param).find("[configValue]").each(function(i,value){
+	jQuery("#configContainer").find("[data-configParam]").each(function(i,param){
+		jQuery(param).find("[data-configValue]").each(function(i,value){
 			if(jQuery(value).is("option")){
 				if(!jQuery(jQuery(value).parent()[0]).hasHandlers("change")){
 					jQuery(jQuery(value).parent()[0]).change(function(){
-						configJSON["keys"][jQuery(param).attr("configParam")]=jQuery(this).val();
+						configJSON["keys"][jQuery(param).attr("data-configParam")]=jQuery(this).val();
 					});
 				}
 			}else if(jQuery(value).is("input[type=checkbox]")){
 				if(!jQuery(jQuery(value).parent()[0]).hasHandlers("change")){
 					jQuery(jQuery(value).parent()[0]).change(function(){
-						configJSON["keys"][jQuery(param).attr("configParam")]=jQuery(value).is(":checked");
+						configJSON["keys"][jQuery(param).attr("data-configParam")]=jQuery(value).is(":checked");
 					});
 				}
 			}else if(jQuery(value).is("input")){
 				if(!jQuery(value).hasHandlers("change")){
 					jQuery(value).change(function(){
-						var parentContainerID = jQuery(jQuery(value).closest("[configContainer]")[0]).attr("configContainer");
-						if(!jQuery(jQuery(value).parent()[0]).is("[configContainer]")){
-							configJSON[parentContainerID][jQuery(param).attr("configParam")]=JSON.parse(jQuery(value).val());
+						var parentContainerID = jQuery(jQuery(value).closest("[data-configContainer]")[0]).attr("data-configContainer");
+						if(!jQuery(jQuery(value).parent()[0]).is("[data-configContainer]")){
+							configJSON[parentContainerID][jQuery(param).attr("data-configParam")]=JSON.parse(jQuery(value).val());
 						}else{
 							configJSON[parentContainerID]=JSON.parse(jQuery(value).val());
 						}
@@ -257,14 +295,21 @@ function bindConfigEvents(){
 				}
 			}else{
 				jQuery(value).click(function(e){
-					configJSON["keys"][jQuery(param).attr("configParam")]=jQuery(value).attr("configValue");
-					jQuery(param).find("[configValue]").each(function(i,toChange){
+					configJSON["keys"][jQuery(param).attr("data-configParam")]=jQuery(value).attr("data-configValue");
+					jQuery(param).find("[data-configValue]").each(function(i,toChange){
 						jQuery(toChange).removeClass("selected").addClass("notSelected");
 					});
 					jQuery(value).removeClass("notSelected").addClass("selected");
 				});
 			}
 		});
+		if(jQuery(param).find("[data-configSpecial]").length>0){
+			var containerSpecial = jQuery(jQuery(param).find("[data-configSpecial]").get(0));
+			var idSpecial = containerSpecial.attr("data-configSpecial");
+			jQuery(containerSpecial).click(function(){
+				toggleConfigSpecial(idSpecial);
+			});
+		}
 	});
 }
 
@@ -312,9 +357,42 @@ function ajaxUploadFile(idContainer,idInput){
     }).done(function( data ) {
     	if(!isError(data,function(isConfirm){showUploadPopUp()})){
     		swal("Uploaded file", "The file has been uploaded.", "success");
+    		ajaxGetALLUris();
     	}
     }).error(function(error){
     	swal("Upload error",error,"error");
+    });
+}
+
+function ajaxSendReport(idContainer){
+	/*var urlString="webapi/methods/sendReport";
+	var fd = new FormData(document.getElementById(idContainer));
+	jQuery.ajax({
+      url: urlString,
+      type: "POST",
+      data: fd,
+      datatype: 'application/x-www-form-urlencoded'//,
+      //processData: false,  // tell jQuery not to process the data
+      //contentType: false   // tell jQuery not to set contentType
+    }).done(function( data ) {
+    	swal("Send report", data, "success");
+    }).error(function(error){
+    	console.log(error);
+    	swal("Send report error",error,"error");
+    });*/
+	var urlString="webapi/methods/sendReport";
+	var idContainerString = "#"+idContainer;
+	jQuery.ajax({
+      url: urlString,
+      type: "POST",
+      data: jQuery(idContainerString).serialize(),
+    }).done(function( data ) {
+    	swal({   title: "Send report",   text: data,allowEscapeKey:false,html:true,   type: "success",   showCancelButton: false,   closeOnConfirm: false });
+    	//swal("Send report", data, "success");
+    }).error(function(error){
+    	console.log(error);
+    	swal({   title: "Send report",   text: error,allowEscapeKey:false,html:true,   type: "error",   showCancelButton: false,   closeOnConfirm: false });
+    	//swal("Send report error",error,"error");
     });
 }
 
@@ -357,11 +435,12 @@ function startWebPage(){
     		var response = JSON.parse(data['response']);
     		if(response && response['hasUploadedFile'] && response['hasUploadedFile']==true){
     			if(response['hasGeneratedImage'] && response['hasGeneratedImage']==true){
-    				jQuery('#imageContainerZoomAndPan').imagePanAndZoom('webapi/methods/getImage.svg?d='+new Date().getTime());
+    				jQuery('#imageContainerZoomAndPan').imagePanAndZoom('webapi/methods/getImage?d='+new Date().getTime());
     				closeLoading();
     			}else{
     				generateImage();
     			}
+    			ajaxGetALLUris();
     		}else{
     			showUploadPopUp();
     		}
@@ -369,7 +448,47 @@ function startWebPage(){
     },function(error){
     	swal("HasUploadedFile error",error,"error");
     });
-	
+}
+
+function bindConfigViewsEvents(){
+	var views_ids=['includeOnlyElementList','ignoreElementList','equivalentElementList','specialElementList'];
+	jQuery.each(views_ids,function(index,id){
+		jQuery("#"+id).on('animationend webkitAnimationEnd oAnimationEnd MSAnimationEnd',function(e) {
+			if(!jQuery("#"+id).hasClass('open')){
+				jQuery("#"+id).css('display','none');
+			}
+		});
+	});
+}
+
+function toggleConfigSpecial(id){
+	if(jQuery("#"+id).hasClass('notAnimationOnLoad')){
+		jQuery("#"+id).removeClass('notAnimationOnLoad')
+	}
+	if(!jQuery("#"+id).hasClass('open')){	
+		jQuery("#"+id).css('display','');
+	}
+	jQuery("#"+id).toggleClass("open");
+}
+
+function generateConfigSpecialSelects(){
+	jQuery("select[name=ImageSelect]").chosen(
+			{width:'auto !important;max-width:200px !important;min-width:64px !important;margin-bottom:0px;',
+				html_template:'<img class="arrowImage" src="{url}">',
+				template:'<img class="arrowImage" src="{url}">',
+				disable_search:true});
+	jQuery("select[name=ColorSelect]").chosen(
+			{width:'auto !important;max-width:200px !important;min-width:90px !important;margin-bottom:0px;',
+				html_template:'<span class="colorSelect" style="background-color:{url};"></span>',
+				template:'<div class="colorSelect" style="background-color:{url};"></div>',
+				disable_search:true});
+}
+
+function showReportPopup(){
+	var formText = '<form id="sendReportForm" action="webapi/methods/uploadFile" method="post" enctype="multipart/form-data"><p>Your email address:</p><input type="text" name="email" style="display:block;margin-top:10px;"><p>Message:</p><textarea type="textarea" name="message" style="display:block;margin-top:10px;width:100%" rows="12"></textarea>';
+	swal({   title: "Send report",   text: formText,allowEscapeKey:true,html:true,   type: null,   showCancelButton: true,   closeOnConfirm: false,   showLoaderOnConfirm: true, }, function(){
+		ajaxSendReport("sendReportForm");
+	});
 }
 
 window.onload = function(){
@@ -379,13 +498,16 @@ window.onload = function(){
 				&& Modernizr.flexboxlegacy && Modernizr.svg
 				&& Modernizr.json && Modernizr.xhrresponsetypejson){
 			bindEvents();
+			bindConfigViewsEvents();
 			generateConfig();
 			startWebPage();
+			generateConfigSpecialSelects();
 		}else{
 			swal({title: "Incompatible browser",   text:"Your browser is not currently supported by AR2DTool. By pressing OK you accept that this site may not work properly. Sorry for that ;)"
 			,   type: "error",closeOnConfirm: false,   closeOnCancel: false}
 			,function(){
 				bindEvents();
+				bindConfigViewsEvents();
 				generateConfig();
 				startWebPage();
 			});

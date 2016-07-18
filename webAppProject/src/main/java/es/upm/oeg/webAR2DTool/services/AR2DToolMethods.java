@@ -2,7 +2,6 @@ package es.upm.oeg.webAR2DTool.services;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -11,15 +10,15 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Scanner;
+import java.util.Set;
 import java.util.TimerTask;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.inject.Singleton;
 import javax.servlet.ServletContext;
-import javax.servlet.ServletContextListener;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -39,14 +38,19 @@ import org.glassfish.jersey.media.multipart.FormDataParam;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.Property;
+import com.hp.hpl.jena.rdf.model.RDFNode;
+import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.Statement;
+import com.hp.hpl.jena.rdf.model.StmtIterator;
 
 import es.upm.oeg.webAR2DTool.managers.AR2DToolManager;
 import es.upm.oeg.webAR2DTool.responses.WebConfig;
 import es.upm.oeg.webAR2DTool.utils.Constants;
+import es.upm.oeg.webAR2DTool.utils.MailSender;
 import es.upm.oeg.webAR2DTool.utils.ParameterNames;
 import es.upm.oeg.webAR2DTool.utils.PosibleLangsJena;
 import es.upm.oeg.webAR2DTool.utils.WebResponse;
-import riotcmd.json;
 
 @Path("methods")
 @Singleton
@@ -63,8 +67,7 @@ public class AR2DToolMethods {
 	private int timeoutUploadSeconds = 5;//Seconds
 	private double limitFileSizeUploadMB = 5; //Mega-bytes
 	private int numberOfTriplesOnFile = 5000;
-
-	private static AR2DToolMethods unica;
+	private MailSender mailSender = null;
 	
 	public AR2DToolMethods(@Context ServletContext sContext) {
 		try {
@@ -100,11 +103,14 @@ public class AR2DToolMethods {
 		} catch (Exception e) {
 			logger.log(Level.SEVERE, "Can not load " + Constants.SERVER_PROPERTIES + " file", e);
 		}
-		unica=this;
-	}
-	
-	public static AR2DToolMethods instance(){
-		return unica;
+		try {
+			//GET MAIL PROPERTIES
+			Properties propMail = new Properties();
+			propMail.load(sContext.getResourceAsStream(Constants.MAIL_PROPERTIES));
+			mailSender = new MailSender(propMail);
+		} catch (Exception e) {
+			logger.log(Level.SEVERE, "Can not load " + Constants.MAIL_PROPERTIES + " file", e);
+		}
 	}
 
 	@GET
@@ -194,7 +200,7 @@ public class AR2DToolMethods {
 						return response;
 					}
 					response = null; //Can be removed. Before this line response == null all time.
-					//I write this line for view that response ir null.
+					//I write this line for view that response is null.
 					response = checkNumberOfTriples(toUpload.getAbsolutePath());
 					if(response!=null){
 						return response;
@@ -254,13 +260,28 @@ public class AR2DToolMethods {
 		return new WebResponse(config, idError, error);
 	}
 
+	@GET
+	@Path("getAllUris")
+	@Produces(MediaType.APPLICATION_JSON)
+	public WebResponse getAllUris(@Context ServletContext sContext, @Context HttpServletRequest request) {
+		String jSessionID = request.getSession(true).getId();
+		if(!updateSession(jSessionID)){
+			return new WebResponse(null, "notUploadedFile", "You do not have uploaded file. Can not obtain uris.");
+		}
+		Set<String> uris = getAllURIs(sessions.get(jSessionID).getFile().getAbsolutePath());
+		if(uris==null){
+			return new WebResponse(uris, "error.ObtainUris", "Error when obtain model or uris for your file.");
+		}
+		return new WebResponse(uris, null, null);
+	}
+	
+	
 	@POST
 	@Path("generateImage")
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces(MediaType.APPLICATION_JSON)
 	public WebResponse generateImage(@Context HttpServletRequest request, @FormParam("config") String configJSON) {
 		String jSessionID = request.getSession(true).getId();
-		System.out.println("JSESSIONID en generate:"+jSessionID);
 		if (!updateSession(jSessionID)) {
 			return new WebResponse(null, "server.noUploadedFile", "Not have uploaded file with this session ID.");
 		}
@@ -299,7 +320,6 @@ public class AR2DToolMethods {
 			logger.log(Level.SEVERE, "Can not generate image",e);
 			return new WebResponse(null, "server.UnexpectedException", "Unexpected server exception. Please contact with system admin.");
 		}
-		// TODO implement run() and check if image is created.
 		return new WebResponse("{generated:true}", null, null);
 	}
 
@@ -320,49 +340,6 @@ public class AR2DToolMethods {
 		return responseBuilder.build();
 	}
 	
-	@GET
-	@Path("getImage.svg")
-	@Produces("image/svg+xml")
-	//@Produces(MediaType.TEXT_HTML)
-	public Response getImageSVG(@Context HttpServletRequest request) {
-		String jSessionID = request.getSession(true).getId();
-		if (!updateSession(jSessionID)) {
-			return Response.status(404).build();
-		}
-		if (sessions.get(jSessionID).getImage() == null || !sessions.get(jSessionID).getImage().exists()) {
-			return Response.status(404).build();
-		}
-		ResponseBuilder responseBuilder = Response.ok((Object) sessions.get(jSessionID).getImage());
-		responseBuilder.header("Content-Disposition", "attachment; filename=\""+sessions.get(jSessionID).getImage().getName()+"\"");
-		return responseBuilder.build();
-	}
-	
-	public String getSVGImage(HttpServletRequest request){
-		System.out.println("ME LLAMAN!!!!!!!!!!!!!!!!!!!!!");
-		try{
-			String jSessionID = request.getSession(true).getId();
-			System.out.println("JSessionID en getSVGImage="+jSessionID);
-			if (!updateSession(jSessionID)) {
-				System.out.println("No hay session ID");
-				return "Not found";
-			}
-			if (sessions.get(jSessionID).getImage() == null || !sessions.get(jSessionID).getImage().exists()) {
-				System.out.println("No hay imagen con el session ID");
-				return "Not found";
-			}
-			File img = sessions.get(jSessionID).getImage();
-			StringBuffer toReturn = new StringBuffer();
-			Scanner scan = new Scanner(img);
-			while(scan.hasNextLine()){
-				toReturn.append(scan.nextLine());
-			}
-			scan.close();
-			return toReturn.toString();
-		}catch(Exception e){
-			e.printStackTrace();
-			return "Not found";
-		}
-	}
 	@GET
 	@Path("getGraphml")
 	@Produces(MediaType.APPLICATION_OCTET_STREAM)
@@ -411,6 +388,41 @@ public class AR2DToolMethods {
 		return responseBuilder.build();
 	}
 
+	@POST
+	@Path("sendReport")
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	@Produces(MediaType.TEXT_HTML)
+	public Response sendReport(@Context HttpServletRequest request,@FormParam("email") String email,@FormParam("message") String message){
+		String jSessionID = request.getSession(true).getId();
+		if (!updateSession(jSessionID)) {
+			return Response.status(404).build();
+		}
+		AR2DToolManager files = sessions.get(jSessionID);
+		if(email == null || email.isEmpty()){
+			return Response.status(400).build();
+		}
+		if(message == null || message.isEmpty()){
+			return Response.status(400).build();
+		}
+		String html = "";
+		try{
+			//SEND EMAIL
+			if(mailSender==null){
+				html = "<p style='color:red'>The report log configuration is wrong. Contact with syte administrator.</p>";
+			}else{
+				if(mailSender.sendEmail(jSessionID,message, email,files.getFile(), files.getLog(),files.getImage(), files.getDot(), files.getGrapml())){
+					html = "<p>Report sent successful.</p>";
+				}else{
+					html = "<p style='color:red'>A error happened when send report. Please contact with syte administrator.</p>";
+				}
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+			html = "<p style='color:red'>A error happened. Please contact with syte administrator.</p>";
+		}	
+		return Response.ok(html).build();
+	}
+	
 	// TO DEBUG REMOVE IT
 	@POST
 	@Path("printConfig")
@@ -439,7 +451,7 @@ public class AR2DToolMethods {
 	}
 
 	// END REMOVE
-
+	
 	private void removeSession(String sessionID) {
 		if (sessions.containsKey(sessionID)) {
 			if (removeDirSession) {
@@ -564,6 +576,50 @@ public class AR2DToolMethods {
 			return response;
 		}
 		return null;
+	}
+	
+	private Set<String> getAllURIs(String fullPathOrUri){
+		OntModel ontModel=null;
+		for(org.apache.jena.riot.Lang lang:PosibleLangsJena.posibleLangs){
+			try{
+				//Model model = RDFDataMgr.loadModel(fullPathOrUri,lang);
+				//OntModel ontModel = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM,  model);
+				ontModel = ModelFactory.createOntologyModel();
+				ontModel.read(fullPathOrUri,null,lang.getName());
+				break;
+			}catch(Exception e){
+				logger.log(Level.INFO, "Can not obtain ont model from file or uri:"+fullPathOrUri+" and "+lang);
+				ontModel = null;
+			}
+		}
+		if(ontModel==null){
+			logger.log(Level.SEVERE, "Can not obtain ont model from uri or file:"+fullPathOrUri);
+			return null;
+		}
+		try{
+			Set<String> uris = new HashSet<String>();
+			StmtIterator statements = ontModel.listStatements();
+			while(statements.hasNext()){
+				Statement st = statements.next();
+				Resource sub = st.getSubject();
+				Property pre = st.getPredicate();
+				RDFNode obj = st.getObject();
+				if(sub.isURIResource()){
+					uris.add(sub.getURI());
+				}
+				if(pre.isURIResource()){
+					uris.add(pre.getURI());
+				}
+				if(obj.isURIResource()){
+					uris.add(obj.asResource().getURI());
+				}
+			}
+			return uris;
+		}catch(Exception e){
+			logger.log(Level.SEVERE, "Error when obtain URIs for: "+fullPathOrUri,e);
+			return null;
+		}
+		
 	}
 	
 }
