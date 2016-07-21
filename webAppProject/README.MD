@@ -4,7 +4,7 @@ This repository contains a web application for use AR2DTool.
 
 # Table of Contents
 1. [Pre-requisites](#pre-requisites)
-2. [Configuration](#compile)  
+2. [Configuration](#configuration)  
 2.1. [Server configuration](#serverConfiguration)  
 2.2. [Change mail configuration](#changeMailConfiguration)  
 2.3. [Default AR2DTool Config](#editAR2DToolConfig)  
