@@ -1,0 +1,33 @@
+@-webkit-keyframes openFromRight {
+	from { right:-100%;}
+	to {right: 0%;}
+}
+@-moz-keyframes openFromRight {
+	from {right: -100%;}
+	to {right: 0%;}
+}
+@-o-keyframes openFromRight {
+	from {right:-100%;}
+	to {right:0%;}
+}
+@keyframes openFromRight {
+	from{right:-100%}
+	to{right:0%}
+}
+
+@-webkit-keyframes closeToRight {
+	from {right:0%;}
+	to {right:-100%;}
+}
+@-moz-keyframes closeToRight {
+	from {right:0%;}
+	to {right:-100%;}
+}
+@-o-keyframes closeToRight {
+	from {right:0%;}
+	to {right:-100%;}
+}
+@keyframes closeToRight {
+	from{right:0%;}
+	to{right:-100%;}
+}

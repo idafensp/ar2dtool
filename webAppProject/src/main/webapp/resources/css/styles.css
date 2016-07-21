@@ -15,23 +15,23 @@ html,body{
     color: white;
 }
 
-nav div{
-	padding: 5px 5px 5px 5px;
-	margin: 3px 3px 3px 3px;
-	/*border: solid 3px white;
-	border-style: outset;*/
-	display: -ms-flexbox;
-    display: -webkit-flex;
-    display: flex;
-    -webkit-flex-direction: row;
-    -ms-flex-direction: row;
-    flex-direction: row;
+nav > div{
     -ms-align-items: center;
     -webkit-align-items: center;
     align-items: center;
-	-webkit-align-self: stretch;
-    -ms-flex-item-align: stretch;
-    align-self: stretch;
+	-webkit-align-self: center;
+    -ms-flex-item-align: center;
+    align-self: center;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    padding: 5px 5px 5px 5px;
+	margin: 3px 3px 3px 3px;
+	/*border: solid 3px white;
+	border-style: outset;*/
 }
 
 nav div a{
@@ -57,6 +57,9 @@ nav div a{
 .mainContent{
     overflow: hidden;
 }
+.navDropDownContainer{
+	cursor: pointer;
+}
 @media screen and (max-width : 1100px){
 	.navMenu{
     	position:absolute;
@@ -71,8 +74,62 @@ nav div a{
     	-ms-flex-direction: column;
     	flex-direction: column;
 	}
-	nav div{
-		border-bottom: 2px white solid;
+	nav > div{
+		border-bottom: 1px rgba(255, 255, 255, 0.29) solid;
+		width:100%;
+	}	
+	.navDropDownItem{
+    	background:rgba(70, 121, 189,1);
+    	position:relative;
+    	width:104%;
+	}
+	.navDropDownItem div{
+		padding: 5px 5px 5px 5px;
+		margin: 3px 3px 3px 3px;
+	}
+	.dropDownImage{
+		width:35px;
+		height:35px;
+	}
+	.dropUpImage{
+		width:35px;
+		height:35px;
+	}
+	.navDropDownContainer.activateResponsive .dropDownImage{
+		display:none;
+	}
+	.navDropDownContainer.notActivateResponsive .dropUpImage{
+		display:none;
+	}
+	.navDropDownContainer.notActivateResponsive .navDropDownItem{
+		display:none;
+	}
+	nav.notActivateResponsive{
+		display:none;
+	}
+	.navDropDownContainer.activateResponsive .navDropDownItem{
+		display: -ms-flexbox;
+    	display: -webkit-flex;
+    	display: flex;
+    	-webkit-flex-direction: column;
+    	-ms-flex-direction: column;
+    	flex-direction: column;
+	}
+	div.imgMenu{
+		display: -ms-flexbox;
+    	display: -webkit-flex;
+    	display: flex;
+    	-ms-align-items: center;
+    	-webkit-align-items: center;
+    	align-items: center;
+    	cursor:pointer;
+    	height:100%;
+    	position:absolute;
+    	right:0px;
+	}
+	img.imgMenu{
+		height:100%;
+    	width:auto;
 	}
 }
 
@@ -84,6 +141,69 @@ nav div a{
     	-webkit-flex-direction: row;
     	-ms-flex-direction: row;
     	flex-direction: row;
+	}
+	.dropDownImage{
+		width:1em;
+		height:1em;
+	}
+	.dropUpImage{
+		width:1em;
+		height:1em;
+	}
+	.navDropDownContainer:hover .dropDownImage{
+		display:none;
+	}
+	.navDropDownContainer:not(:hover) .dropUpImage{
+		display:none;
+	}
+	.navDropDownContainer:not(:hover) .navDropDownItem{
+		display:none;
+	}
+	.navDropDownContainer:hover .navDropDownItem{
+		display: -ms-flexbox;
+    	display: -webkit-flex;
+    	display: flex;
+    	-webkit-flex-direction: column;
+    	-ms-flex-direction: column;
+    	flex-direction: column;
+	}
+	.navDropDownItem{
+		/*-webkit-box-shadow: 0px 2px 1px 1px rgba(0, 0, 0, 0.4);
+		-moz-box-shadow:    0px 2px 1px 1px rgba(0, 0, 0, 0.4);
+		box-shadow:         0px 2px 1px 1px rgba(0, 0, 0, 0.4);*/
+		-webkit-box-shadow: 0px 5px 5px -4px rgba(50, 50, 50, 0.75),
+		15px 10px 5px -14px rgba(50, 50, 50, 0.75);
+    	-moz-box-shadow: 0px 5px 5px -4px rgba(50, 50, 50, 0.75),
+    	15px 10px 5px -14px rgba(50, 50, 50, 0.75);
+    	box-shadow: 0px 5px 5px -4px rgba(50, 50, 50, 0.75),
+    	15px 10px 5px -14px rgba(50, 50, 50, 0.75);
+    	background:rgba(70, 121, 189,1);
+    	position:absolute; 	
+    	min-width: 114%;
+    	padding-right: 22px;
+    	width: auto;
+    	left: 0px;
+    	border-top: 14px solid rgba(255,255,255,0);
+    	-moz-background-clip: padding;
+    	-webkit-background-clip: padding;
+    	background-clip: padding-box;
+	}
+	.navDropDownItem div{
+		padding: 5px 5px 5px 5px;
+		margin: 3px 3px 3px 3px;
+	}
+	.imgMenu{
+		display:none;
+	}
+	.navMenuButton{
+		margin-left:10px;
+		background-color: rgba(80, 140, 189,1);
+		border-radius:4px;
+		padding: 4px 10px 4px 10px;
+		cursor:pointer;
+		-webkit-box-shadow: 2px 2px 5px 0px rgba(50, 50, 50, 0.75);
+		-moz-box-shadow:    2px 2px 5px 0px rgba(50, 50, 50, 0.75);
+		box-shadow:         2px 2px 5px 0px rgba(50, 50, 50, 0.75);
 	}
 }
 .navMenu{
@@ -103,7 +223,7 @@ nav div a{
 .dropMenuContentContainer{
     word-wrap: break-word;
     word-break: break-all;
-    overflow-y: scroll;
+    overflow-y: auto;
 }
 
 .dropMenuContainerOpen{
@@ -198,6 +318,7 @@ div.dropClickMenu{
 @media screen and (min-width : 1024px){
 	img.dropClickMenu{
 	    width: 23px;
+	    height:23px;
 	}
 	.dropClickMenu{
 	    -webkit-flex-basis: 25px;
@@ -214,6 +335,7 @@ div.dropClickMenu{
 @media screen and (max-width : 1023px){
 	img.dropClickMenu{
 	    width: 35px;
+	    height: 35px;
 	}
 	.dropClickMenu{
 	    -webkit-flex-basis: 37px;
@@ -232,6 +354,10 @@ div.dropClickMenu{
     	max-width:100px;
     	max-height:64px;
 	}
+	img.LogoMin{
+		height:32px;
+		max-height:32px;
+	}
 	div.Logo{
     	padding: 3px 3px 3px 3px;
     	display: -ms-flexbox;
@@ -240,6 +366,8 @@ div.dropClickMenu{
     	-webkit-flex-direction: row;
     	-ms-flex-direction: row;
     	flex-direction: row;
+    	-ms-align-items: center;
+    	-webkit-align-items: center;
     	align-items: center;
 	}
 }
@@ -252,24 +380,31 @@ div.dropClickMenu{
 	}
 }
 
+.overflowYAuto{
+	overflow-y:auto;
+}
+
 .imageImg{
     width: 100%;
     height:auto;
 }
 
 .generateDiv{
-    position:absolute;
-    width:80px;
-    height:55px;
-    bottom:0px;
-    right: 0px;
+    position: absolute;
+    width: 64px;
+    height: 64px;
+    bottom: 2px;
+    right: 5px;
     margin-right: 5px;
     margin-bottom: 5px;
-}
-
-.generateButton{
-    width:100%;
-    height: 100%;
+    border-radius:32px;
+	-webkit-box-shadow: 0px 5px 8px 0px rgba(50, 50, 50, 0.75);
+	-moz-box-shadow:    0px 5px 8px 0px rgba(50, 50, 50, 0.75);
+	box-shadow:         0px 5px 8px 0px rgba(50, 50, 50, 0.75);
+	cursor:pointer;
+    /*-webkit-box-shadow: 0px 0px 6px 0px rgba(50, 50, 50, 0.75);
+	-moz-box-shadow:    0px 0px 6px 0px rgba(50, 50, 50, 0.75);
+	box-shadow:         0px 0px 6px 0px rgba(50, 50, 50, 0.75);*/
 }
 
 .configColor{
@@ -279,6 +414,35 @@ div.dropClickMenu{
 	cursor: pointer;
 	padding: 3px 3px 3px 3px;
 	background-clip:content-box;
+}
+
+.arrowImage{
+	width:64px;
+	height:14px;
+	margin-right:4px;
+	margin-top:4px;
+}
+
+.colorSelect{
+	width:64px !important;
+	height:14px !important;
+	margin-right:2px !important;
+	margin-top:4px;
+}
+
+.arrowText{
+	word-wrap:normal;
+	word-bread:keep-all;
+}
+
+.imageSelectBackground{
+	background-color:white;
+	border-radius: 6px;
+}
+
+.colorSelectBackground{
+	background-color:white;
+	border-radius: 6px;
 }
 
 .configColor.selected{
@@ -292,11 +456,45 @@ div.dropClickMenu{
 .configKeyParamContainer{
 	margin-top: 5px;
 	margin-bottom:5px;
-	padding-bottom:3px;
+	padding-bottom:7px;
 	border-bottom: solid 1px;
 	-webkit-flex-wrap: wrap;
     -ms-flex-wrap: wrap;
     flex-wrap: wrap;
+}
+
+.maxWidthAndHeightAbsolute{
+	position:absolute;
+	width:100%;
+	height:100%;
+}
+
+.maxWidthAndHeight{
+	width:100%;
+	height:100%;
+}
+
+.notAnimationOnLoad{
+  -webkit-animation: none !important;
+  -moz-animation: none !important;
+  -ms-animation: none !important;
+  -o-animation: none !important;
+  animation: none !important;
+}
+
+.configListButton{
+	margin-left:10px;
+	background-color: rgba(80, 140, 189,1);
+	border-radius:4px;
+	padding: 4px 10px 4px 10px;
+	cursor:pointer;
+	-webkit-box-shadow: 2px 2px 5px 0px rgba(50, 50, 50, 0.75);
+	-moz-box-shadow:    2px 2px 5px 0px rgba(50, 50, 50, 0.75);
+	box-shadow:         2px 2px 5px 0px rgba(50, 50, 50, 0.75);
+}
+
+.displayNone{
+	display:none;
 }
 
 .crossAxisFlexCenter{
@@ -347,6 +545,18 @@ div.dropClickMenu{
     flex-wrap: nowrap;*/
 }
 
+.flex-wrap{
+	-webkit-flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+}
+
+.flex-nowrap{
+	-webkit-flex-wrap: nowrap;
+    -ms-flex-wrap: nowrap;
+    flex-wrap: nowrap;
+}
+
 .flex-order0{
     -webkit-order: 0;
     -ms-flex-order: 0;
@@ -370,7 +580,7 @@ div.dropClickMenu{
     -ms-flex-shrink: 0;
     flex-shrink: 0;
 }
-
+	
 .flex-align-center{
     -webkit-align-self: center;
     -ms-flex-item-align: center;

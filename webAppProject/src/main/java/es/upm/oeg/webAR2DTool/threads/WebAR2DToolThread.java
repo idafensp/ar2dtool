@@ -65,9 +65,9 @@ public class WebAR2DToolThread extends Thread {
 
 			// log("Compiling GV, this may take a little while...");
 			// compile src code into a graph
-			dg.generateDOTDiagram(src, filePath+".png", "png");
+			dg.generateDOTDiagram(src, filePath+".svg", "svg");
 			
-			generatedImage = new File(filePath+".png");
+			generatedImage = new File(filePath+".svg");
 			if(!generatedImage.exists() || !generatedImage.canRead() || !generatedImage.isFile()){
 				generatedImage = null;
 			}
