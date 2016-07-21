@@ -10,8 +10,7 @@ This repository contains a web application for use AR2DTool.
 2.3. [Default AR2DTool Config](#editAR2DToolConfig)  
 3. [Compile](#compile)
 4. [Deploy](#deploy)
-5. [Development](#development)
-6. [Version](#version)  
+5. [Version](#version)  
   
 
 ## 1) Pre-requisites <a name="pre-requisites"></a>
@@ -23,19 +22,19 @@ This repository contains a web application for use AR2DTool.
 ## 2) Configuration <a name="configuration"></a>
 ***2.1) Server configuration*** <a name="serverConfiguration"></a>   
 The first step is change the server configuration.
-Enter on project folder and edit "src/main/webapp/WEB-INF/server.properties".  
+Enter the project folder and edit  the following file: "src/main/webapp/WEB-INF/server.properties".  
 
-This file have the next properties:
-* pathToDot: The path where is installed DOT. Default: /usr/bin/dot
+This file have the following properties, which to must edit to meet your server:
+* pathToDot: The path where DOT is installed. By default, it is /usr/bin/dot (you can check it by excuting 'wich dot' in UNIX shells).
 * pathToTempDir: The path to the webapp temp dir. Example: /home/USER/webAR2DTool/temp  
-* server.pathToUploadedFiles: The path to the webapp upload dir (webAR2DTool will save the file to this folder, need write permissions). Example: /home/USER/webAR2DTool/uploaded  
-* server.removeDirSession: "true" or "false". If it is "true" all files of user will be removed when session expired, on "false" the file will not be removed.  
-* server.session.timeout.seconds: Seconds for session expire since user last action.     
-* server.generate.timeout.seconds: Maximum time in seconds for thread that call AR2DTool (Generate image).
-* server.upload.file.size.mb:  Maximum size of the uploaded file.  
-* server.generate.limit.triples: Maximum triples of the uploaded file.  
+* server.pathToUploadedFiles: The path to the webapp upload dir (webAR2DTool will save the file to this folder, which will need write permissions). Example: /home/USER/webAR2DTool/uploaded  
+* server.removeDirSession: "true" or "false". If it is "true" all files of user will be removed when session expired. If "false" the file will not be removed.  
+* server.session.timeout.seconds: Seconds for session to expire since user last action.     
+* server.generate.timeout.seconds: Maximum execution time (in seconds) for thread that calls AR2DTool (Generate image).
+* server.upload.file.size.mb:  Maximum size of the uploaded input file.  
+* server.generate.limit.triples: Maximum triples of the uploaded input file.  
 
-Remember for file paths, the backslash need to be escape (Put "\\\\" instead of).
+Be aware that file paths must use escaped backslashes (e.g. "\\\\").
 
 Example:
 > pathToDot=/usr/bin/dot  
@@ -47,25 +46,24 @@ Example:
 > server.upload.file.size.mb=5  
 > server.generate.limit.triples=5000  
 
-***2.2) Change mail configuration*** <a name="changeMailConfiguration"></a>  
-For change the mail properties edit the next file:  
-"src/main/webapp/WEB-INF/mail.properties"  
-The file have the next parameters:  
-* mail.server: The URL o IP of mail smtp server.
-* mail.server.user: The login user of mail server.
-* mail.server.password: The login password user of mail server.
-* mail.server.port: The port of mail smtp server.
-* mail.server.ttls.enable: : If smtp server have TTLs then this parameter is "true". Values "false", "true".
-* mail.from: The mail URL that send the email. Example: user@gmail.com  
-* mail.to: The mail URL of destinatary.
-* mail.cc: The mail URL to add a copy.
-* mail.bcc: The mail URL to add a hidden copy.
-* mail.subject: Subject of mail. Example: [WebAR2DTool] Report send. SessionID=%SESSION_ID%  
+***2.2) Mail configuration*** <a name="changeMailConfiguration"></a>  
+To change the mail properties edit the following file: "src/main/webapp/WEB-INF/mail.properties"  
+
+* mail.server: The URL o IP address of the mail smtp server.
+* mail.server.user: The login user for the mail server.
+* mail.server.password: The login password for the mail server.
+* mail.server.port: The port for the mail smtp server.
+* mail.server.ttls.enable: : If smtp server has TTLs enabled then this parameter is "true".
+* mail.from: The mail address from which email is sent from. Example: user@gmail.com  
+* mail.to: The mail address of the destinatary.
+* mail.cc: The mail address to be added as a copy on the email. 
+* mail.bcc: The mail address to be added as hidden copy on the email.
+* mail.subject: Subject of the email. Example: [WebAR2DTool] Report send. SessionID=%SESSION_ID%  
   *%SESSION_ID%: This paramerter is replaced by the app with the user ID.
-* mail.message: Message to send. Example: "A user send report for you.\n%FILES_INFO%\nUser email: %CONTACT_EMAIL%\nUser message:\n%MESSAGE%\n"
-  * %FILES_INFO%: this parameter is replaced by the app with a array of files (and tell if exists or not).
-  * %CONTACT_EMAIL%: this parameter is replaced by the app with the user email.
-  * %MESSAGE%: this parameter is replaced by the app with the user message. 
+* mail.message: Body of the email, containing the message to be sent. Example: "A user send report for you.\n%FILES_INFO%\nUser email: %CONTACT_EMAIL%\nUser message:\n%MESSAGE%\n"
+  * %FILES_INFO%: this parameter is replaced by an array of files (and tell if exists or not).
+  * %CONTACT_EMAIL%: this parameter is replaced by the user email.
+  * %MESSAGE%: this parameter is replaced by the user message. 
 
 Example:  
 > mail.server=gmail.com  
@@ -83,29 +81,24 @@ Example:
 
 ***2.3) Default AR2DTool config*** <a name="editAR2DToolConfig"></a>
 
-Edit the next file:  
-"src/main/webapp/WEB-INF/defaultConfig.txt"  
+Edit the next file:  "src/main/webapp/WEB-INF/defaultConfig.txt"  
 For futher information visit:  
 [Configuration file (AR2DTool)](https://github.com/idafensp/ar2dtool/blob/master/README.md#configuration-file)
 
 ## 3) Compile <a name="compile"></a>
 
-To compile, type in a cmd or terminal (On project folder, you need see the pom.xml):
+To compile, type in a cmd or terminal (Nn project folder, you need see the pom.xml):
 ```sh
 mvn clean install
 ```
 
-Generated files are inside "target" folder. We used this files in "deploy" section.
+Generated files are inside "target" folder. 
 
 ## 4) Deploy <a name="deploy"></a>
 
-After changing the settings and compile you will deploy the war file on a tomcat manager or copy the folder "webAR2DTool" (in "target" folder) into webapps folder of tomcat.
+After changing the settings you can compile the tool, generating a WAR file. You will deploy this WAR file on a tomcat manager or copy the folder "webAR2DTool" (in "target" folder) into the webapps folder of tomcat.
 For futher information visit: https://tomcat.apache.org/tomcat-7.0-doc/deployer-howto.html
 
-## 5) Development <a name="development"></a>
 
-See the next link for developing guide:  
-// TODO
-
-## 6) Version <a name="version"></a>
-0.0.1
+## 5) Version <a name="version"></a>
+0.1
