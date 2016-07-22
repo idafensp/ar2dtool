@@ -10,7 +10,8 @@ This repository contains a web application for use AR2DTool.
 2.3. [Default AR2DTool Config](#editAR2DToolConfig)  
 3. [Compile](#compile)
 4. [Deploy](#deploy)
-5. [Version](#version)  
+5. [Development guide](#developmentGuide)
+6. [Version](#version)  
   
 
 ## 1) Pre-requisites <a name="pre-requisites"></a>
@@ -87,7 +88,7 @@ For futher information visit:
 
 ## 3) Compile <a name="compile"></a>
 
-To compile, type in a cmd or terminal (Nn project folder, you need see the pom.xml):
+To compile, type in a cmd or terminal (On project folder, you need see the pom.xml):
 ```sh
 mvn clean install
 ```
@@ -96,9 +97,13 @@ Generated files are inside "target" folder.
 
 ## 4) Deploy <a name="deploy"></a>
 
-After changing the settings you can compile the tool, generating a WAR file. You will deploy this WAR file on a tomcat manager or copy the folder "webAR2DTool" (in "target" folder) into the webapps folder of tomcat.
+After changing the settings you can compile the tool, generating a WAR file. You will deploy this WAR file on a tomcat manager or copy the folder "webAR2DTool" (in "target" folder) into the webapps folder of tomcat.  
 For futher information visit: https://tomcat.apache.org/tomcat-7.0-doc/deployer-howto.html
 
+## 5) Development guide <a name="developmentGuide"></a>  
 
-## 5) Version <a name="version"></a>
+For development guide visit the follow link:  
+[Development Guide](https://github.com/idafensp/ar2dtool/wiki/Development-guide)
+
+## 6) Version <a name="version"></a>
 0.1
