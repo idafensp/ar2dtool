@@ -1,3 +1,19 @@
+
+[![Code HTML5](https://img.shields.io/badge/code-HTML5-blue.svg)](https://www.w3.org/TR/html5/)
+[![Code CSS3](https://img.shields.io/badge/code-CSS3-blue.svg)](http://www.w3schools.com/css/css3_intro.asp)
+[![Code JS](https://img.shields.io/badge/code-JS-blue.svg)](http://www.w3schools.com/js/)
+[![Desgin Responsive](https://img.shields.io/badge/design-Responsive-blue.svg)](http://www.w3schools.com/html/html_responsive.asp)
+[![Desgin Google Design](https://img.shields.io/badge/design-Google%20Design-blue.svg)](https://design.google.com/)  
+[![lib Google Maps](https://img.shields.io/badge/lib-Google%20Maps-green.svg)](https://developers.google.com/maps/documentation/javascript/)
+[![lib jQuery](https://img.shields.io/badge/lib-jQuery-green.svg)](https://jquery.com/)
+[![lib jQueryMobile](https://img.shields.io/badge/lib-jQuery%20Mobile-green.svg)](https://jquerymobile.com/)
+[![lib Modernizr](https://img.shields.io/badge/lib-Modernizr-green.svg)](https://modernizr.com/)
+[![lib Bootstrap](https://img.shields.io/badge/lib-Bootstrap-green.svg)](http://getbootstrap.com/)
+[![Build Maven](https://img.shields.io/badge/build-Maven-lightgrey.svg)](https://maven.apache.org/)
+[![Java 1.7 or later](https://img.shields.io/badge/Java-1.7%20or%20later-00838f.svg)](https://www.java.com/es/download/help/index_installing.xml?j=7)
+[![Jersey 2.22.1](https://img.shields.io/badge/Jersey-2.22.1-00838f.svg)](https://jersey.java.net/documentation/latest/user-guide.html)
+[![Version 0.1](https://img.shields.io/badge/Version-0.1-lightgrey.svg)](#version)  
+
 # WebAR2DTool
 
 This repository contains a web application for use AR2DTool.
