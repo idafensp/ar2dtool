@@ -6,6 +6,7 @@
 [![Desgin Google Design](https://img.shields.io/badge/design-Google%20Design-blue.svg)](https://design.google.com/)  
 [![lib jQuery](https://img.shields.io/badge/lib-jQuery-green.svg)](https://jquery.com/)
 [![lib jQueryMobile](https://img.shields.io/badge/lib-jQuery%20Mobile-green.svg)](https://jquerymobile.com/)
+[![lib sweetAlert](https://img.shields.io/badge/lib-Sweet%20Alert-green.svg)](https://t4t5.github.io/sweetalert/)
 [![lib Modernizr](https://img.shields.io/badge/lib-Modernizr-green.svg)](https://modernizr.com/)
 [![lib Image Select](https://img.shields.io/badge/lib-Image%20Select-green.svg)](https://github.com/websemantics/Image-Select)
 [![lib Chosen](https://img.shields.io/badge/lib-Chosen-green.svg)](https://harvesthq.github.io/chosen/)  
