@@ -362,6 +362,15 @@ public class RDF2Diagram {
 		log("Not including statement " + st);
 		return false;
 	}
+	
+	/*
+	 * This method returns true if the model has more triples 
+	 * thant the value received as parameter
+	 */
+	public boolean exceedsNumberOfTriples(int mnt)
+	{
+		return model.listStatements().toList().size() > mnt;
+	}
 
 	public ConfigValues getConf() {
 		return conf;
@@ -426,6 +435,8 @@ public class RDF2Diagram {
 		}
 		
 	}
+	
+	
 	
 	//load the nsmap and swap keys and values
 	//for easier access later

@@ -31,7 +31,7 @@ public class Main {
 	private static String pathToOuputFile = "";
 	private static String outputFileType = ""; 
 	private static String pathToConfFile = "";
-	private static int maxNumberOfTriples = 1000;
+	private static int maxNumberOfTriples = -1;
 
 	private static boolean DEBUG = false;
 
@@ -87,6 +87,13 @@ public class Main {
 			//load model
 			r2d.loadRdf(pathToInputFile);
 			
+			//check if the model has more triples than allowed
+			if(r2d.exceedsNumberOfTriples(maxNumberOfTriples))
+			{
+				log("The model exceeds the number of max. number of triples specified (" + maxNumberOfTriples + ")");
+				return;
+			}
+				
 			//apply the filters specified in config file
 			r2d.applyFilters();
 			log("model:\n" + r2d.printModel());
