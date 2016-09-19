@@ -4,7 +4,7 @@
 
   <groupId>es.upm.oeg</groupId>
   <artifactId>ar2dtool</artifactId>
-  <version>0.1.0</version>
+  <version>0.2.0</version>
   <packaging>jar</packaging>
 
   <name>ar2dtool</name>
