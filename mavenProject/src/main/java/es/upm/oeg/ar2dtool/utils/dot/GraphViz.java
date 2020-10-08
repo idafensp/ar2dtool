@@ -219,6 +219,7 @@ public class GraphViz
 		byte[] img_stream = null;
 
 		try {
+			logger.getWriter().log("write dot source to file: "+dot_source, Level.INFO);
 			dot = writeDotSourceToFile(dot_source);
 			if (dot != null)
 			{
@@ -326,6 +327,7 @@ public class GraphViz
 	{
 		File temp;
 		try {
+			logger.getWriter().log("TEMP DIR: "+GraphViz.TEMP_DIR, Level.INFO);
 			temp = File.createTempFile("graph_", ".dot.tmp", new File(GraphViz.TEMP_DIR));
 			FileWriter fout = new FileWriter(temp);
 			fout.write(str);

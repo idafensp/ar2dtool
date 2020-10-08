@@ -369,7 +369,7 @@ public class RDF2Diagram {
 	 */
 	public boolean exceedsNumberOfTriples(int mnt)
 	{
-		return model.listStatements().toList().size() > mnt;
+		return model.listStatements().toList().size() > mnt && mnt!=-1;
 	}
 
 	public ConfigValues getConf() {

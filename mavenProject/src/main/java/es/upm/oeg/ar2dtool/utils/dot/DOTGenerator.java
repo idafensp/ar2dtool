@@ -319,9 +319,15 @@ public class DOTGenerator
 		//		String repesentationType= "sfdp";
 		// 		String repesentationType= "twopi";
 		// 		String repesentationType= "circo";
-		
+	        log("Will try writing to file: "+outPath);	
 		File out = new File(outPath);   // Linux
-		return gv.writeGraphToFile( gv.getGraph(gv.getDotSource(), type, repesentationType), out );
+		log("ask for Dot Source");
+		String dotSource1 = gv.getDotSource();
+		log("Ask for Graph from String");
+		//return gv.writeGraphToFile( gv.getGraph(gv.getDotSource(), type, repesentationType), out );
+		byte[] gvGraph = gv.getGraph(dotSource1, type, repesentationType);
+		log("Got the graph");
+		return gv.writeGraphToFile(gvGraph, out);
 	}
 	
 	private void generateSyntObjPropertiesTriples() throws NullTripleMember 
@@ -548,6 +554,7 @@ public class DOTGenerator
 	private void log(String msg)
 	{
 		log.getWriter().log(msg);
+		log.getWriter().log(msg, Level.INFO);
 	}
 
 	
