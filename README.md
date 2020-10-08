@@ -25,6 +25,8 @@ java -jar ar2dtool.jar -i PathToInputRdfFile -o FileToOutputFile -t OutputFileTy
 
 - [-d] optional flag for debugging. 
 
+- [-tmp]: option flag to specify the temp folder.
+
 
 AR2DTool Java API
 ===============
@@ -86,6 +88,12 @@ These are the list parameters that can be defined:
 
 Two sample configuration files are available in the /samples folder. One creates and ER diagram of the ontology. The other one depicts the taxonomy of the classes.
 
+
+## Contribution
+### To compile and generate the JAR (LINUX)
+1. `cd mavenProject`
+2. `mvn compile; mvn install`
+3. The jar will generated in `mavenProject/target`
 
 Acknowledgements
 ===============
