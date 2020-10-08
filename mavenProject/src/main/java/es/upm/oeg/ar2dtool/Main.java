@@ -15,6 +15,7 @@ the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS
 
 import java.util.logging.Level;
 
+import es.upm.oeg.ar2dtool.exceptions.ConfigKeyNotFound;
 import es.upm.oeg.ar2dtool.exceptions.ConfigFileNotFoundException;
 import es.upm.oeg.ar2dtool.exceptions.NullTripleMember;
 import es.upm.oeg.ar2dtool.exceptions.RDFInputNotValid;
@@ -44,6 +45,7 @@ public class Main {
 	private static boolean GENERATE_GV = false;
 	private static boolean GENERATE_GML = false;
 	private static boolean COMPILE_GV = false;
+	private static String temp_dir = "";
 
 	public static void main(String[] args) {
 		parseArgs(args);
@@ -58,6 +60,8 @@ public class Main {
 		if(DEBUG)
 		{
 			logLevelToSee =Level.INFO;
+			//logLevelToSee =Level.ALL;
+			dbg("now in debug \n\n\n",Level.INFO);	
 		}
 		else
 		{
@@ -65,11 +69,14 @@ public class Main {
 		}
 		
 		log.getWriter().setVisibleLogLevel(logLevelToSee);
-		
 		log("pathToInputFile:" + pathToInputFile);
 		log("pathToOuputFile:" + pathToOuputFile);
 		log("outputFileType:" + outputFileType);
 		log("pathToConfFile:" + pathToConfFile);
+		
+				
+		
+		
 		
 		
 		
@@ -80,6 +87,16 @@ public class Main {
 
 			//load config info
 			r2d.loadConfigValues(pathToConfFile);
+			if(temp_dir!=""){
+				log("Setting the temp dir to: "+temp_dir);
+				try{
+					r2d.getConf().setKeys("pathToTempDir",temp_dir);
+				}
+				catch(ConfigKeyNotFound e){
+					log("Exception in setting the temp dir");
+					e.printStackTrace();
+				}
+			}
 
 			//print config values 
 			log(r2d.getConf().toString());
@@ -104,19 +121,20 @@ public class Main {
 				
 				//get the DOTGenerator with the resultant info
 				DOTGenerator dg = r2d.getDOTGenerator();
-				
+				log("Got Dot Generator");	
 				//apply transformations
 				dg.applyTransformations();
-				
+				log("Applied Transformations");
 				//save the DOT source to file
 				dg.saveSourceToFile(pathToOuputFile+".dot");
-				
+				log("Saved the .dot file");
 
 				log("Generated! Path="+pathToOuputFile+".dot");
 				
 				
 				if(COMPILE_GV)
 				{
+					log("Getting the DOT Source");
 					//get source DOT code
 					String src = dg.generateDOTSource();
 					
@@ -139,7 +157,7 @@ public class Main {
 			{
 				//get the GraphMLGenerator with the resultant info
 				GraphMLGenerator gg = r2d.getGraphMLGenerator();
-				
+				log("Getting GML");	
 				//apply transformations
 				gg.applyTransformations();
 				
@@ -147,6 +165,7 @@ public class Main {
 				
 				//save the GraphML source to file
 				gg.saveSourceToFile(pathToOuputFile+".graphml");
+				log("the Graphml is generated");
 			}
 			
 			
@@ -224,10 +243,16 @@ public class Main {
 												i++;
 												maxNumberOfTriples = Integer.valueOf(args[i]);
 											}
-											else
-											{
-												dbg(syntaxErrorMsg,Level.WARNING);
-												return;	
+											else{
+												if(args[i].equals("-tmp")){
+													i++;
+													temp_dir = args[i];
+												}
+												else
+												{
+													dbg(syntaxErrorMsg,Level.WARNING);
+													return;	
+												}
 											}
 										}
 									}
@@ -242,6 +267,7 @@ public class Main {
 
 	private static void log(String msg) {
 		log.getWriter().log(msg);
+		log.getWriter().log(msg,Level.INFO);
 	}
 	
 	private static void dbg(String msg, Level logLevel){
